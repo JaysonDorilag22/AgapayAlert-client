@@ -23,7 +23,7 @@ const styles = {
   buttonOutline: tw.style(`p-3 rounded-lg w-full mb-3 border`, { borderColor: colorPrimary, backgroundColor: 'transparent', textAlign: 'center' }),
   buttonTextOutline: tw.style(`text-center`, { color: colorPrimary }), 
   // Input styles
-  input: tw.style(`w-full p-3 mb-3 rounded-lg border`, { borderColor: colorDisabled, backgroundColor: colorBackground, color: colorDisabled }),
+  input: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { borderColor: colorDisabled, backgroundColor: colorBackground, color: colorDisabled }),
 };
 
 export default styles;

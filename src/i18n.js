@@ -13,7 +13,21 @@ const resources = {
       google: "Google",
       noAccount: "Don't have an account?",
       register: "Register",
-      toggleLanguage: "Switch to Filipino"
+      toggleLanguage: "Switch to Filipino",
+      accountInfo: "Account Information",
+      phoneNumber: "Phone Number",
+      password: "Password",
+      address: "Address",
+      streetAddress: "Street Address",
+      barangay: "Barangay",
+      city: "City",
+      province: "Province",
+      zipCode: "ZIP Code",
+      agreeTerms: "I agree to the",
+      termsAndPrivacy: "Terms and Privacy Policy",
+      alreadyHaveAccount: "Already have an account?",
+      firstName: "First Name",
+      lastName: "Last Name"
     }
   },
   fil: {
@@ -24,7 +38,21 @@ const resources = {
       google: "Google",
       noAccount: "Wala pang account?",
       register: "Magrehistro",
-      toggleLanguage: "Lumipat sa Ingles"
+      toggleLanguage: "Lumipat sa Ingles",
+      accountInfo: "Impormasyon ng Account",
+      phoneNumber: "Numero ng Telepono",
+      password: "Password",
+      address: "Address",
+      streetAddress: "Street Address",
+      barangay: "Barangay",
+      city: "Lungsod",
+      province: "Probinsya",
+      zipCode: "ZIP Code",
+      agreeTerms: "Sumasang-ayon ako sa",
+      termsAndPrivacy: "Mga Tuntunin at Patakaran sa Privacy",
+      alreadyHaveAccount: "Mayroon ka nang account?",
+      firstName: "Pangalan",
+      lastName: "Apelyido"
     }
   }
 };
