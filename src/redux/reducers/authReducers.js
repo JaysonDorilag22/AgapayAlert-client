@@ -17,6 +17,8 @@ import {
   RESET_PASSWORD_REQUEST,
   RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_FAILURE,
+  CLEAR_AUTH_MESSAGE,
+  CLEAR_AUTH_ERROR,
 } from '../actiontypes/authTypes';
 
 const initialState = {
@@ -71,6 +73,16 @@ export const authReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.payload.msg,
+      };
+    case CLEAR_AUTH_MESSAGE:
+      return {
+        ...state,
+        message: null,
+      };
+    case CLEAR_AUTH_ERROR:
+      return {
+        ...state,
+        error: null,
       };
     default:
       return state;

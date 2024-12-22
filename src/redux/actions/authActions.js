@@ -18,6 +18,8 @@ import {
   RESET_PASSWORD_REQUEST,
   RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_FAILURE,
+  CLEAR_AUTH_MESSAGE,
+  CLEAR_AUTH_ERROR,
 } from '../actiontypes/authTypes';
 import serverConfig from '../../config/serverConfig';
 
@@ -67,7 +69,6 @@ export const login = (credentials) => async (dispatch) => {
 };
 
 // Logout user
-// Logout user
 export const logout = () => async (dispatch) => {
   dispatch({ type: LOGOUT_REQUEST });
   try {
@@ -104,4 +105,14 @@ export const resetPassword = (resetData) => async (dispatch) => {
     console.log('Reset password error:', error.response.data);
     dispatch({ type: RESET_PASSWORD_FAILURE, payload: error.response.data });
   }
+};
+
+// Clear authentication message
+export const clearAuthMessage = () => (dispatch) => {
+  dispatch({ type: CLEAR_AUTH_MESSAGE });
+};
+
+// Clear authentication error
+export const clearAuthError = () => (dispatch) => {
+  dispatch({ type: CLEAR_AUTH_ERROR });
 };

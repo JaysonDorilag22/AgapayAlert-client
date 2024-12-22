@@ -6,7 +6,7 @@ import i18n from './src/i18n';
 
 import { LanguageContext } from './src/context/LanguageContext';
 import Header from './src/components/Header';
-import { Login, Register } from 'screens/auth';
+import { Login, Register, Verification } from 'screens/auth';
 import { Home } from 'screens/users';
 
 const Stack = createStackNavigator();
@@ -26,6 +26,7 @@ export default function App() {
           <Stack.Navigator initialRouteName="Login" screenOptions={{ header: () => <Header />}}>
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Register" component={Register} />
+            <Stack.Screen name="Verification" component={Verification} />
             <Stack.Screen name="Home" component={Home} />
           </Stack.Navigator>
         </NavigationContainer>

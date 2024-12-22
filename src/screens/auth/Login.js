@@ -5,11 +5,11 @@ import { Formik } from 'formik';
 import tw from "twrnc";
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from 'redux/actions/authActions';
+import { login, clearAuthMessage, clearAuthError } from 'redux/actions/authActions';
 import { loginValidationSchema } from 'validation/loginValidation';
 import styles from 'styles/styles';
 import Logo from 'components/Logo';
-import { colorBackground } from 'styles/styles';
+import { colorPrimary } from 'styles/styles';
 import showToast from 'utils/toastUtils';
 import { Eye, EyeOff } from 'lucide-react-native';
 
@@ -21,12 +21,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (credentials) => {
-    try {
-      await dispatch(login(credentials));
-    } catch (err) {
-      console.log(err);
-      showToast(err.message || 'An error occurred');
-    }
+    await dispatch(login(credentials));
   };
 
   useEffect(() => {
@@ -35,14 +30,13 @@ export default function Login() {
       if (message === 'Logged in successfully') {
         navigation.navigate('Home');
       }
+      dispatch(clearAuthMessage());
     }
-  }, [message, navigation]);
-
-  useEffect(() => {
     if (error) {
       showToast(error);
+      dispatch(clearAuthError());
     }
-  }, [error]);
+  }, [message, error, navigation, dispatch]);
 
   return (
     <Formik
