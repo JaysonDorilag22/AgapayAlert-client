@@ -9,9 +9,8 @@ import { login, clearAuthMessage, clearAuthError } from 'redux/actions/authActio
 import { loginValidationSchema } from 'validation/loginValidation';
 import styles from 'styles/styles';
 import Logo from 'components/Logo';
-import { colorPrimary } from 'styles/styles';
-import showToast from 'utils/toastUtils';
 import { Eye, EyeOff } from 'lucide-react-native';
+import showToast from 'utils/toastUtils';
 
 export default function Login() {
   const navigation = useNavigation();
@@ -95,6 +94,11 @@ export default function Login() {
               <Text style={[tw`text-red-500 text-xs`, { alignSelf: 'flex-start' }]}>{errors.password}</Text>
             )}
           </View>
+          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={tw`self-end mt-2`}>
+            <Text style={[tw`text-sm`, { color: styles.textSecondary.color }]}>
+              {t('forgotPassword')} {'?'}
+            </Text>
+          </TouchableOpacity>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.buttonPrimary} onPress={handleSubmit} disabled={loading}>
               {loading ? (

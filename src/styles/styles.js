@@ -13,6 +13,7 @@ const styles = {
 
   // Text styles
   textPrimary: tw.style(`text-lg font-bold`, { color: colorPrimary }),
+  textSecondary: tw.style(`text-lg font-bold`, { color: colorAccent }),
 
   // Button styles
   buttonContainer: tw.style(`w-full items-center mt-3`),
