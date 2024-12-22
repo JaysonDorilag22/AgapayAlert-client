@@ -8,6 +8,7 @@
         "utils/*": ["src/utils/*"],
         "redux/*": ["src/redux/*"],
         "validation/*": ["src/validation/*"],
+        "assets/*": ["src/assets/*"],
       }
     },
     "exclude": ["node_modules", "dist"]

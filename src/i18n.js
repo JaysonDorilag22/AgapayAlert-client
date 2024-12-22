@@ -27,7 +27,17 @@ const resources = {
       termsAndPrivacy: "Terms and Privacy Policy",
       alreadyHaveAccount: "Already have an account?",
       firstName: "First Name",
-      lastName: "Last Name"
+      lastName: "Last Name",
+      verification: "Verification",
+      enterVerificationCode: "Enter your verification code",
+      verificationCode: "Verification Code",
+      verify: "Verify",
+      verificationCodeSent: "Enter the verification code we’ve sent to your email.",
+      resendVerificationCode: "Didn’t receive the code?",
+      resend: "Resend Code",
+      verificationComplete: "Verification Complete 🎉",
+      verificationMessage: "Thank you for verifying your account! You're now ready to help your community stay safe. Start exploring Agapay Alert and take part in creating a safer environment for everyone.",
+      
     }
   },
   fil: {
@@ -52,7 +62,16 @@ const resources = {
       termsAndPrivacy: "Mga Tuntunin at Patakaran sa Privacy",
       alreadyHaveAccount: "Mayroon ka nang account?",
       firstName: "Pangalan",
-      lastName: "Apelyido"
+      lastName: "Apelyido",
+      verification: "Pagpapatunay",
+      enterVerificationCode: "Ilagay ang iyong verification code",
+      verificationCode: "Verification Code",
+      verify: "Patunayan",
+      verificationCodeSent: "Ilagay ang verification code na ipinadala namin sa iyong email.",
+      resendVerificationCode: "Hindi natanggap ang code?",
+      resend: "Ipadala muli",
+      verificationComplete: "Kumpleto na ang Pagpapatunay 🎉",
+      verificationMessage: "Salamat sa pag-verify ng iyong account! Handa ka nang tumulong sa iyong komunidad upang masiguro ang kaligtasan ng lahat. Simulan na ang paggamit ng Agapay Alert at maging bahagi ng isang mas ligtas na kapaligiran para sa lahat.",
     }
   }
 };
