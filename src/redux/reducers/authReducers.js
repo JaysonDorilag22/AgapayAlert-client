@@ -17,6 +17,12 @@ import {
   RESET_PASSWORD_REQUEST,
   RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_FAILURE,
+  RESEND_VERIFICATION_REQUEST,
+  RESEND_VERIFICATION_SUCCESS,
+  RESEND_VERIFICATION_FAILURE,
+  RESEND_OTP_REQUEST,
+  RESEND_OTP_SUCCESS,
+  RESEND_OTP_FAILURE,
   CLEAR_AUTH_MESSAGE,
   CLEAR_AUTH_ERROR,
 } from '../actiontypes/authTypes';
@@ -36,6 +42,8 @@ export const authReducer = (state = initialState, action) => {
     case LOGOUT_REQUEST:
     case FORGOT_PASSWORD_REQUEST:
     case RESET_PASSWORD_REQUEST:
+    case RESEND_VERIFICATION_REQUEST:
+    case RESEND_OTP_REQUEST:
       return {
         ...state,
         loading: true,
@@ -58,6 +66,8 @@ export const authReducer = (state = initialState, action) => {
       };
     case FORGOT_PASSWORD_SUCCESS:
     case RESET_PASSWORD_SUCCESS:
+    case RESEND_VERIFICATION_SUCCESS:
+    case RESEND_OTP_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -69,6 +79,8 @@ export const authReducer = (state = initialState, action) => {
     case LOGOUT_FAILURE:
     case FORGOT_PASSWORD_FAILURE:
     case RESET_PASSWORD_FAILURE:
+    case RESEND_VERIFICATION_FAILURE:
+    case RESEND_OTP_FAILURE:
       return {
         ...state,
         loading: false,

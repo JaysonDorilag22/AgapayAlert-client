@@ -18,6 +18,12 @@ import {
   RESET_PASSWORD_REQUEST,
   RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_FAILURE,
+  RESEND_VERIFICATION_REQUEST,
+  RESEND_VERIFICATION_SUCCESS,
+  RESEND_VERIFICATION_FAILURE,
+  RESEND_OTP_REQUEST,
+  RESEND_OTP_SUCCESS,
+  RESEND_OTP_FAILURE,
   CLEAR_AUTH_MESSAGE,
   CLEAR_AUTH_ERROR,
 } from '../actiontypes/authTypes';
@@ -104,6 +110,32 @@ export const resetPassword = (resetData) => async (dispatch) => {
   } catch (error) {
     console.log('Reset password error:', error.response.data);
     dispatch({ type: RESET_PASSWORD_FAILURE, payload: error.response.data });
+  }
+};
+
+// Resend verification
+export const resendVerification = (email) => async (dispatch) => {
+  dispatch({ type: RESEND_VERIFICATION_REQUEST });
+  try {
+    const response = await axios.post(`${serverConfig.baseURL}/auth/resend-verification`, { email });
+    console.log('Resend verification response:', response.data);
+    dispatch({ type: RESEND_VERIFICATION_SUCCESS, payload: response.data });
+  } catch (error) {
+    console.log('Resend verification error:', error.response.data);
+    dispatch({ type: RESEND_VERIFICATION_FAILURE, payload: error.response.data });
+  }
+};
+
+// Resend OTP
+export const resendOtp = (email) => async (dispatch) => {
+  dispatch({ type: RESEND_OTP_REQUEST });
+  try {
+    const response = await axios.post(`${serverConfig.baseURL}/auth/resend-otp`, { email });
+    console.log('Resend OTP response:', response.data);
+    dispatch({ type: RESEND_OTP_SUCCESS, payload: response.data });
+  } catch (error) {
+    console.log('Resend OTP error:', error.response.data);
+    dispatch({ type: RESEND_OTP_FAILURE, payload: error.response.data });
   }
 };
 
