@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { I18nextProvider } from 'react-i18next';
@@ -14,10 +14,10 @@ const Stack = createStackNavigator();
 export default function App() {
   const [language, setLanguage] = useState('en');
 
-  const toggleLanguage = (newLanguage) => {
+  const toggleLanguage = useCallback((newLanguage) => {
     setLanguage(newLanguage);
     i18n.changeLanguage(newLanguage);
-  };
+  }, []);
 
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage }}>

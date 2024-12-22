@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { Formik } from 'formik';
 import tw from 'twrnc';
@@ -26,11 +26,11 @@ export default function Verification() {
     console.log(values);
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = useCallback(() => {
     // Handle resend verification code logic here
     setCountdown(60);
     setIsResendDisabled(true);
-  };
+  }, []);
 
   return (
     <Formik
@@ -60,7 +60,7 @@ export default function Verification() {
             )}
           </View>
           <Text style={[tw`text-sm mt-3 mb-5`, { color: styles.textPrimary.color }]}>
-          {t('resendVerificationCode')}{' '}
+            {t('didntReceiveCode')}{' '}
             <Text onPress={handleResendCode} disabled={isResendDisabled}>
               <Text style={[tw`underline`, { color: isResendDisabled ? 'gray' : styles.textPrimary.color }]}>
                 {isResendDisabled ? `(${countdown}s)` : t('resend')}

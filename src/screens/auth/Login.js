@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from 'formik';
@@ -19,9 +19,9 @@ export default function Login() {
   const { loading, error, message } = useSelector(state => state.auth);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async (credentials) => {
+  const handleLogin = useCallback(async (credentials) => {
     await dispatch(login(credentials));
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     if (message) {

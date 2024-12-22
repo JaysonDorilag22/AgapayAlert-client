@@ -6,6 +6,7 @@ const colorSecondary = '#11468F';
 const colorAccent = '#DA1212';
 const colorBackground = '#EEEEEE';
 const colorDisabled = '#A9A9A9';
+const colorText = '#333333';
 
 const styles = {
   // Container styles
