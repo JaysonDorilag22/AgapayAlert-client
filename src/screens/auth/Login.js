@@ -1,24 +1,54 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, TextInput } from "react-native";
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from 'formik';
 import tw from "twrnc";
 import { useTranslation } from 'react-i18next';
-import { loginValidationSchema } from '../../validation/loginValidation';
-import styles from "styles/styles";
-import Logo from "components/Logo";
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from 'redux/actions/authActions';
+import { loginValidationSchema } from 'validation/loginValidation';
+import styles from 'styles/styles';
+import Logo from 'components/Logo';
+import { colorBackground } from 'styles/styles';
+import showToast from 'utils/toastUtils';
+import { Eye, EyeOff } from 'lucide-react-native';
 
 export default function Login() {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { loading, error, message } = useSelector(state => state.auth);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = async (credentials) => {
+    try {
+      await dispatch(login(credentials));
+    } catch (err) {
+      console.log(err);
+      showToast(err.message || 'An error occurred');
+    }
+  };
+
+  useEffect(() => {
+    if (message) {
+      showToast(message);
+      if (message === 'Logged in successfully') {
+        navigation.navigate('Home');
+      }
+    }
+  }, [message, navigation]);
+
+  useEffect(() => {
+    if (error) {
+      showToast(error);
+    }
+  }, [error]);
 
   return (
     <Formik
       initialValues={{ email: '', password: '' }}
       validationSchema={loginValidationSchema}
-      onSubmit={(values) => {
-        console.log(values);
-      }}
+      onSubmit={handleLogin}
     >
       {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
         <View style={styles.container}>
@@ -47,23 +77,37 @@ export default function Login() {
               <Text style={[tw`text-red-500 text-xs`, { alignSelf: 'flex-start' }]}>{errors.email}</Text>
             )}
           </View>
-          <View style={tw`w-full mt-4`}>
+          <View style={tw`w-full mt-4 relative`}>
             <TextInput
-              style={[styles.input, tw`w-full`]}
+              style={[styles.input, tw`w-full pr-10`]}
               placeholder={t('password')}
               placeholderTextColor={styles.input.color}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
               value={values.password}
             />
+            <TouchableOpacity
+              style={tw`absolute right-0 top-0 h-full justify-center pr-3`}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeOff color={styles.input.color} size={24} />
+              ) : (
+                <Eye color={styles.input.color} size={24} />
+              )}
+            </TouchableOpacity>
             {touched.password && errors.password && (
               <Text style={[tw`text-red-500 text-xs`, { alignSelf: 'flex-start' }]}>{errors.password}</Text>
             )}
           </View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.buttonPrimary} onPress={handleSubmit}>
-              <Text style={styles.buttonTextPrimary}>{t('login')}</Text>
+            <TouchableOpacity style={styles.buttonPrimary} onPress={handleSubmit} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator size="small" color="#EEEEEE" />
+              ) : (
+                <Text style={styles.buttonTextPrimary}>{t('login')}</Text>
+              )}
             </TouchableOpacity>
             <TouchableOpacity style={styles.buttonOutline}>
               <Text style={styles.buttonTextOutline}>{t('google')}</Text>

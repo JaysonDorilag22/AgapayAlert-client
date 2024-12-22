@@ -4,7 +4,10 @@
       "paths": {
         "components/*": ["src/components/*"],
         "screens/*": ["src/screens/*"],
-        "styles/*": ["src/styles/*"]
+        "styles/*": ["src/styles/*"],
+        "utils/*": ["src/utils/*"],
+        "redux/*": ["src/redux/*"],
+        "validation/*": ["src/validation/*"],
       }
     },
     "exclude": ["node_modules", "dist"]
