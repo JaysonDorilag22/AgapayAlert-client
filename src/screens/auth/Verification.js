@@ -1,14 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
 import tw from 'twrnc';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import styles from 'styles/styles';
 import Logo from 'components/Logo';
+import { verifyAccount, resendVerification } from '../../redux/actions/authActions';
 import { verificationValidationSchema } from 'validation/verificationValidation';
 
 export default function Verification() {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { email } = route.params;
+  const { loading, error } = useSelector(state => state.auth);
   const [countdown, setCountdown] = useState(60);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
 
@@ -22,15 +30,19 @@ export default function Verification() {
   }, [countdown]);
 
   const handleVerification = async (values) => {
-    // Handle verification logic here
-    console.log(values);
+    const response = await dispatch(verifyAccount({ email, otp: values.verificationCode }));
+    if (response.success) {
+      navigation.navigate('Verified');
+    } else {
+      console.error("Verification failed:", response.error);
+    }
   };
 
   const handleResendCode = useCallback(() => {
-    // Handle resend verification code logic here
+    dispatch(resendVerification(email));
     setCountdown(60);
     setIsResendDisabled(true);
-  }, []);
+  }, [dispatch, email]);
 
   return (
     <Formik
@@ -68,8 +80,12 @@ export default function Verification() {
             </Text>
           </Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.buttonPrimary} onPress={handleSubmit}>
-              <Text style={styles.buttonTextPrimary}>{t('verify')}</Text>
+            <TouchableOpacity style={styles.buttonPrimary} onPress={handleSubmit} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator size="small" color="#EEEEEE" />
+              ) : (
+                <Text style={styles.buttonTextPrimary}>{t('verify')}</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>

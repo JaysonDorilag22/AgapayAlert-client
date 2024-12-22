@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Platform } from 'react-native';
 
-export const pickImage = async (callback) => {
+export const pickImage = async () => {
   const requestPermission = async () => {
     if (Platform.OS !== 'web') {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -13,7 +13,7 @@ export const pickImage = async (callback) => {
   const hasPermission = await requestPermission();
   if (!hasPermission) {
     console.log('Permission denied');
-    return;
+    return null;
   }
 
   const result = await ImagePicker.launchImageLibraryAsync({
@@ -24,9 +24,11 @@ export const pickImage = async (callback) => {
   });
 
   if (!result.canceled) {
-    const source = { uri: result.assets[0].uri };
-    callback(source);
+    const source = { uri: result.assets[0].uri, type: result.assets[0].type, name: result.assets[0].fileName };
+    console.log('Selected image:', source);
+    return source;
   } else {
     console.log('User cancelled image picker');
+    return null;
   }
 };

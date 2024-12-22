@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from "styles/styles";
 import tw from "twrnc";
-import { View, Text, TouchableOpacity, TextInput, Image, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Image, ScrollView, ActivityIndicator } from "react-native";
 import { Camera } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { CheckBox } from 'react-native-elements';
 import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
+import { useDispatch, useSelector } from 'react-redux';
+import { register } from '../../redux/actions/authActions';
 import { registerValidationSchema } from '../../validation/registerValidation';
 import { pickImage } from '../../utils/imagePicker';
 import TermsModal from '../../components/TermsModal';
+import showToast from 'utils/toastUtils';
+
+const logFormData = (formData) => {
+  const entries = formData.entries();
+  for (let entry of entries) {
+    console.log(entry[0], entry[1]);
+  }
+};
 
 export default function Register() {
   const [avatar, setAvatar] = useState(null);
@@ -17,10 +27,70 @@ export default function Register() {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { loading, message, error } = useSelector(state => state.auth);
 
-  const handlePickImage = () => {
-    pickImage(setAvatar);
+  const handlePickImage = async (setFieldValue) => {
+    const result = await pickImage();
+    if (result) {
+      setAvatar(result);
+      setFieldValue('avatar', result);
+    }
   };
+
+  const handleRegister = async (values, { resetForm }) => {
+    try {
+      console.log("Sign up values:", values);
+
+      const formData = new FormData();
+      formData.append("firstName", values.firstName);
+      formData.append("lastName", values.lastName);
+      formData.append("number", values.phoneNumber);
+      formData.append("email", values.email);
+      formData.append("password", values.password);
+      formData.append("address[streetAddress]", values.streetAddress);
+      formData.append("address[barangay]", values.barangay);
+      formData.append("address[city]", values.city);
+      formData.append("address[province]", values.province);
+      formData.append("address[zipCode]", values.zipCode);
+      if (avatar && avatar.uri.startsWith("file://")) {
+        console.log("Avatar to be uploaded:", avatar);
+        formData.append("avatar", {
+          uri: avatar.uri,
+          type: 'image/jpeg', // Ensure the correct type is set
+          name: avatar.name,
+        });
+      }
+      formData.append('isAgreed', isChecked.toString());
+
+      logFormData(formData); // Log the FormData contents
+
+      const response = await dispatch(register(formData));
+
+      if (!response.error) {
+        console.log("Sign up successful, navigating to verification");
+        navigation.navigate("Verification", { email: values.email });
+        const { avatar, ...rest } = values;
+        resetForm({ values: { ...rest, avatar } });
+      } else {
+        console.error("Sign up error:", response.error);
+        showToast("error", response.error);
+      }
+    } catch (error) {
+      console.error("Sign up error:", error);
+      showToast("error", error.message);
+      dispatch(clearError());
+    }
+  };
+
+  useEffect(() => {
+    if (message) {
+      showToast(message);
+    }
+    if (error) {
+      showToast(error);
+    }
+  }, [message, error, navigation]);
 
   return (
     <ScrollView>
@@ -35,19 +105,18 @@ export default function Register() {
           barangay: '',
           city: '',
           province: '',
-          zipCode: ''
+          zipCode: '',
+          avatar: null
         }}
         validationSchema={registerValidationSchema}
-        onSubmit={(values) => {
-          console.log(values);
-        }}
+        onSubmit={handleRegister}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
           <View style={styles.container}>
-            <TouchableOpacity onPress={handlePickImage} style={tw`mb-4`}>
+            <TouchableOpacity onPress={() => handlePickImage(setFieldValue)} style={tw`mb-4`}>
               <View style={tw`w-24 h-24 rounded-full bg-gray-200 justify-center items-center`}>
                 {avatar ? (
-                  <Image source={avatar} style={tw`w-24 h-24 rounded-full`} />
+                  <Image source={{ uri: avatar.uri }} style={tw`w-24 h-24 rounded-full`} />
                 ) : (
                   <Camera color="gray" size={24} />
                 )}
@@ -195,7 +264,11 @@ export default function Register() {
               disabled={!isChecked}
               onPress={handleSubmit}
             >
-              <Text style={styles.buttonTextPrimary}>{t('register')}</Text>
+              {loading ? (
+                <ActivityIndicator size="small" color="#EEEEEE" />
+              ) : (
+                <Text style={styles.buttonTextPrimary}>{t('register')}</Text>
+              )}
             </TouchableOpacity>
             <Text style={[tw`text-sm font-bold mt-4`, { color: styles.textPrimary.color, textAlign: 'center' }]}>
               {t('alreadyHaveAccount')}

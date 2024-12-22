@@ -29,18 +29,36 @@ import {
 } from '../actiontypes/authTypes';
 import serverConfig from '../../config/serverConfig';
 
+console.log(serverConfig.baseURL);
+
+// Register user
 // Register user
 export const register = (formData) => async (dispatch) => {
   dispatch({ type: REGISTER_REQUEST });
   try {
-    const response = await axios.post(`${serverConfig.baseURL}/auth/register`, formData, {
+    const config = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    };
+
+    const { data } = await axios.post(`${serverConfig.baseURL}/auth/register`, formData, config);
+
+    dispatch({
+      type: REGISTER_SUCCESS,
+      payload: data,
     });
-    dispatch({ type: REGISTER_SUCCESS, payload: response.data });
+
+    return { error: null, data };
   } catch (error) {
-    dispatch({ type: REGISTER_FAILURE, payload: error.response.data });
+    dispatch({
+      type: REGISTER_FAILURE,
+      payload: error.response && error.response.data.message ? error.response.data.message : error.message,
+    });
+
+    console.log(error);
+
+    return { error: error.response && error.response.data.message ? error.response.data.message : error.message };
   }
 };
 
@@ -48,10 +66,21 @@ export const register = (formData) => async (dispatch) => {
 export const verifyAccount = (verificationData) => async (dispatch) => {
   dispatch({ type: VERIFY_ACCOUNT_REQUEST });
   try {
-    const response = await axios.post(`${serverConfig.baseURL}/auth/verify-account`, verificationData);
-    dispatch({ type: VERIFY_ACCOUNT_SUCCESS, payload: response.data });
+    const { data } = await axios.post(`${serverConfig.baseURL}/auth/verify-account`, verificationData);
+
+    dispatch({
+      type: VERIFY_ACCOUNT_SUCCESS,
+      payload: data,
+    });
+
+    return { success: true, data };
   } catch (error) {
-    dispatch({ type: VERIFY_ACCOUNT_FAILURE, payload: error.response.data });
+    dispatch({
+      type: VERIFY_ACCOUNT_FAILURE,
+      payload: error.response && error.response.data.message ? error.response.data.message : error.message,
+    });
+
+    return { success: false, error: error.response && error.response.data.message ? error.response.data.message : error.message };
   }
 };
 
