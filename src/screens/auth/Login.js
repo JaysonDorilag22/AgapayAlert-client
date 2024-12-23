@@ -27,7 +27,7 @@ export default function Login() {
     if (message) {
       showToast(message);
       if (message === 'Logged in successfully') {
-        navigation.navigate('Home');
+        navigation.navigate('Main');
       }
       dispatch(clearAuthMessage());
     }

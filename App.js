@@ -6,8 +6,8 @@ import i18n from './src/i18n';
 
 import { LanguageContext } from './src/context/LanguageContext';
 import Header from './src/components/Header';
+import BottomTabNavigator from './src/navigation/BottomTabNavigator';
 import { Login, Register, Verification, Verified, ForgotPassword, ResetPassword } from './src/screens/auth';
-import { Home } from './src/screens/users';
 
 const Stack = createStackNavigator();
 
@@ -30,7 +30,7 @@ export default function App() {
             <Stack.Screen name="Verified" component={Verified} />
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             <Stack.Screen name="ResetPassword" component={ResetPassword} />
-            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Main" component={BottomTabNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
       </I18nextProvider>
