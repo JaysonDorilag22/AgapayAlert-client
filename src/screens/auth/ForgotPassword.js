@@ -68,7 +68,7 @@ export default function ForgotPassword() {
               <Text style={[tw`text-red-500 text-xs`, { alignSelf: 'flex-start' }]}>{errors.email}</Text>
             )}
             <Text style={[tw`text-sm mt-2 text-center`, { color: styles.textPrimary.color }]}>
-              {t("otpMessage")}
+              {t("enterEmail")}
             </Text>
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.buttonSecondary} onPress={handleSubmit} disabled={loading}>

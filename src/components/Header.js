@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
-import { View, TouchableOpacity, Image } from 'react-native';
+import { View, TouchableOpacity, Image, Text } from 'react-native';
 import tw from 'twrnc';
 import { LanguageContext } from '../context/LanguageContext';
 
-const Header = () => {
+const Header = ({ title }) => {
   const { language, toggleLanguage } = useContext(LanguageContext);
 
   const handleLanguageChange = () => {
@@ -12,7 +12,8 @@ const Header = () => {
   };
 
   return (
-    <View style={tw`flex-row justify-end items-center p-4 mt-4`}>
+    <View style={tw`flex-row justify-between items-center p-4 mt-4 bg-white`}>
+      <Text style={tw`text-xl font-bold`}>{title}</Text>
       <TouchableOpacity onPress={handleLanguageChange}>
         <Image
           source={{
