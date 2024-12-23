@@ -8,18 +8,12 @@ import { CheckBox } from 'react-native-elements';
 import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
-import { register } from '../../redux/actions/authActions';
+import { register, clearAuthMessage, clearAuthError } from '../../redux/actions/authActions';
 import { registerValidationSchema } from '../../validation/registerValidation';
 import { pickImage } from '../../utils/imagePicker';
 import TermsModal from '../../components/TermsModal';
 import showToast from 'utils/toastUtils';
 
-const logFormData = (formData) => {
-  const entries = formData.entries();
-  for (let entry of entries) {
-    console.log(entry[0], entry[1]);
-  }
-};
 
 export default function Register() {
   const [avatar, setAvatar] = useState(null);
@@ -34,13 +28,11 @@ export default function Register() {
     const result = await pickImage();
     if (result) {
       setAvatar(result);
-      setFieldValue('avatar', result);
     }
   };
 
   const handleRegister = async (values, { resetForm }) => {
     try {
-      console.log("Sign up values:", values);
 
       const formData = new FormData();
       formData.append("firstName", values.firstName);
@@ -63,34 +55,34 @@ export default function Register() {
       }
       formData.append('isAgreed', isChecked.toString());
 
-      logFormData(formData); // Log the FormData contents
 
       const response = await dispatch(register(formData));
 
       if (!response.error) {
-        console.log("Sign up successful, navigating to verification");
         navigation.navigate("Verification", { email: values.email });
-        const { avatar, ...rest } = values;
-        resetForm({ values: { ...rest, avatar } });
+        resetForm(); // Clear the form inputs
       } else {
-        console.error("Sign up error:", response.error);
-        showToast("error", response.error);
+        showToast(response.error);
       }
     } catch (error) {
-      console.error("Sign up error:", error);
-      showToast("error", error.message);
-      dispatch(clearError());
+      showToast(error.message);
+      dispatch(clearAuthError());
     }
   };
 
   useEffect(() => {
     if (message) {
       showToast(message);
+      dispatch(clearAuthMessage());
     }
+  }, [message, dispatch]);
+
+  useEffect(() => {
     if (error) {
       showToast(error);
+      dispatch(clearAuthError());
     }
-  }, [message, error, navigation]);
+  }, [error, dispatch]);
 
   return (
     <ScrollView>

@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert, BackHandler } from 'react-native';
 import { Formik } from 'formik';
 import tw from 'twrnc';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import styles from 'styles/styles';
 import Logo from 'components/Logo';
-import { verifyAccount, resendVerification } from '../../redux/actions/authActions';
+import { verifyAccount, resendVerification, clearAuthMessage, clearAuthError } from '../../redux/actions/authActions';
 import { verificationValidationSchema } from 'validation/verificationValidation';
+import showToast from 'utils/toastUtils';
 
 export default function Verification() {
   const { t } = useTranslation();
@@ -16,9 +17,30 @@ export default function Verification() {
   const navigation = useNavigation();
   const route = useRoute();
   const { email } = route.params;
-  const { loading, error } = useSelector(state => state.auth);
+  const { loading, error, message } = useSelector(state => state.auth);
   const [countdown, setCountdown] = useState(60);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          t('confirmation'),
+          t('areYouSureYouWantToGoBack'),
+          [
+            { text: t('cancel'), style: 'cancel' },
+            { text: t('ok'), onPress: () => navigation.navigate('Login') },
+          ],
+          { cancelable: false }
+        );
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => backHandler.remove();
+    }, [navigation, t])
+  );
 
   useEffect(() => {
     if (countdown > 0) {
@@ -43,6 +65,20 @@ export default function Verification() {
     setCountdown(60);
     setIsResendDisabled(true);
   }, [dispatch, email]);
+
+  useEffect(() => {
+    if (message) {
+      showToast(message);
+      dispatch(clearAuthMessage());
+    }
+  }, [message, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      showToast(error);
+      dispatch(clearAuthError());
+    }
+  }, [error, dispatch]);
 
   return (
     <Formik

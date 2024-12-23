@@ -21,6 +21,7 @@ const resources = {
       streetAddress: "Street Address",
       barangay: "Barangay",
       city: "City",
+      enterEmail: "Enter your email address",
       province: "Province",
       zipCode: "ZIP Code",
       agreeTerms: "I agree to the",
@@ -50,6 +51,7 @@ const resources = {
         resendOtp: "Didn't receive the code?",
         resend: "Resend",
         changePassword: "Change Password",
+        didntReceiveCode: "Didn't receive the code?",
       },
   },
   fil: {
@@ -68,6 +70,7 @@ const resources = {
       streetAddress: "Street Address",
       barangay: "Barangay",
       city: "Lungsod",
+      enterEmail: "Ilagay ang iyong email address",
       province: "Probinsya",
       zipCode: "ZIP Code",
       agreeTerms: "Sumasang-ayon ako sa",
@@ -97,6 +100,7 @@ const resources = {
         resendOtp: "Hindi natanggap ang code?",
         resend: "Ipadala muli",
         changePassword: "Palitan ang Password",
+        didntReceiveCode: "Hindi natanggap ang code?",
       },
   },
 };

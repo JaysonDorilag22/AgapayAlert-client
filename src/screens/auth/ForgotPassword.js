@@ -31,7 +31,7 @@ export default function ForgotPassword() {
 
   return (
     <View style={styles.container}>
-      <View style={tw`absolute top-0 mt-10`}>
+      <View >
         <Logo />
       </View>
       <View style={tw`mb-5 justify-center items-center`}>

@@ -31,11 +31,14 @@ export default function Login() {
       }
       dispatch(clearAuthMessage());
     }
+  }, [message, navigation, dispatch]);
+
+  useEffect(() => {
     if (error) {
       showToast(error);
       dispatch(clearAuthError());
     }
-  }, [message, error, navigation, dispatch]);
+  }, [error, dispatch]);
 
   return (
     <Formik

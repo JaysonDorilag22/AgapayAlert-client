@@ -1,8 +1,8 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, BackHandler } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { logout, clearAuthMessage } from 'redux/actions/authActions';
+import { logout, clearAuthMessage, clearAuthError } from 'redux/actions/authActions';
 import tw from 'twrnc';
 import styles from 'styles/styles';
 import showToast from 'utils/toastUtils';
@@ -11,6 +11,7 @@ export default function Home() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { loading, message, error } = useSelector(state => state.auth);
+  const [backPressCount, setBackPressCount] = useState(0);
 
   const handleLogout = async () => {
     await dispatch(logout());
@@ -26,8 +27,27 @@ export default function Home() {
     }
     if (error) {
       showToast(error);
+      dispatch(clearAuthError());
     }
   }, [message, error, navigation, dispatch]);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (backPressCount === 0) {
+        showToast('Press back again to exit');
+        setBackPressCount(1);
+        setTimeout(() => setBackPressCount(0), 2000); // Reset back press count after 2 seconds
+        return true;
+      } else {
+        BackHandler.exitApp();
+        return false;
+      }
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => backHandler.remove();
+  }, [backPressCount]);
 
   return (
     <View style={tw`flex-1 justify-center items-center`}>
