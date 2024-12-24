@@ -70,7 +70,6 @@ export default function ResetPassword() {
             <TextInput
               style={[styles.input, tw`w-full`]}
               placeholder={t('otp')}
-              placeholderTextColor={styles.input.color}
               value={values.otp}
               onChangeText={handleChange('otp')}
               onBlur={handleBlur('otp')}
@@ -81,7 +80,6 @@ export default function ResetPassword() {
             <TextInput
               style={[styles.input, tw`w-full mt-4`]}
               placeholder={t('newPassword')}
-              placeholderTextColor={styles.input.color}
               secureTextEntry
               value={values.newPassword}
               onChangeText={handleChange('newPassword')}

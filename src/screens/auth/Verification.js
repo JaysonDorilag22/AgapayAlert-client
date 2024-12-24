@@ -98,7 +98,6 @@ export default function Verification() {
             <TextInput
               style={[styles.input, tw`w-full`]}
               placeholder={t('verificationCode')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('verificationCode')}
               onBlur={handleBlur('verificationCode')}
               value={values.verificationCode}

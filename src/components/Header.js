@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
-import { View, TouchableOpacity, Image, Text } from 'react-native';
+import { View, TouchableOpacity, Image, Text, TextInput } from 'react-native';
 import tw from 'twrnc';
 import { LanguageContext } from '../context/LanguageContext';
+import { Search } from 'lucide-react-native';
 
 const Header = ({ title }) => {
   const { language, toggleLanguage } = useContext(LanguageContext);
@@ -12,18 +13,15 @@ const Header = ({ title }) => {
   };
 
   return (
-    <View style={tw`flex-row justify-between items-center p-4 mt-4 bg-white`}>
+    <View style={tw`flex-row justify-between items-center  bg-white`}>
       <Text style={tw`text-xl font-bold`}>{title}</Text>
-      <TouchableOpacity onPress={handleLanguageChange}>
-        <Image
-          source={{
-            uri: language === 'en'
-              ? 'https://img.icons8.com/color/48/000000/usa.png'
-              : 'https://img.icons8.com/color/48/000000/philippines.png'
-          }}
-          style={tw`w-6 h-6`}
+      <View style={tw`flex-1 mx-4 mt-5 flex-row items-center border border-gray-300 rounded-lg pl-2`}>
+        <Search color="gray" size={20} />
+        <TextInput
+          style={tw`flex-1 ml-2`}
+          placeholder="Search..."
         />
-      </TouchableOpacity>
+      </View>
     </View>
   );
 };

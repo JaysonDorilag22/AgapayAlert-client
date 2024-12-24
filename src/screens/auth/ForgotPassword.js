@@ -59,7 +59,6 @@ export default function ForgotPassword() {
             <TextInput
               style={[styles.input, tw`w-full`]}
               placeholder={t("email")}
-              placeholderTextColor={styles.input.color}
               value={values.email}
               onChangeText={handleChange('email')}
               onBlur={handleBlur('email')}

@@ -3,12 +3,11 @@ import { View, Text, Image, ScrollView, TextInput, Switch, TouchableOpacity, Act
 import { useSelector, useDispatch } from 'react-redux';
 import { LogOut, Phone, MapPin, Mail, Info, Edit3 } from 'lucide-react-native';
 import tw from 'twrnc';
-import style from 'styles/styles';
+import styles from 'styles/styles';
 import { logout } from 'redux/actions/authActions';
 import { getUserDetails, updateUserDetails } from 'redux/actions/userActions';
 import { pickImage } from 'utils/imagePicker';
 import showToast from 'utils/toastUtils';
-
 const Profile = () => {
   const dispatch = useDispatch();
   const { user, loading } = useSelector((state) => state.user || {});
@@ -148,7 +147,7 @@ const Profile = () => {
   if (loading) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
-        <ActivityIndicator size="large" color={style.colorPrimary} />
+        <ActivityIndicator size="large" color={styles.colorPrimary} />
       </View>
     );
   }
@@ -182,7 +181,7 @@ const Profile = () => {
       <View style={tw`mb-2`}>
         <Text style={tw`text-sm mb-1`}>Email</Text>
         <TextInput
-          style={style.input}
+          style={styles.input}
           value={user.email}
           editable={false}
         />
@@ -195,7 +194,7 @@ const Profile = () => {
         <View style={tw`flex-1 mr-1`}>
           <Text style={tw`text-sm`}>First Name</Text>
           <TextInput
-            style={style.input}
+            style={isEditing ? styles.activeInput : styles.input}
             value={formData.firstName}
             editable={isEditing}
             onChangeText={(text) => setFormData({ ...formData, firstName: text })}
@@ -204,7 +203,7 @@ const Profile = () => {
         <View style={tw`flex-1`}>
           <Text style={tw`text-sm`}>Last Name</Text>
           <TextInput
-            style={style.input}
+            style={isEditing ? styles.activeInput : styles.input}
             value={formData.lastName}
             editable={isEditing}
             onChangeText={(text) => setFormData({ ...formData, lastName: text })}
@@ -214,7 +213,7 @@ const Profile = () => {
       <View style={tw`mb-1`}>
         <Text style={tw`text-sm `}>Contact Number</Text>
         <TextInput
-          style={style.input}
+          style={isEditing ? styles.activeInput : styles.input}
           value={formData.number}
           editable={isEditing}
           onChangeText={(text) => setFormData({ ...formData, number: text })}
@@ -229,7 +228,7 @@ const Profile = () => {
         <View style={tw`flex-1 mr-1`}>
           <Text style={tw`text-sm`}>Street Address</Text>
           <TextInput
-            style={style.input}
+            style={isEditing ? styles.activeInput : styles.input}
             value={formData.address.streetAddress}
             editable={isEditing}
             onChangeText={(text) => setFormData({ ...formData, address: { ...formData.address, streetAddress: text } })}
@@ -238,7 +237,7 @@ const Profile = () => {
         <View style={tw`flex-1`}>
           <Text style={tw`text-sm`}>Barangay</Text>
           <TextInput
-            style={style.input}
+            style={isEditing ? styles.activeInput : styles.input}
             value={formData.address.barangay}
             editable={isEditing}
             onChangeText={(text) => setFormData({ ...formData, address: { ...formData.address, barangay: text } })}
@@ -249,7 +248,7 @@ const Profile = () => {
         <View style={tw`flex-1 mr-1`}>
           <Text style={tw`text-sm`}>City</Text>
           <TextInput
-            style={style.input}
+            style={isEditing ? styles.activeInput : styles.input}
             value={formData.address.city}
             editable={isEditing}
             onChangeText={(text) => setFormData({ ...formData, address: { ...formData.address, city: text } })}
@@ -258,7 +257,7 @@ const Profile = () => {
         <View style={tw`flex-1`}>
           <Text style={tw`text-sm`}>Province</Text>
           <TextInput
-            style={style.input}
+            style={isEditing ? styles.activeInput : styles.input}
             value={formData.address.province}
             editable={isEditing}
             onChangeText={(text) => setFormData({ ...formData, address: { ...formData.address, province: text } })}
@@ -269,7 +268,7 @@ const Profile = () => {
         <View style={tw`flex-1 mr-1`}>
           <Text style={tw`text-sm`}>Zip Code</Text>
           <TextInput
-            style={style.input}
+            style={isEditing ? styles.activeInput : styles.input}
             value={formData.address.zipCode}
             editable={isEditing}
             onChangeText={(text) => setFormData({ ...formData, address: { ...formData.address, zipCode: text } })}
@@ -307,11 +306,11 @@ const Profile = () => {
 
       {isEditing && (
         <View style={tw`flex-row justify-between mb-4`}>
-          <TouchableOpacity style={[style.buttonOutline, tw`flex-1 mr-2`]} onPress={handleCancel}>
-            <Text style={style.buttonTextOutline}>Cancel</Text>
+          <TouchableOpacity style={[styles.buttonOutline, tw`flex-1 mr-2`]} onPress={handleCancel}>
+            <Text style={styles.buttonTextOutline}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[style.buttonPrimary, tw`flex-1`]} onPress={handleSave}>
-            <Text style={style.buttonTextPrimary}>Save</Text>
+          <TouchableOpacity style={[styles.buttonPrimary, tw`flex-1`]} onPress={handleSave}>
+            <Text style={styles.buttonTextPrimary}>Save</Text>
           </TouchableOpacity>
         </View>
       )}

@@ -122,7 +122,6 @@ export default function Register() {
                 <TextInput
                   style={styles.input}
                   placeholder={t('firstName')}
-                  placeholderTextColor={styles.input.color}
                   onChangeText={handleChange('firstName')}
                   onBlur={handleBlur('firstName')}
                   value={values.firstName}
@@ -135,7 +134,6 @@ export default function Register() {
                 <TextInput
                   style={styles.input}
                   placeholder={t('lastName')}
-                  placeholderTextColor={styles.input.color}
                   onChangeText={handleChange('lastName')}
                   onBlur={handleBlur('lastName')}
                   value={values.lastName}
@@ -148,7 +146,6 @@ export default function Register() {
             <TextInput
               style={styles.input}
               placeholder={t('phoneNumber')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('phoneNumber')}
               onBlur={handleBlur('phoneNumber')}
               value={values.phoneNumber}
@@ -159,7 +156,6 @@ export default function Register() {
             <TextInput
               style={styles.input}
               placeholder={t('email')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('email')}
               onBlur={handleBlur('email')}
               value={values.email}
@@ -170,7 +166,6 @@ export default function Register() {
             <TextInput
               style={styles.input}
               placeholder={t('password')}
-              placeholderTextColor={styles.input.color}
               secureTextEntry
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
@@ -185,7 +180,6 @@ export default function Register() {
             <TextInput
               style={styles.input}
               placeholder={t('streetAddress')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('streetAddress')}
               onBlur={handleBlur('streetAddress')}
               value={values.streetAddress}
@@ -196,7 +190,6 @@ export default function Register() {
             <TextInput
               style={styles.input}
               placeholder={t('barangay')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('barangay')}
               onBlur={handleBlur('barangay')}
               value={values.barangay}
@@ -207,7 +200,6 @@ export default function Register() {
             <TextInput
               style={styles.input}
               placeholder={t('city')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('city')}
               onBlur={handleBlur('city')}
               value={values.city}
@@ -218,7 +210,6 @@ export default function Register() {
             <TextInput
               style={styles.input}
               placeholder={t('province')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('province')}
               onBlur={handleBlur('province')}
               value={values.province}
@@ -229,7 +220,6 @@ export default function Register() {
             <TextInput
               style={styles.input}
               placeholder={t('zipCode')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('zipCode')}
               onBlur={handleBlur('zipCode')}
               value={values.zipCode}

@@ -64,7 +64,6 @@ export default function Login() {
             <TextInput
               style={[styles.input, tw`w-full`]}
               placeholder={t('email')}
-              placeholderTextColor={styles.input.color}
               onChangeText={handleChange('email')}
               onBlur={handleBlur('email')}
               value={values.email}
@@ -77,7 +76,6 @@ export default function Login() {
             <TextInput
               style={[styles.input, tw`w-full pr-10`]}
               placeholder={t('password')}
-              placeholderTextColor={styles.input.color}
               secureTextEntry={!showPassword}
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
