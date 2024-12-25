@@ -6,22 +6,36 @@
     "orientation": "portrait",
     "icon": "./assets/splash-icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#EEEEEE"
     },
+    "plugins": [
+      "@react-native-google-signin/google-signin"
+    ],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.agapayalert.client",
+      "supportsTablet": true,
+      "infoPlist": {
+        "CFBundleURLSchemes": [
+          "com.googleusercontent.apps.1061555533518-k9vf1ro6q9tdu7o47091rq1mfpu1i3n2"
+        ]
+      }
     },
     "android": {
+      "package": "com.agapayalert.client",
       "adaptiveIcon": {
         "foregroundImage": "./assets/splash-icon.png"
       }
     },
     "web": {
       "favicon": "./assets/splash-icon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "841fe1db-7c33-428b-ada7-011aa419493b"
+      }
     }
   }
 }

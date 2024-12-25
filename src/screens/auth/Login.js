@@ -11,6 +11,7 @@ import styles from 'styles/styles';
 import Logo from 'components/Logo';
 import { Eye, EyeOff } from 'lucide-react-native';
 import showToast from 'utils/toastUtils';
+import GoogleAuth from 'components/auth/GoogleAuth';
 
 export default function Login() {
   const navigation = useNavigation();
@@ -108,9 +109,9 @@ export default function Login() {
                 <Text style={styles.buttonTextPrimary}>{t('login')}</Text>
               )}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.buttonOutline}>
-              <Text style={styles.buttonTextOutline}>{t('google')}</Text>
-            </TouchableOpacity>
+            {/* <View> */}
+              <GoogleAuth/>
+            {/* </View> */}
             <Text style={[tw`text-sm mt-5 p-2`, { color: styles.textPrimary.color }]}>
               {t('noAccount')}
             </Text>
