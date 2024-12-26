@@ -5,11 +5,14 @@ import tw from 'twrnc';
 import { LanguageContext } from '../context/LanguageContext';
 import MainNavigator from './MainNavigator';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
-import { logout } from '../redux/actions/authActions';
+import { logout, clearAuthMessage, clearAuthError } from '../redux/actions/authActions';
+import { useNavigation } from '@react-navigation/native';
+import showToast from 'utils/toastUtils';
 
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = (props) => {
+  const navigation = useNavigation();
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const { language, toggleLanguage } = useContext(LanguageContext);
@@ -19,8 +22,15 @@ const CustomDrawerContent = (props) => {
     toggleLanguage(newLanguage);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout());
+      navigation.navigate('Login');
+
+    } catch (error) {
+      showToast(error);
+      dispatch(clearAuthError());
+    }
   };
 
   return (

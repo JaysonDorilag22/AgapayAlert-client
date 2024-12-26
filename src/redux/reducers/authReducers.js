@@ -30,6 +30,7 @@ import {
 const initialState = {
   loading: false,
   user: null,
+  token: null,
   error: null,
   message: null,
 };
@@ -49,12 +50,12 @@ export const authReducer = (state = initialState, action) => {
         loading: true,
       };
     case REGISTER_SUCCESS:
-    case VERIFY_ACCOUNT_SUCCESS:
     case LOGIN_SUCCESS:
       return {
         ...state,
         loading: false,
         user: action.payload.user,
+        token: action.payload.token,
         message: action.payload.msg,
       };
     case LOGOUT_SUCCESS:
@@ -62,6 +63,7 @@ export const authReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         user: null,
+        token: null,
         message: 'Logged out successfully',
       };
     case FORGOT_PASSWORD_SUCCESS:

@@ -7,7 +7,6 @@ import i18n from './src/i18n';
 import { Login, Register, Verification, Verified, ForgotPassword, ResetPassword } from './src/screens/auth';
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import { LanguageContext } from './src/context/LanguageContext';
-import HomeScreen from 'screens/HomeScreen';
 
 const Stack = createStackNavigator();
 
@@ -24,7 +23,6 @@ export default function App() {
       <I18nextProvider i18n={i18n}>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="HomeScreen" component={HomeScreen} />
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="Verification" component={Verification} />

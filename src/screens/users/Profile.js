@@ -4,12 +4,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { LogOut, Phone, MapPin, Mail, Info, Edit3 } from 'lucide-react-native';
 import tw from 'twrnc';
 import styles from 'styles/styles';
-import { logout } from 'redux/actions/authActions';
+import { logout, clearAuthMessage, clearAuthError } from 'redux/actions/authActions';
 import { getUserDetails, updateUserDetails } from 'redux/actions/userActions';
 import { pickImage } from 'utils/imagePicker';
+import { useNavigation } from '@react-navigation/native';
 import showToast from 'utils/toastUtils';
+
 const Profile = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { user, loading } = useSelector((state) => state.user || {});
   const authUser = useSelector((state) => state.auth.user); // Assuming the authenticated user is stored in the auth state
   const [isEditing, setIsEditing] = useState(false);
@@ -33,11 +36,11 @@ const Profile = () => {
   const [avatar, setAvatar] = useState(null);
 
   useEffect(() => {
-    if (authUser && !user) {
+    if (authUser) {
       dispatch(getUserDetails(authUser._id));
       console.log("User details fetched");
     }
-  }, [dispatch, authUser, user]);
+  }, [dispatch, authUser]);
 
   useEffect(() => {
     if (user) {
@@ -62,8 +65,14 @@ const Profile = () => {
     }
   }, [user]);
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout());
+      navigation.navigate('Login');
+    } catch (error) {
+      showToast(error);
+      dispatch(clearAuthError());
+    }
   };
 
   const handleEdit = () => {

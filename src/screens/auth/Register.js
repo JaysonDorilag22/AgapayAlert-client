@@ -3,7 +3,7 @@ import styles from "styles/styles";
 import tw from "twrnc";
 import { View, Text, TouchableOpacity, TextInput, Image, ScrollView, ActivityIndicator } from "react-native";
 import { Camera } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { CheckBox } from 'react-native-elements';
 import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
@@ -13,13 +13,15 @@ import { registerValidationSchema } from '../../validation/registerValidation';
 import { pickImage } from '../../utils/imagePicker';
 import TermsModal from '../../components/TermsModal';
 import showToast from 'utils/toastUtils';
-
+import * as FileSystem from 'expo-file-system';
 
 export default function Register() {
   const [avatar, setAvatar] = useState(null);
   const [isChecked, setIsChecked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const navigation = useNavigation();
+  const route = useRoute();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { loading, message, error } = useSelector(state => state.auth);
@@ -28,12 +30,14 @@ export default function Register() {
     const result = await pickImage();
     if (result) {
       setAvatar(result);
+      setFieldValue('avatar', result);
     }
   };
 
   const handleRegister = async (values, { resetForm }) => {
     try {
-
+      setIsUploading(true);
+      console.log("Form values:", values);
       const formData = new FormData();
       formData.append("firstName", values.firstName);
       formData.append("lastName", values.lastName);
@@ -45,16 +49,20 @@ export default function Register() {
       formData.append("address[city]", values.city);
       formData.append("address[province]", values.province);
       formData.append("address[zipCode]", values.zipCode);
-      if (avatar && avatar.uri.startsWith("file://")) {
-        console.log("Avatar to be uploaded:", avatar);
+
+      if (values.avatar) {
+        const fileUri = FileSystem.documentDirectory + 'avatar.jpg';
+        const downloadResult = await FileSystem.downloadAsync(values.avatar, fileUri);
         formData.append("avatar", {
-          uri: avatar.uri,
-          type: 'image/jpeg', // Ensure the correct type is set
-          name: avatar.name,
+          uri: downloadResult.uri,
+          type: 'image/jpeg',
+          name: 'avatar.jpg',
         });
       }
+
       formData.append('isAgreed', isChecked.toString());
 
+      console.log("FormData to be sent:", formData);
 
       const response = await dispatch(register(formData));
 
@@ -65,8 +73,11 @@ export default function Register() {
         showToast(response.error);
       }
     } catch (error) {
+      console.log("Error during registration:", error);
       showToast(error.message);
       dispatch(clearAuthError());
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -88,17 +99,17 @@ export default function Register() {
     <ScrollView>
       <Formik
         initialValues={{
-          firstName: '',
-          lastName: '',
+          firstName: route.params?.firstName || '',
+          lastName: route.params?.lastName || '',
           phoneNumber: '',
-          email: '',
+          email: route.params?.email || '',
           password: '',
           streetAddress: '',
           barangay: '',
           city: '',
           province: '',
           zipCode: '',
-          avatar: null
+          avatar: route.params?.avatar || null
         }}
         validationSchema={registerValidationSchema}
         onSubmit={handleRegister}
@@ -107,8 +118,8 @@ export default function Register() {
           <View style={styles.container}>
             <TouchableOpacity onPress={() => handlePickImage(setFieldValue)} style={tw`mb-4`}>
               <View style={tw`w-24 h-24 rounded-full bg-gray-200 justify-center items-center`}>
-                {avatar ? (
-                  <Image source={{ uri: avatar.uri }} style={tw`w-24 h-24 rounded-full`} />
+                {values.avatar ? (
+                  <Image source={{ uri: values.avatar.uri || values.avatar }} style={tw`w-24 h-24 rounded-full`} />
                 ) : (
                   <Camera color="gray" size={24} />
                 )}
@@ -243,10 +254,10 @@ export default function Register() {
             />
             <TouchableOpacity
               style={[styles.buttonPrimary, { backgroundColor: styles.buttonSecondary.backgroundColor }]}
-              disabled={!isChecked}
+              disabled={!isChecked || isUploading}
               onPress={handleSubmit}
             >
-              {loading ? (
+              {loading || isUploading ? (
                 <ActivityIndicator size="small" color="#EEEEEE" />
               ) : (
                 <Text style={styles.buttonTextPrimary}>{t('register')}</Text>

@@ -1,16 +1,22 @@
-import { View, Text } from "react-native";
 import React, { useEffect, useState } from "react";
+import { View, Text } from "react-native";
 import {
   GoogleSignin,
   GoogleSigninButton,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import tw from 'twrnc';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from "@react-navigation/native";
+import { googleAuth, clearAuthMessage, clearAuthError } from "redux/actions/authActions";
+import showToast from 'utils/toastUtils';
 
 export default function GoogleAuth() {
   const [error, setError] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
   const [isInProgress, setIsInProgress] = useState(false);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const { user, loading, message } = useSelector(state => state.auth);
 
   const configureGoogleSignIn = async () => {
     await GoogleSignin.configure({
@@ -23,6 +29,30 @@ export default function GoogleAuth() {
     configureGoogleSignIn();
   }, []);
 
+  useEffect(() => {
+    if (message) {
+      showToast(message);
+      if (message === 'Logged in successfully') {
+        navigation.navigate('Main');
+      } else if (message === 'User registered successfully') {
+        navigation.navigate('Register', {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          avatar: user.avatar,
+        });
+      }
+      dispatch(clearAuthMessage());
+    }
+  }, [message, navigation, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      showToast(error);
+      dispatch(clearAuthError());
+    }
+  }, [error, dispatch]);
+
   const signIn = async () => {
     console.log("Pressed sign in");
     setIsInProgress(true);
@@ -30,24 +60,20 @@ export default function GoogleAuth() {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      setUserInfo(userInfo);
       setError(null);
-
-      // Log user info if available
       console.log("User info:", userInfo);
+
+      // Dispatch googleAuth action
+      await dispatch(googleAuth(userInfo, navigation));
     } catch (error) {
       console.error("Error during sign in:", error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user cancelled the login flow
         setError("Sign in was cancelled");
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        // operation (e.g. sign in) is in progress already
         setError("Sign in is in progress");
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // play services not available or outdated
         setError("Play services not available or outdated");
       } else {
-        // some other error happened
         setError(error.message);
       }
     } finally {
