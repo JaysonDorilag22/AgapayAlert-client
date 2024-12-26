@@ -9,7 +9,7 @@ import { getUserDetails, updateUserDetails } from 'redux/actions/userActions';
 import { pickImage } from 'utils/imagePicker';
 import { useNavigation } from '@react-navigation/native';
 import showToast from 'utils/toastUtils';
-
+import Skeleton from 'components/skeletons/Skeleton'
 const Profile = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -155,8 +155,13 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <View style={tw`flex-1 justify-center items-center`}>
-        <ActivityIndicator size="large" color={styles.colorPrimary} />
+      <View style={tw`flex-1 p-4`}>
+        <Skeleton width={96} height={96} style={tw`mb-4`} />
+        <Skeleton width="100%" height={20} style={tw`mb-2`} />
+        <Skeleton width="100%" height={20} style={tw`mb-2`} />
+        <Skeleton width="100%" height={20} style={tw`mb-2`} />
+        <Skeleton width="100%" height={20} style={tw`mb-2`} />
+        <Skeleton width="100%" height={20} style={tw`mb-2`} />
       </View>
     );
   }
