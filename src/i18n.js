@@ -53,6 +53,9 @@ const resources = {
         resend: "Resend",
         changePassword: "Change Password",
         didntReceiveCode: "Didn't receive the code?",
+        verificationCodeSentTo: "Verification code sent to",
+        areYouSureYouWantToGoBack: "Are you sure you want to go back?",
+        confirmation: "Confirmation"
       },
   },
   fil: {
@@ -103,6 +106,9 @@ const resources = {
         resend: "Ipadala muli",
         changePassword: "Palitan ang Password",
         didntReceiveCode: "Hindi natanggap ang code?",
+        verificationCodeSentTo: "Ang verification code ay naipadala sa",
+        areYouSureYouWantToGoBack: "Sigurado ba ikaw ay babalik?",
+        confirmation: "kompirmasyon"
       },
   },
 };

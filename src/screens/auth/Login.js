@@ -22,6 +22,7 @@ import Logo from "components/Logo";
 import { Eye, EyeOff } from "lucide-react-native";
 import showToast from "utils/toastUtils";
 import GoogleAuth from "components/auth/GoogleAuth";
+import ChangeLanguage from "components/ChangeLanguage";
 
 export default function Login() {
   const navigation = useNavigation();
@@ -41,13 +42,22 @@ export default function Login() {
     
     if (result.success) {
       handleToast('Logged in successfully');
-      navigation.navigate('Main');
+      navigation.navigate('Main'); 
       dispatch(clearAuthMessage());
     } else if (result.error) {
-      handleToast(result.error);
+      // Check if error is about unverified email
+      if (result.error === 'Please verify your email first') {
+        handleToast('Please verify your email first');
+        // Navigate to verification screen with email
+        navigation.navigate('Verification', {
+          email: credentials.email
+        });
+      } else {
+        handleToast(result.error);
+      }
       dispatch(clearAuthError());
     }
-  }, [dispatch, navigation]);
+  }, [dispatch, navigation, handleToast]);
   
   return (
     <Formik
@@ -64,6 +74,9 @@ export default function Login() {
         touched,
       }) => (
         <View style={styles.container}>
+            <View style={tw`absolute top-0 right-0 z-10 p-4`}>
+          <ChangeLanguage />
+        </View>
           <View style={tw`mb-10 justify-start items-start self-start`}>
             <Logo />
             <Text

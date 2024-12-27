@@ -184,7 +184,7 @@ const Profile = () => {
       <View style={tw`items-center mb-4`}>
         <View style={tw`relative`}>
           <Image
-            source={{ uri: avatar?.url || avatar?.uri }}
+            source={{ uri: avatar?.url || avatar?.uri || "https://via.placeholder.com/150"}}
             style={tw`w-24 h-24 rounded-full`}
           />
           <TouchableOpacity

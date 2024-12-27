@@ -16,7 +16,8 @@ export default function Verification() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const route = useRoute();
-  const { email } = route.params;
+  // Update to handle source of navigation
+  const { email, fromLogin } = route.params;
   const { loading } = useSelector(state => state.auth);
   const [countdown, setCountdown] = useState(60);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
@@ -56,13 +57,18 @@ export default function Verification() {
     const result = await dispatch(verifyAccount({ email, otp: values.verificationCode }));
     if (result.success) {
       showToast('Account verified successfully');
-      navigation.navigate('Verified');
+      // Navigate based on where user came from
+      if (fromLogin) {
+        navigation.navigate('Login');
+      } else {
+        navigation.navigate('Verified');
+      }
       dispatch(clearAuthMessage());
     } else {
       showToast(result.error);
       dispatch(clearAuthError());
     }
-  }, [dispatch, email, navigation]);
+  }, [dispatch, email, navigation, fromLogin]);
 
   const handleResendCode = useCallback(async () => {
     const result = await dispatch(resendVerification(email));
@@ -89,6 +95,9 @@ export default function Verification() {
             <Logo />
             <Text style={[tw`text-3xl font-bold mt-5`, { color: styles.textPrimary.color }]}>
               {t('verificationCodeSent')}
+            </Text>
+            <Text style={[tw`text-sm mt-2`, { color: styles.textSecondary.color }]}>
+              {t('verificationCodeSentTo')} {email}
             </Text>
           </View>
           <View style={tw`w-full`}>

@@ -11,8 +11,9 @@ const TermsModal = ({ visible, onClose }) => {
       onRequestClose={onClose}
     >
       <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-        <View style={tw`bg-white w-11/12 p-3 rounded-lg mt-10 mb-10`}>
-          <ScrollView>
+      <View style={tw`bg-white w-11/12 p-3 rounded-lg mt-10 mb-10 max-h-150`}>
+
+        <ScrollView>
             <Text style={tw`text-lg font-bold`}>Terms of Service and Privacy Policy</Text>
             <Text style={tw`text-sm`}>
               {'\n\n'}
@@ -98,12 +99,16 @@ const TermsModal = ({ visible, onClose }) => {
               {'\n\n'}
               Maaaring baguhin ang mga tuntunin mula sa oras-oras. Ang mga user ay aabisuhan sa anumang mahahalagang pagbabago.
               {'\n\n'}
-              Kung may mga katanungan, makipag-ugnayan sa amin sa support@agapayalert.com.
+              Kung may mga katanungan, makipag-ugnayan sa amin sa support{" "}
+              <Text style={tw`text-blue-500 underline`}>  
+              @agapayalert.com.
+              </Text>
             </Text>
-          </ScrollView>
           <TouchableOpacity onPress={onClose} style={tw`mt-2`}>
             <Text style={tw`text-center text-blue-500`}>Close</Text>
           </TouchableOpacity>
+          </ScrollView>
+
         </View>
       </View>
     </Modal>
