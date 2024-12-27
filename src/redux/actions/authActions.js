@@ -33,41 +33,18 @@ import serverConfig from "../../config/serverConfig";
 export const register = (formData) => async (dispatch) => {
   dispatch({ type: REGISTER_REQUEST });
   try {
-    const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    };
-
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
     const { data } = await axios.post(
       `${serverConfig.baseURL}/auth/register`,
       formData,
       config
     );
-
-    dispatch({
-      type: REGISTER_SUCCESS,
-      payload: data,
-    });
-
-    return { error: null, data };
+    dispatch({ type: REGISTER_SUCCESS, payload: data });
+    return { success: true, data };
   } catch (error) {
-    dispatch({
-      type: REGISTER_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
-
-    console.log("error", error.response.data);
-
-    return {
-      error:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    };
+    const msg = error.response?.data?.msg || error.msg;
+    dispatch({ type: REGISTER_FAILURE, payload: { msg: msg } });
+    return { success: false, error: msg };
   }
 };
 
@@ -79,29 +56,12 @@ export const verifyAccount = (verificationData) => async (dispatch) => {
       `${serverConfig.baseURL}/auth/verify-account`,
       verificationData
     );
-
-    dispatch({
-      type: VERIFY_ACCOUNT_SUCCESS,
-      payload: data,
-    });
-
+    dispatch({ type: VERIFY_ACCOUNT_SUCCESS, payload: data });
     return { success: true, data };
   } catch (error) {
-    dispatch({
-      type: VERIFY_ACCOUNT_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
-
-    return {
-      success: false,
-      error:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    };
+    const msg = error.response?.data?.msg || error.msg;
+    dispatch({ type: VERIFY_ACCOUNT_FAILURE, payload: { msg: msg } });
+    return { success: false, error: msg };
   }
 };
 
@@ -109,14 +69,16 @@ export const verifyAccount = (verificationData) => async (dispatch) => {
 export const login = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
-    const response = await axios.post(
+    const { data } = await axios.post(
       `${serverConfig.baseURL}/auth/login`,
       credentials
     );
-    dispatch({ type: LOGIN_SUCCESS, payload: response.data });
-    console.log("response", response.data);
+    dispatch({ type: LOGIN_SUCCESS, payload: data });
+    return { success: true, data };
   } catch (error) {
-    dispatch({ type: LOGIN_FAILURE, payload: error.response.data });
+    const msg = error.response?.data?.msg || error.msg;
+    dispatch({ type: LOGIN_FAILURE, payload: { msg: msg } });
+    return { success: false, error: msg };
   }
 };
 
@@ -126,23 +88,52 @@ export const logout = () => async (dispatch) => {
   try {
     await axios.post(`${serverConfig.baseURL}/auth/logout`);
     dispatch({ type: LOGOUT_SUCCESS });
+    return { success: true };
   } catch (error) {
-    console.log(error);
-    dispatch({ type: LOGOUT_FAILURE, payload: error.response.data });
+    const msg = error.response?.data?.msg || error.msg;
+    dispatch({ type: LOGOUT_FAILURE, payload: { msg: msg } });
+    return { success: false, error: msg };
   }
 };
 
 // Forgot password
 export const forgotPassword = (email) => async (dispatch) => {
   dispatch({ type: FORGOT_PASSWORD_REQUEST });
+
   try {
-    const response = await axios.post(
+    const { data } = await axios.post(
       `${serverConfig.baseURL}/auth/forgot-password`,
       { email }
     );
-    dispatch({ type: FORGOT_PASSWORD_SUCCESS, payload: response.data });
+
+    dispatch({
+      type: FORGOT_PASSWORD_SUCCESS,
+      payload: {
+        msg: data.msg,
+        email,
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        msg: data.msg,
+        email,
+      },
+    };
   } catch (error) {
-    dispatch({ type: FORGOT_PASSWORD_FAILURE, payload: error.response.data });
+    // Extract error message from backend response
+    const msg = error.response?.data?.msg || "Failed to send OTP";
+    console.log(msg)
+    dispatch({
+      type: FORGOT_PASSWORD_FAILURE,
+      payload: { msg },
+    });
+
+    return {
+      success: false,
+      error: msg,
+    };
   }
 };
 
@@ -150,13 +141,16 @@ export const forgotPassword = (email) => async (dispatch) => {
 export const resetPassword = (resetData) => async (dispatch) => {
   dispatch({ type: RESET_PASSWORD_REQUEST });
   try {
-    const response = await axios.post(
+    const { data } = await axios.post(
       `${serverConfig.baseURL}/auth/reset-password`,
       resetData
     );
-    dispatch({ type: RESET_PASSWORD_SUCCESS, payload: response.data });
+    dispatch({ type: RESET_PASSWORD_SUCCESS, payload: data });
+    return { success: true, data };
   } catch (error) {
-    dispatch({ type: RESET_PASSWORD_FAILURE, payload: error.response.data });
+    const msg = error.response?.data?.msg || error.msg;
+    dispatch({ type: RESET_PASSWORD_FAILURE, payload: { msg: msg } });
+    return { success: false, error: msg };
   }
 };
 
@@ -164,16 +158,16 @@ export const resetPassword = (resetData) => async (dispatch) => {
 export const resendVerification = (email) => async (dispatch) => {
   dispatch({ type: RESEND_VERIFICATION_REQUEST });
   try {
-    const response = await axios.post(
+    const { data } = await axios.post(
       `${serverConfig.baseURL}/auth/resend-verification`,
       { email }
     );
-    dispatch({ type: RESEND_VERIFICATION_SUCCESS, payload: response.data });
+    dispatch({ type: RESEND_VERIFICATION_SUCCESS, payload: data });
+    return { success: true, data };
   } catch (error) {
-    dispatch({
-      type: RESEND_VERIFICATION_FAILURE,
-      payload: error.response.data,
-    });
+    const msg = error.response?.data?.msg || error.msg;
+    dispatch({ type: RESEND_VERIFICATION_FAILURE, payload: { msg: msg } });
+    return { success: false, error: msg };
   }
 };
 
@@ -181,80 +175,49 @@ export const resendVerification = (email) => async (dispatch) => {
 export const resendOtp = (email) => async (dispatch) => {
   dispatch({ type: RESEND_OTP_REQUEST });
   try {
-    const response = await axios.post(
+    const { data } = await axios.post(
       `${serverConfig.baseURL}/auth/resend-otp`,
       { email }
     );
-    dispatch({ type: RESEND_OTP_SUCCESS, payload: response.data });
+    dispatch({ type: RESEND_OTP_SUCCESS, payload: data });
+    return { success: true, data };
   } catch (error) {
-    dispatch({ type: RESEND_OTP_FAILURE, payload: error.response.data });
+    const msg = error.response?.data?.msg || error.msg;
+    dispatch({ type: RESEND_OTP_FAILURE, payload: { msg: msg } });
+    return { success: false, error: msg };
   }
 };
 
-
 // Google Auth
-// Google Auth
-export const googleAuth = (userInfo, navigation) => async (dispatch) => {
+export const googleAuth = (userInfo) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
-    const email = userInfo?.data?.user?.email;
-    const givenName = userInfo?.data?.user?.givenName;
-    const familyName = userInfo?.data?.user?.familyName;
-    const photo = userInfo?.data?.user?.photo;
-
-    console.log("Email:", email); // Log the email to verify it's being accessed correctly
-    console.log("Given Name:", givenName); // Log the given name to verify it's being accessed correctly
-    console.log("Family Name:", familyName); // Log the family name to verify it's being accessed correctly
-    console.log("Photo:", photo); // Log the photo to verify it's being accessed correctly
-
-    const response = await axios.post(
-      `${serverConfig.baseURL}/auth/google`,
-      {
-        email,
-        firstName: givenName,
-        lastName: familyName,
-        avatar: photo,
-      }
-    );
-
-    if (response.data.exists) {
-      dispatch({ type: LOGIN_SUCCESS, payload: { user: response.data.user, msg: 'Logged in successfully' } });
-      navigation.navigate('Main');
-    } else {
-      dispatch({
-        type: REGISTER_SUCCESS,
-        payload: {
-          user: {
-            email,
-            firstName: givenName,
-            lastName: familyName,
-            avatar: photo,
-          },
-          msg: 'User registered successfully',
-        },
-      });
-      navigation.navigate('Register', {
-        email,
-        firstName: givenName,
-        lastName: familyName,
-        avatar: photo,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    dispatch({
-      type: LOGIN_FAILURE,
-      payload: error.response ? error.response.data : { msg: error.message },
+    const { email, givenName, familyName, photo } = userInfo?.data?.user || {};
+    const { data } = await axios.post(`${serverConfig.baseURL}/auth/google`, {
+      email,
+      firstName: givenName,
+      lastName: familyName,
+      avatar: photo,
     });
+
+    const actionType = data.exists ? LOGIN_SUCCESS : REGISTER_SUCCESS;
+    dispatch({
+      type: actionType,
+      payload: {
+        user: data.user || data,
+        msg: data.exists
+          ? "Logged in successfully"
+          : "User registered successfully",
+      },
+    });
+    return { success: true, data };
+  } catch (error) {
+    const msg = error.response?.data?.msg || error.msg;
+    dispatch({ type: LOGIN_FAILURE, payload: { msg: msg } });
+    return { success: false, error: msg };
   }
 };
 
-// Clear authentication message
-export const clearAuthMessage = () => (dispatch) => {
-  dispatch({ type: CLEAR_AUTH_MESSAGE });
-};
-
-// Clear authentication error
-export const clearAuthError = () => (dispatch) => {
-  dispatch({ type: CLEAR_AUTH_ERROR });
-};
+// Clear states
+export const clearAuthMessage = () => ({ type: CLEAR_AUTH_MESSAGE });
+export const clearAuthError = () => ({ type: CLEAR_AUTH_ERROR });

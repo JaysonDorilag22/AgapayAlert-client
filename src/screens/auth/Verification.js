@@ -17,10 +17,11 @@ export default function Verification() {
   const navigation = useNavigation();
   const route = useRoute();
   const { email } = route.params;
-  const { loading, error, message } = useSelector(state => state.auth);
+  const { loading } = useSelector(state => state.auth);
   const [countdown, setCountdown] = useState(60);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
 
+  // Keep useFocusEffect for back button handling
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -37,11 +38,11 @@ export default function Verification() {
       };
 
       const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
       return () => backHandler.remove();
     }, [navigation, t])
   );
 
+  // Keep countdown timer logic
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -51,34 +52,30 @@ export default function Verification() {
     }
   }, [countdown]);
 
-  const handleVerification = async (values) => {
-    const response = await dispatch(verifyAccount({ email, otp: values.verificationCode }));
-    if (response.success) {
+  const handleVerification = useCallback(async (values) => {
+    const result = await dispatch(verifyAccount({ email, otp: values.verificationCode }));
+    if (result.success) {
+      showToast('Account verified successfully');
       navigation.navigate('Verified');
-    } else {
-      console.error("Verification failed:", response.error);
-    }
-  };
-
-  const handleResendCode = useCallback(() => {
-    dispatch(resendVerification(email));
-    setCountdown(60);
-    setIsResendDisabled(true);
-  }, [dispatch, email]);
-
-  useEffect(() => {
-    if (message) {
-      showToast(message);
       dispatch(clearAuthMessage());
-    }
-  }, [message, dispatch]);
-
-  useEffect(() => {
-    if (error) {
-      showToast(error);
+    } else {
+      showToast(result.error);
       dispatch(clearAuthError());
     }
-  }, [error, dispatch]);
+  }, [dispatch, email, navigation]);
+
+  const handleResendCode = useCallback(async () => {
+    const result = await dispatch(resendVerification(email));
+    if (result.success) {
+      setCountdown(60);
+      setIsResendDisabled(true);
+      showToast('Verification code resent successfully');
+      dispatch(clearAuthMessage());
+    } else {
+      showToast(result.error);
+      dispatch(clearAuthError());
+    }
+  }, [dispatch, email]);
 
   return (
     <Formik

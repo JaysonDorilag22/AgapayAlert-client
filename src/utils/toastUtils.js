@@ -3,12 +3,18 @@ import Toast from 'react-native-simple-toast';
 let isToastVisible = false;
 
 const showToast = (message, duration = Toast.SHORT) => {
+  if (!message) {
+    console.warn('Toast message cannot be empty');
+    return;
+  }
+
   if (!isToastVisible) {
     isToastVisible = true;
-    Toast.show(message, duration);
+    const displayMessage = String(message);
+    Toast.show(displayMessage, duration);
     setTimeout(() => {
       isToastVisible = false;
-    }, duration === Toast.SHORT ? 2000 : 3500); // Adjust duration based on Toast.SHORT or Toast.LONG
+    }, duration === Toast.SHORT ? 2000 : 3500);
   }
 };
 

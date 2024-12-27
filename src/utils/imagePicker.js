@@ -12,7 +12,6 @@ export const pickImage = async () => {
 
   const hasPermission = await requestPermission();
   if (!hasPermission) {
-    console.log('Permission denied');
     return null;
   }
 
@@ -25,10 +24,8 @@ export const pickImage = async () => {
 
   if (!result.canceled) {
     const source = { uri: result.assets[0].uri, type: result.assets[0].type, name: result.assets[0].fileName };
-    console.log('Selected image:', source);
     return source;
   } else {
-    console.log('User cancelled image picker');
     return null;
   }
 };

@@ -10,32 +10,20 @@ import showToast from 'utils/toastUtils';
 export default function Home() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { loading, user, message, error } = useSelector(state => state.auth);
+  const { loading } = useSelector(state => state.auth);
   const [backPressCount, setBackPressCount] = useState(0);
 
-  const handleLogout = async () => {
-    try {
-      await dispatch(logout());
+  const handleLogout = useCallback(async () => {
+    const result = await dispatch(logout());
+    
+    if (result.success) {
       navigation.navigate('Login');
-
-    } catch (error) {
-      showToast(error);
+      dispatch(clearAuthMessage());
+    } else {
+      showToast(result.error);
       dispatch(clearAuthError());
     }
-  };
-
-  // useEffect(() => {
-  //   console.log('User:', user); // Log the user state
-  //   console.log('Message:', message); // Log the message state
-  //   if (!user) {
-  //     console.log('Navigating to Login');
-  //     navigation.navigate('Login');
-  //   }
-  //   if (error) {
-  //     showToast(error);
-  //     dispatch(clearAuthError());
-  //   }
-  // }, [user, message, error, navigation, dispatch]);
+  }, [dispatch, navigation]);
 
   useFocusEffect(
     useCallback(() => {
