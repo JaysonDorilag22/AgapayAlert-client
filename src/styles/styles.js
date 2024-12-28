@@ -9,6 +9,8 @@ const colorDisabled = '#A9A9A9';
 const colorText = '#333333';
 
 const styles = {
+
+  backgroundColorPrimary: {backgroundColor: colorPrimary},
   // Container styles
   container: tw.style(`flex-1 justify-center items-center p-4`, { backgroundColor: colorBackground }),
 
@@ -26,6 +28,7 @@ const styles = {
   buttonTextOutline: tw.style(`text-center`, { color: colorSecondary }), 
   // Input styles
   input: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { borderColor: colorDisabled, backgroundColor: colorBackground, color: colorText }),
+  input2: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`),
   activeInput: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { borderColor: '#000000', backgroundColor: '#ffffff', color: '#000000' }),
 };
 
