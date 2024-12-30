@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { MapPin, Calendar, Clock } from 'lucide-react-native';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import { MapPin, Plus, X } from 'lucide-react-native';
 import tw from 'twrnc';
 import styles from 'styles/styles';
+import { pickMultipleImages } from '../../../../utils/pickMultipleImages';
 
 const LocationForm = ({ onNext, onBack }) => {
   const [formData, setFormData] = useState({
     location: {
       type: 'Point',
-      coordinates: [], // [longitude, latitude]
+      coordinates: [],
       address: {
         streetAddress: '',
         barangay: '',
@@ -17,11 +18,40 @@ const LocationForm = ({ onNext, onBack }) => {
         zipCode: '',
       }
     },
-    dateTime: {
-      date: '',
-      time: ''
-    }
+    additionalImages: []
   });
+
+  const handleImagePick = async () => {
+    try {
+      const remainingSlots = 5 - formData.additionalImages.length;
+      if (remainingSlots <= 0) {
+        alert('Maximum of 5 images allowed');
+        return;
+      }
+
+      const selectedImages = await pickMultipleImages(remainingSlots);
+      if (selectedImages.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          additionalImages: [...prev.additionalImages, ...selectedImages]
+        }));
+      }
+    } catch (error) {
+      console.error("Error picking images:", error);
+    }
+  };
+
+  const removeImage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      additionalImages: prev.additionalImages.filter((_, i) => i !== index)
+    }));
+  };
+
+  const isFormValid = () => {
+    const { streetAddress, barangay, city, province, zipCode } = formData.location.address;
+    return streetAddress && barangay && city && province && zipCode;
+  };
 
   const RequiredMark = () => <Text style={tw`text-red-500 ml-0.5`}>*</Text>;
 
@@ -30,10 +60,52 @@ const LocationForm = ({ onNext, onBack }) => {
       <Text style={tw`text-xl font-bold mb-2`}>Step 5 of 7</Text>
       <Text style={tw`text-2xl font-bold mb-2`}>Location Details</Text>
       <Text style={tw`text-sm mb-6 text-gray-600`}>
-        Enter where and when the incident occurred
+        Enter incident location and upload additional evidence photos (optional)
       </Text>
 
       <ScrollView style={tw`flex-1`}>
+        {/* Additional Images Section */}
+        <View style={tw`mb-6`}>
+          <View style={tw`flex-row items-center justify-between mb-2`}>
+            <Text style={tw`text-sm font-bold text-gray-700`}>Additional Evidence Photos</Text>
+            <Text style={tw`text-xs text-gray-500`}>
+              {formData.additionalImages.length}/5 images
+            </Text>
+          </View>
+          
+          <View style={tw`flex-row flex-wrap`}>
+            {formData.additionalImages.map((image, index) => (
+              <View key={index} style={tw`w-1/3 aspect-square p-1`}>
+                <View style={tw`relative w-full h-full`}>
+                  <Image
+                    source={{ uri: image.uri }}
+                    style={tw`w-full h-full rounded-lg`}
+                    resizeMode="cover"
+                  />
+                  <TouchableOpacity
+                    style={tw`absolute top-1 right-1 bg-red-500 rounded-full p-1`}
+                    onPress={() => removeImage(index)}
+                  >
+                    <X size={12} color="white" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+
+            {formData.additionalImages.length < 5 && (
+              <TouchableOpacity
+                style={tw`w-1/3 aspect-square p-1`}
+                onPress={handleImagePick}
+              >
+                <View style={tw`w-full h-full border-2 border-dashed border-gray-300 rounded-lg items-center justify-center bg-gray-50`}>
+                  <Plus size={24} color="#6B7280" />
+                  <Text style={tw`text-xs text-gray-500 mt-1`}>Add Photos</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
         {/* Location Section */}
         <View style={tw`mb-6`}>
           <View style={tw`flex-row items-center mb-4`}>
@@ -42,7 +114,10 @@ const LocationForm = ({ onNext, onBack }) => {
             <RequiredMark />
           </View>
 
-          <Text style={tw`text-sm text-gray-600 mb-1`}>Street Address</Text>
+          <View style={tw`flex-row items-center mb-1`}>
+            <Text style={tw`text-sm text-gray-600`}>Street Address</Text>
+            <RequiredMark />
+          </View>
           <TextInput
             style={styles.input2}
             placeholder="Enter street address"
@@ -56,7 +131,10 @@ const LocationForm = ({ onNext, onBack }) => {
             }))}
           />
 
-          <Text style={tw`text-sm text-gray-600 mb-1`}>Barangay</Text>
+          <View style={tw`flex-row items-center mb-1`}>
+            <Text style={tw`text-sm text-gray-600`}>Barangay</Text>
+            <RequiredMark />
+          </View>
           <TextInput
             style={styles.input2}
             placeholder="Enter barangay"
@@ -70,7 +148,10 @@ const LocationForm = ({ onNext, onBack }) => {
             }))}
           />
 
-          <Text style={tw`text-sm text-gray-600 mb-1`}>City</Text>
+          <View style={tw`flex-row items-center mb-1`}>
+            <Text style={tw`text-sm text-gray-600`}>City</Text>
+            <RequiredMark />
+          </View>
           <TextInput
             style={styles.input2}
             placeholder="Enter city"
@@ -84,7 +165,10 @@ const LocationForm = ({ onNext, onBack }) => {
             }))}
           />
 
-          <Text style={tw`text-sm text-gray-600 mb-1`}>Province</Text>
+          <View style={tw`flex-row items-center mb-1`}>
+            <Text style={tw`text-sm text-gray-600`}>Province</Text>
+            <RequiredMark />
+          </View>
           <TextInput
             style={styles.input2}
             placeholder="Enter province"
@@ -98,7 +182,10 @@ const LocationForm = ({ onNext, onBack }) => {
             }))}
           />
 
-          <Text style={tw`text-sm text-gray-600 mb-1`}>ZIP Code</Text>
+          <View style={tw`flex-row items-center mb-1`}>
+            <Text style={tw`text-sm text-gray-600`}>ZIP Code</Text>
+            <RequiredMark />
+          </View>
           <TextInput
             style={styles.input2}
             placeholder="Enter ZIP code"
@@ -112,43 +199,6 @@ const LocationForm = ({ onNext, onBack }) => {
             }))}
           />
         </View>
-
-        {/* Date and Time Section */}
-        <View style={tw`mb-6`}>
-          <View style={tw`flex-row items-center mb-4`}>
-            <Calendar size={20} color="#4B5563" style={tw`mr-2`} />
-            <Text style={tw`text-sm font-bold text-gray-700`}>Date and Time</Text>
-            <RequiredMark />
-          </View>
-
-          <View style={tw`flex-row mb-4`}>
-            <View style={tw`flex-1 mr-2`}>
-              <Text style={tw`text-sm text-gray-600 mb-1`}>Date</Text>
-              <TextInput
-                style={styles.input2}
-                placeholder="MM/DD/YYYY"
-                value={formData.dateTime.date}
-                onChangeText={(text) => setFormData(prev => ({
-                  ...prev,
-                  dateTime: { ...prev.dateTime, date: text }
-                }))}
-              />
-            </View>
-
-            <View style={tw`flex-1 ml-2`}>
-              <Text style={tw`text-sm text-gray-600 mb-1`}>Time</Text>
-              <TextInput
-                style={styles.input2}
-                placeholder="HH:MM"
-                value={formData.dateTime.time}
-                onChangeText={(text) => setFormData(prev => ({
-                  ...prev,
-                  dateTime: { ...prev.dateTime, time: text }
-                }))}
-              />
-            </View>
-          </View>
-        </View>
       </ScrollView>
 
       <View style={tw`flex-row mt-4`}>
@@ -159,8 +209,13 @@ const LocationForm = ({ onNext, onBack }) => {
           <Text style={styles.buttonTextPrimary}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.buttonPrimary, tw`flex-1 ml-2`]}
-          onPress={() => onNext(formData)}
+          style={[
+            styles.buttonPrimary,
+            tw`flex-1 ml-2`,
+            !isFormValid() && tw`bg-gray-300`
+          ]}
+          onPress={() => isFormValid() && onNext(formData)}
+          disabled={!isFormValid()}
         >
           <Text style={styles.buttonTextPrimary}>Next</Text>
         </TouchableOpacity>

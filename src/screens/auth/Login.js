@@ -21,7 +21,7 @@ import styles from "styles/styles";
 import Logo from "components/Logo";
 import { Eye, EyeOff } from "lucide-react-native";
 import showToast from "utils/toastUtils";
-import GoogleAuth from "components/auth/GoogleAuth";
+// import GoogleAuth from "components/auth/GoogleAuth";
 import ChangeLanguage from "components/ChangeLanguage";
 
 export default function Login() {
@@ -163,7 +163,7 @@ export default function Login() {
               )}
             </TouchableOpacity>
             {/* <View> */}
-            <GoogleAuth />
+            {/* <GoogleAuth /> */}
             {/* </View> */}
             <Text
               style={[

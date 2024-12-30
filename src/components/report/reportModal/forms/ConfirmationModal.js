@@ -79,7 +79,7 @@ const ConfirmationModal = ({ onNext }) => {
     }
 
     return (
-      <View style={tw`bg-gray-50 rounded-lg p-4 mb-4`}>
+      <View style={tw`bg-gray-50 rounded-lg p-3 mb-4`}>
         <Text style={tw`text-xl font-bold mb-4`}>Reporter Information</Text>
 
         <View style={tw`flex-row items-center mb-4`}>
