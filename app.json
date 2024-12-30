@@ -12,7 +12,13 @@
       "backgroundColor": "#EEEEEE"
     },
     "plugins": [
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "onesignal-expo-plugin",
+        {
+          "mode": "development"
+        }
+      ]
     ],
     "ios": {
       "bundleIdentifier": "com.agapayalert.client",
@@ -35,7 +41,8 @@
     "extra": {
       "eas": {
         "projectId": "841fe1db-7c33-428b-ada7-011aa419493b"
-      }
+      },
+       "oneSignalAppId": "4948d711-5abb-437c-bd1f-879f45c8e3c5"
     }
   }
 }
