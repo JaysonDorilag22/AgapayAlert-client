@@ -27,9 +27,6 @@ export const registerValidationSchema = Yup.object().shape({
   city: Yup.string()
     .nullable()
     .required('Please select a City'),
-  province: Yup.string()
-    .nullable()
-    .required('Province is required'),
   zipCode: Yup.string()
     .matches(/^[0-9]+$/, 'ZIP code must contain only digits')
     .min(4, 'ZIP code must be at least 4 digits')

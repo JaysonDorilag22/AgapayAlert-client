@@ -14,7 +14,6 @@ const LocationForm = ({ onNext, onBack }) => {
         streetAddress: '',
         barangay: '',
         city: '',
-        province: '',
         zipCode: '',
       }
     },
@@ -49,8 +48,8 @@ const LocationForm = ({ onNext, onBack }) => {
   };
 
   const isFormValid = () => {
-    const { streetAddress, barangay, city, province, zipCode } = formData.location.address;
-    return streetAddress && barangay && city && province && zipCode;
+    const { streetAddress, barangay, city, zipCode } = formData.location.address;
+    return streetAddress && barangay && city && zipCode;
   };
 
   const RequiredMark = () => <Text style={tw`text-red-500 ml-0.5`}>*</Text>;
@@ -161,23 +160,6 @@ const LocationForm = ({ onNext, onBack }) => {
               location: {
                 ...prev.location,
                 address: { ...prev.location.address, city: text }
-              }
-            }))}
-          />
-
-          <View style={tw`flex-row items-center mb-1`}>
-            <Text style={tw`text-sm text-gray-600`}>Province</Text>
-            <RequiredMark />
-          </View>
-          <TextInput
-            style={styles.input2}
-            placeholder="Enter province"
-            value={formData.location.address.province}
-            onChangeText={(text) => setFormData(prev => ({
-              ...prev,
-              location: {
-                ...prev.location,
-                address: { ...prev.location.address, province: text }
               }
             }))}
           />

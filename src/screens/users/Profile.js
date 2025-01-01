@@ -41,7 +41,6 @@ const Profile = () => {
       streetAddress: "",
       barangay: "",
       city: "",
-      province: "",
       zipCode: "",
     },
     preferredNotifications: {
@@ -68,7 +67,6 @@ const Profile = () => {
           streetAddress: "",
           barangay: "",
           city: "",
-          province: "",
           zipCode: "",
         },
         preferredNotifications: user.preferredNotifications || {
@@ -106,7 +104,6 @@ const Profile = () => {
           streetAddress: "",
           barangay: "",
           city: "",
-          province: "",
           zipCode: "",
         },
         preferredNotifications: user.preferredNotifications || {
@@ -136,7 +133,6 @@ const Profile = () => {
       "address[streetAddress]": formData.address.streetAddress,
       "address[barangay]": formData.address.barangay,
       "address[city]": formData.address.city,
-      "address[province]": formData.address.province,
       "address[zipCode]": formData.address.zipCode,
     }).forEach(([key, value]) => {
       if (value) updatedData.append(key, value);
@@ -295,20 +291,7 @@ const Profile = () => {
             }
           />
         </View>
-        <View style={tw`flex-1`}>
-          <Text style={tw`text-sm`}>Province</Text>
-          <TextInput
-            style={isEditing ? styles.activeInput : styles.input}
-            value={formData.address.province}
-            editable={isEditing}
-            onChangeText={(text) =>
-              setFormData({
-                ...formData,
-                address: { ...formData.address, province: text },
-              })
-            }
-          />
-        </View>
+       
       </View>
       <View style={tw`flex-row justify-between mb-2`}>
         <View style={tw`flex-1 mr-1`}>

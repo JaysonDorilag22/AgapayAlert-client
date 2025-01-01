@@ -41,7 +41,6 @@ export default function Register() {
   const [barangays, setBarangays] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedBarangay, setSelectedBarangay] = useState(null);
-  const [province, setProvince] = useState("None");
   const [citySearch, setCitySearch] = useState("");
   const [barangaySearch, setBarangaySearch] = useState("");
   const [citySuggestions, setCitySuggestions] = useState([]);
@@ -75,9 +74,6 @@ export default function Register() {
     try {
       setSelectedCity(cityCode);
       const city = cities.find((c) => c.value === cityCode);
-      const provinceData = await addressService.getProvince(city.provinceCode);
-      setProvince(provinceData.name);
-
       const barangaysData = await addressService.getBarangays(cityCode);
       setBarangays(barangaysData);
     } catch (error) {
@@ -134,7 +130,6 @@ export default function Register() {
       "address[streetAddress]": values.streetAddress,
       "address[barangay]": values.barangay,
       "address[city]": values.city,
-      "address[province]": values.province,
       "address[zipCode]": values.zipCode,
     };
 
@@ -206,7 +201,6 @@ export default function Register() {
           streetAddress: "",
           barangay: "",
           city: "",
-          province: "",
           zipCode: "",
           avatar: route.params?.avatar || null,
         }}
@@ -408,7 +402,6 @@ export default function Register() {
                         setCitySearch(city.label);
                         setShowCitySuggestions(false);
                         setFieldValue("city", city.label);
-                        setFieldValue("province", province);
                         setFieldTouched("city", true); // Add this line
                         handleBlur("city");
                       }}
@@ -426,12 +419,6 @@ export default function Register() {
                 color={styles.textPrimary.color}
               />
             )}
-            {/* </View> */}
-
-            <Text style={styles.input} disabled={true}>
-              Province: {province}
-            </Text>
-
             <TextInput
                style={styles.input}
                placeholder={t("barangay")}

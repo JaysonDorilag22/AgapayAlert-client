@@ -105,7 +105,6 @@ const ConfirmationModal = ({ onNext }) => {
         <Text style={tw`mb-3`}>
           {user?.address?.streetAddress}, Brgy. {user?.address?.barangay},
           {"\n"}
-          {user?.address?.city}, {user?.address?.province}{" "}
           {user?.address?.zipCode}
         </Text>
 

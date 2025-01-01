@@ -40,7 +40,6 @@ const PreviewForm = ({ onBack, onSubmit }) => {
         streetAddress: '123 Main Street',
         barangay: 'San Antonio',
         city: 'Makati',
-        province: 'Metro Manila',
         zipCode: '1200'
       },
       dateTime: {
@@ -126,7 +125,6 @@ const PreviewForm = ({ onBack, onSubmit }) => {
             {mockData.location.address.streetAddress},
             {'\n'}Brgy. {mockData.location.address.barangay},
             {'\n'}{mockData.location.address.city},
-            {'\n'}{mockData.location.address.province} {mockData.location.address.zipCode}
           </Text>
           <View style={tw`flex-row items-center mt-2`}>
             <Clock size={16} color="#4B5563" style={tw`mr-2`} />
