@@ -41,7 +41,7 @@ export default function ResetPassword() {
     }
   }, [countdown]);
 
-  const handleResetPassword = useCallback(async (values) => {
+  const handleResetPassword = async (values) => {
     const result = await dispatch(
       resetPassword({ email, otp: values.otp, newPassword: values.newPassword })
     );
@@ -54,7 +54,7 @@ export default function ResetPassword() {
       showToast(result.error);
       dispatch(clearAuthError());
     }
-  }, [dispatch, email, navigation]);
+  };
 
   const handleResendOtp = useCallback(async () => {
     const result = await dispatch(resendOtp(email));

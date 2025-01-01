@@ -30,6 +30,7 @@ const Profile = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { user, loading } = useSelector((state) => state.user || {});
+  const { loading: authLoading } = useSelector((state) => state.auth);
   const authUser = useSelector((state) => state.auth.user);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangePasswordVisible, setIsChangePasswordVisible] = useState(false);
@@ -79,7 +80,7 @@ const Profile = () => {
     }
   }, [user]);
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = async () => {
     const result = await dispatch(logout());
     if (result.success) {
       navigation.navigate("Login");
@@ -89,11 +90,11 @@ const Profile = () => {
       showToast(result.error);
       dispatch(clearAuthError());
     }
-  }, [dispatch, navigation]);
+  };
 
-  const handleEdit = useCallback(() => setIsEditing(true), []);
+  const handleEdit = () => setIsEditing(true);
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     setIsEditing(false);
     if (user) {
       setFormData({
@@ -114,9 +115,9 @@ const Profile = () => {
       });
       setAvatar(user.avatar);
     }
-  }, [user]);
+  };
 
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     const { sms, push, email } = formData.preferredNotifications;
     const notificationTypes = [sms, push, email].filter(Boolean);
 
@@ -158,14 +159,14 @@ const Profile = () => {
     } else {
       showToast(result.error || "Failed to update profile");
     }
-  }, [dispatch, authUser, formData, avatar]);
+  };
 
-  const handlePickImage = useCallback(async () => {
+  const handlePickImage = async () => {
     const result = await pickImage();
     if (result) {
       setAvatar(result);
     }
-  }, []);
+  };
 
   if (loading) return <ProfileSkeleton />;
   if (!user)
@@ -180,7 +181,10 @@ const Profile = () => {
       <View style={tw`items-center mb-4`}>
         <View style={tw`relative`}>
           <Image
-            source={{ uri: avatar?.url || avatar?.uri || "https://via.placeholder.com/150"}}
+            source={{
+              uri:
+                avatar?.url || avatar?.uri || "https://via.placeholder.com/150",
+            }}
             style={tw`w-24 h-24 rounded-full`}
           />
           <TouchableOpacity
@@ -291,7 +295,6 @@ const Profile = () => {
             }
           />
         </View>
-       
       </View>
       <View style={tw`flex-row justify-between mb-2`}>
         <View style={tw`flex-1 mr-1`}>
@@ -387,7 +390,10 @@ const Profile = () => {
       <Seperator style={tw`mb-3`} />
 
       {!isEditing && (
-        <TouchableOpacity style={[styles.buttonPrimary, tw`mt-4`]} onPress={handleEdit}>
+        <TouchableOpacity
+          style={[styles.buttonPrimary, tw`mt-4`]}
+          onPress={handleEdit}
+        >
           <Text style={styles.buttonTextPrimary}>Edit Profile</Text>
         </TouchableOpacity>
       )}
@@ -404,17 +410,17 @@ const Profile = () => {
         onClose={() => setIsChangePasswordVisible(false)}
       />
 
-      <TouchableOpacity
-        style={[styles.buttonSecondary, tw`mb-40`]}
-        onPress={handleLogout}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator size="small" color="#EEEEEE" />
-        ) : (
-          <Text style={styles.buttonTextPrimary}>Logout</Text>
-        )}
-      </TouchableOpacity>
+<TouchableOpacity
+  style={[styles.buttonSecondary, tw`mb-40`]}
+  onPress={handleLogout}
+  disabled={authLoading}
+>
+  {authLoading ? (
+    <ActivityIndicator size="small" color="#EEEEEE" />
+  ) : (
+    <Text style={styles.buttonTextPrimary}>Logout</Text>
+  )}
+</TouchableOpacity>
     </ScrollView>
   );
 };

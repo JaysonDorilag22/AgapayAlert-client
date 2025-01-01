@@ -37,7 +37,7 @@ export default function Login() {
     }
   }, []);
 
-  const handleLogin = useCallback(async (credentials) => {
+  const handleLogin = async (credentials) => {
     const result = await dispatch(login(credentials));
     
     if (result.success) {
@@ -57,7 +57,7 @@ export default function Login() {
       }
       dispatch(clearAuthError());
     }
-  }, [dispatch, navigation, handleToast]);
+  };
   
   return (
     <Formik

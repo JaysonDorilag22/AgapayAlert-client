@@ -53,11 +53,10 @@ export default function Verification() {
     }
   }, [countdown]);
 
-  const handleVerification = useCallback(async (values) => {
+  const handleVerification = async (values) => {
     const result = await dispatch(verifyAccount({ email, otp: values.verificationCode }));
     if (result.success) {
       showToast('Account verified successfully');
-      // Navigate based on where user came from
       if (fromLogin) {
         navigation.navigate('Login');
       } else {
@@ -68,9 +67,10 @@ export default function Verification() {
       showToast(result.error);
       dispatch(clearAuthError());
     }
-  }, [dispatch, email, navigation, fromLogin]);
+  };
+  
 
-  const handleResendCode = useCallback(async () => {
+  const handleResendCode = async () => {
     const result = await dispatch(resendVerification(email));
     if (result.success) {
       setCountdown(60);
@@ -81,7 +81,7 @@ export default function Verification() {
       showToast(result.error);
       dispatch(clearAuthError());
     }
-  }, [dispatch, email]);
+  };
 
   return (
     <Formik

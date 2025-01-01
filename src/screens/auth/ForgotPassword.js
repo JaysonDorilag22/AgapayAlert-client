@@ -30,21 +30,19 @@ export default function ForgotPassword() {
   const { loading } = useSelector((state) => state.auth);
   const [email, setEmail] = useState("");
 
-  const handleForgotPassword = useCallback( async (values) => {
-        setEmail(values.email);
-        const result = await dispatch(forgotPassword(values.email));
-
-        if (result.success) {
-          showToast("Reset password link sent successfully");
-          navigation.navigate("ResetPassword", { email: values.email });
-          dispatch(clearAuthMessage());
-        } else {
-          showToast(result.error || "Failed to send reset otp");
-          dispatch(clearAuthError());
-        }
-    },
-    [dispatch, navigation]
-  );
+  const handleForgotPassword = async (values) => {
+    setEmail(values.email);
+    const result = await dispatch(forgotPassword(values.email));
+  
+    if (result.success) {
+      showToast("Reset password link sent successfully");
+      navigation.navigate("ResetPassword", { email: values.email });
+      dispatch(clearAuthMessage());
+    } else {
+      showToast(result.error || "Failed to send reset otp");
+      dispatch(clearAuthError());
+    }
+  };
 
   return (
     <View style={styles.container}>
