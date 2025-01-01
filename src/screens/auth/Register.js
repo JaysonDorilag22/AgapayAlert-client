@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "styles/styles";
 import tw from "twrnc";
 import {
@@ -26,17 +26,94 @@ import { pickImage } from "../../utils/imagePicker";
 import TermsModal from "../../components/TermsModal";
 import showToast from "utils/toastUtils";
 import * as FileSystem from "expo-file-system";
+import { addressService } from "src/services/addressService";
 
 export default function Register() {
   const [avatar, setAvatar] = useState(null);
   const [isChecked, setIsChecked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  //address
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
+  const [isLoadingBarangays, setIsLoadingBarangays] = useState(false);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedBarangay, setSelectedBarangay] = useState(null);
+  const [province, setProvince] = useState("None");
+  const [citySearch, setCitySearch] = useState("");
+  const [barangaySearch, setBarangaySearch] = useState("");
+  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [barangaySuggestions, setBarangaySuggestions] = useState([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [showBarangaySuggestions, setShowBarangaySuggestions] = useState(false);
+
   const navigation = useNavigation();
   const route = useRoute();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    const loadCities = async () => {
+      setIsLoadingCities(true);
+      try {
+        const citiesData = await addressService.getCities();
+        setCities(citiesData);
+      } catch (error) {
+        showToast("Failed to load cities");
+      } finally {
+        setIsLoadingCities(false);
+      }
+    };
+    loadCities();
+  }, []);
+
+  const handleCityChange = async (cityCode) => {
+    setIsLoadingBarangays(true);
+    try {
+      setSelectedCity(cityCode);
+      const city = cities.find((c) => c.value === cityCode);
+      const provinceData = await addressService.getProvince(city.provinceCode);
+      setProvince(provinceData.name);
+
+      const barangaysData = await addressService.getBarangays(cityCode);
+      setBarangays(barangaysData);
+    } catch (error) {
+      showToast("Failed to load address data");
+    } finally {
+      setIsLoadingBarangays(false);
+    }
+  };
+
+  const handleCitySearch = async (text) => {
+    setCitySearch(text);
+    if (text.length > 0) {
+      const filtered = cities.filter((city) =>
+        city.label.toLowerCase().includes(text.toLowerCase())
+      );
+      setCitySuggestions(filtered);
+      setShowCitySuggestions(true);
+    } else {
+      setCitySuggestions([]);
+      setShowCitySuggestions(false);
+    }
+  };
+
+  const handleBarangaySearch = async (text) => {
+    setBarangaySearch(text);
+    if (text.length > 0 && selectedCity) {
+      const filtered = barangays.filter((barangay) =>
+        barangay.label.toLowerCase().includes(text.toLowerCase())
+      );
+      setBarangaySuggestions(filtered);
+      setShowBarangaySuggestions(true);
+    } else {
+      setBarangaySuggestions([]);
+      setShowBarangaySuggestions(false);
+    }
+  };
 
   const handlePickImage = async (setFieldValue) => {
     const result = await pickImage();
@@ -46,56 +123,62 @@ export default function Register() {
     }
   };
 
-  const handleRegister = useCallback(async (values, { resetForm }) => {
+  const createFormData = (values) => {
+    const formData = new FormData();
+    const userFields = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      number: values.phoneNumber,
+      email: values.email,
+      password: values.password,
+      "address[streetAddress]": values.streetAddress,
+      "address[barangay]": values.barangay,
+      "address[city]": values.city,
+      "address[province]": values.province,
+      "address[zipCode]": values.zipCode,
+    };
+
+    Object.entries(userFields).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value);
+      }
+    });
+    return formData;
+  };
+
+  const handleAvatarUpload = async (avatar) => {
+    if (!avatar) return null;
+
+    let avatarUri = avatar;
+    if (typeof avatar === "string") {
+      const fileUri = FileSystem.documentDirectory + "avatar.jpg";
+      const downloadResult = await FileSystem.downloadAsync(avatar, fileUri);
+      avatarUri = downloadResult.uri;
+    } else if (avatar.uri) {
+      avatarUri = avatar.uri;
+    }
+
+    return {
+      uri: avatarUri,
+      type: "image/jpeg",
+      name: "avatar.jpg",
+    };
+  };
+
+  const handleRegister = async (values, { resetForm }) => {
     try {
       setIsUploading(true);
-      const formData = new FormData();
-      
-      // Add user details to formData
-      Object.entries({
-        firstName: values.firstName,
-        lastName: values.lastName,
-        number: values.phoneNumber,
-        email: values.email,
-        password: values.password,
-        'address[streetAddress]': values.streetAddress,
-        'address[barangay]': values.barangay,
-        'address[city]': values.city,
-        'address[province]': values.province,
-        'address[zipCode]': values.zipCode,
-      }).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, value);
-        }
-      });
-  
-      // Handle avatar upload with proper type checking
-      if (values.avatar) {
-        let avatarUri = values.avatar;
-        
-        // Check if avatar is a string URL
-        if (typeof values.avatar === 'string') {
-          const fileUri = FileSystem.documentDirectory + "avatar.jpg";
-          const downloadResult = await FileSystem.downloadAsync(values.avatar, fileUri);
-          avatarUri = downloadResult.uri;
-        } else if (values.avatar.uri) {
-          // Handle file picker result
-          avatarUri = values.avatar.uri;
-        }
-  
-        formData.append("avatar", {
-          uri: avatarUri,
-          type: "image/jpeg",
-          name: "avatar.jpg",
-        });
+      const formData = createFormData(values);
+
+      const avatarFile = await handleAvatarUpload(values.avatar);
+      if (avatarFile) {
+        formData.append("avatar", avatarFile);
       }
-  
+
       formData.append("isAgreed", isChecked.toString());
-  
       const result = await dispatch(register(formData));
-  
       setIsUploading(false);
-  
+
       if (result?.success) {
         navigation.navigate("Verification", { email: values.email });
         dispatch(clearAuthMessage());
@@ -109,8 +192,7 @@ export default function Register() {
       showToast("Unexpected error occurred during registration");
       dispatch(clearAuthError());
     }
-  }, [dispatch, navigation, isChecked]);
-  
+  };
 
   return (
     <ScrollView>
@@ -135,10 +217,11 @@ export default function Register() {
           handleChange,
           handleBlur,
           handleSubmit,
-          setFieldValue,
           values,
           errors,
           touched,
+          setFieldValue,
+          setFieldTouched,
         }) => (
           <View style={styles.container}>
             <TouchableOpacity
@@ -257,6 +340,8 @@ export default function Register() {
             >
               {t("address")}
             </Text>
+
+            {/* address */}
             <TextInput
               style={styles.input}
               placeholder={t("streetAddress")}
@@ -271,26 +356,17 @@ export default function Register() {
                 {errors.streetAddress}
               </Text>
             )}
-            <TextInput
-              style={styles.input}
-              placeholder={t("barangay")}
-              onChangeText={handleChange("barangay")}
-              onBlur={handleBlur("barangay")}
-              value={values.barangay}
-            />
-            {touched.barangay && errors.barangay && (
-              <Text
-                style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
-              >
-                {errors.barangay}
-              </Text>
-            )}
+
+            {/* <View style={tw` mb-4`}> */}
             <TextInput
               style={styles.input}
               placeholder={t("city")}
-              onChangeText={handleChange("city")}
+              value={citySearch}
+              onChangeText={(text) => {
+                handleCitySearch(text);
+                handleChange("city")(text);
+              }}
               onBlur={handleBlur("city")}
-              value={values.city}
             />
             {touched.city && errors.city && (
               <Text
@@ -299,20 +375,132 @@ export default function Register() {
                 {errors.city}
               </Text>
             )}
+
+            {showCitySuggestions && citySuggestions.length > 0 && (
+              <View
+                style={[
+                  tw`absolute z-50 w-full bg-white rounded-lg shadow-lg relative`,
+                  {
+                    top: "auto",
+                    marginTop: 2,
+                    elevation: 5,
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                    zIndex: 1000,
+                    maxHeight: 160, // Fixed height for suggestions
+                  },
+                ]}
+              >
+                <ScrollView
+                  nestedScrollEnabled={true}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                  contentContainerStyle={tw`pb-2`}
+                >
+                  {citySuggestions.map((city) => (
+                    <TouchableOpacity
+                      key={city.value}
+                      style={tw`p-3 border-b border-gray-200`}
+                      onPress={() => {
+                        handleCityChange(city.value);
+                        setCitySearch(city.label);
+                        setShowCitySuggestions(false);
+                        setFieldValue("city", city.label);
+                        setFieldValue("province", province);
+                        setFieldTouched("city", true); // Add this line
+                        handleBlur("city");
+                      }}
+                    >
+                      <Text>{city.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            {isLoadingCities && (
+              <ActivityIndicator
+                size="small"
+                color={styles.textPrimary.color}
+              />
+            )}
+            {/* </View> */}
+
+            <Text style={styles.input} disabled={true}>
+              Province: {province}
+            </Text>
+
             <TextInput
-              style={styles.input}
-              placeholder={t("province")}
-              onChangeText={handleChange("province")}
-              onBlur={handleBlur("province")}
-              value={values.province}
+               style={styles.input}
+               placeholder={t("barangay")}
+               value={barangaySearch}
+               onChangeText={(text) => {
+                 handleBarangaySearch(text);
+                 handleChange("barangay")(text);
+               }}
+               onBlur={handleBlur("barangay")}
+               editable={!!selectedCity}
             />
-            {touched.province && errors.province && (
+            {touched.barangay && errors.barangay && (
               <Text
                 style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
               >
-                {errors.province}
+                {errors.barangay}
               </Text>
             )}
+
+            {showBarangaySuggestions && barangaySuggestions.length > 0 && (
+              <View
+                style={[
+                  tw`absolute z-50 w-full bg-white rounded-lg shadow-lg relative`,
+                  {
+                    top: "auto",
+                    marginTop: 2,
+                    elevation: 5,
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                    zIndex: 1000,
+                    maxHeight: 160, // Fixed height for suggestions
+                  },
+                ]}
+              >
+                <ScrollView
+                  nestedScrollEnabled={true}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                  contentContainerStyle={tw`pb-2`}
+                >
+                  {barangaySuggestions.map((barangay) => (
+                    <TouchableOpacity
+                      key={barangay.value}
+                      style={tw`p-3 border-b border-gray-200`}
+                      onPress={() => {
+                        setSelectedBarangay(barangay.value);
+                        setBarangaySearch(barangay.label);
+                        setShowBarangaySuggestions(false);
+                        setFieldValue("barangay", barangay.label);
+                        setFieldTouched("barangay", true); // Add this line
+                        handleBlur("barangay");
+                      }}
+                    >
+                      <Text>{barangay.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            {isLoadingBarangays && (
+              <ActivityIndicator
+                size="small"
+                color={styles.textPrimary.color}
+              />
+            )}
+
             <TextInput
               style={styles.input}
               placeholder={t("zipCode")}
