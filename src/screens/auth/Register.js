@@ -27,7 +27,7 @@ import TermsModal from "../../components/TermsModal";
 import showToast from "utils/toastUtils";
 import * as FileSystem from "expo-file-system";
 import { addressService } from "src/services/addressService";
-
+import { Picker } from "@react-native-picker/picker";
 export default function Register() {
   const [avatar, setAvatar] = useState(null);
   const [isChecked, setIsChecked] = useState(false);
@@ -42,11 +42,8 @@ export default function Register() {
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedBarangay, setSelectedBarangay] = useState(null);
   const [citySearch, setCitySearch] = useState("");
-  const [barangaySearch, setBarangaySearch] = useState("");
   const [citySuggestions, setCitySuggestions] = useState([]);
-  const [barangaySuggestions, setBarangaySuggestions] = useState([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
-  const [showBarangaySuggestions, setShowBarangaySuggestions] = useState(false);
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -94,22 +91,15 @@ export default function Register() {
     } else {
       setCitySuggestions([]);
       setShowCitySuggestions(false);
+      // Clear barangay data when city is cleared
+      setBarangays([]);
+      setSelectedBarangay("");
+      setSelectedCity(null);
+      setFieldValue("barangay", "");
+      setFieldTouched("barangay", true);
     }
   };
 
-  const handleBarangaySearch = async (text) => {
-    setBarangaySearch(text);
-    if (text.length > 0 && selectedCity) {
-      const filtered = barangays.filter((barangay) =>
-        barangay.label.toLowerCase().includes(text.toLowerCase())
-      );
-      setBarangaySuggestions(filtered);
-      setShowBarangaySuggestions(true);
-    } else {
-      setBarangaySuggestions([]);
-      setShowBarangaySuggestions(false);
-    }
-  };
 
   const handlePickImage = async (setFieldValue) => {
     const result = await pickImage();
@@ -404,6 +394,8 @@ export default function Register() {
                         setFieldValue("city", city.label);
                         setFieldTouched("city", true); // Add this line
                         handleBlur("city");
+                        setSelectedBarangay("");
+                        setFieldValue("barangay", "");
                       }}
                     >
                       <Text>{city.label}</Text>
@@ -419,66 +411,35 @@ export default function Register() {
                 color={styles.textPrimary.color}
               />
             )}
-            <TextInput
-               style={styles.input}
-               placeholder={t("barangay")}
-               value={barangaySearch}
-               onChangeText={(text) => {
-                 handleBarangaySearch(text);
-                 handleChange("barangay")(text);
-               }}
-               onBlur={handleBlur("barangay")}
-               editable={!!selectedCity}
-            />
+
+            <View style={[styles.input, tw`p-0 justify-center`]}>
+            <Picker
+    selectedValue={selectedBarangay}
+    onValueChange={(itemValue) => {
+      setSelectedBarangay(itemValue);
+      const selected = barangays.find((b) => b.value === itemValue);
+      setFieldValue("barangay", selected?.label || "");
+      setFieldTouched("barangay", true);
+    }}
+    enabled={!!selectedCity && barangays.length > 0}
+  >
+    <Picker.Item label="Select Barangay" value="" />
+    {barangays.map((barangay) => (
+      <Picker.Item
+        key={barangay.value}
+        label={barangay.label}
+        value={barangay.value}
+      />
+    ))}
+  </Picker>
+            </View>
+
             {touched.barangay && errors.barangay && (
               <Text
                 style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
               >
                 {errors.barangay}
               </Text>
-            )}
-
-            {showBarangaySuggestions && barangaySuggestions.length > 0 && (
-              <View
-                style={[
-                  tw`absolute z-50 w-full bg-white rounded-lg shadow-lg relative`,
-                  {
-                    top: "auto",
-                    marginTop: 2,
-                    elevation: 5,
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                    zIndex: 1000,
-                    maxHeight: 160, // Fixed height for suggestions
-                  },
-                ]}
-              >
-                <ScrollView
-                  nestedScrollEnabled={true}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  onTouchMove={(e) => e.stopPropagation()}
-                  contentContainerStyle={tw`pb-2`}
-                >
-                  {barangaySuggestions.map((barangay) => (
-                    <TouchableOpacity
-                      key={barangay.value}
-                      style={tw`p-3 border-b border-gray-200`}
-                      onPress={() => {
-                        setSelectedBarangay(barangay.value);
-                        setBarangaySearch(barangay.label);
-                        setShowBarangaySuggestions(false);
-                        setFieldValue("barangay", barangay.label);
-                        setFieldTouched("barangay", true); // Add this line
-                        handleBlur("barangay");
-                      }}
-                    >
-                      <Text>{barangay.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
             )}
 
             {isLoadingBarangays && (

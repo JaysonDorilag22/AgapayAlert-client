@@ -28,6 +28,15 @@ class Cache {
 
 const cache = new Cache();
 
+const cleanCityName = (name) => {
+  return name
+    .replace(/(City of|Municipality of|District of)/i, '')
+    .replace(/City$/i, '')
+    .replace(/Municipality$/i, '')
+    .replace(/District$/i, '')
+    .trim();
+};
+
 export const addressService = {
   async getCities(searchTerm = '') {
     const cacheKey = 'cities';
@@ -39,7 +48,7 @@ export const addressService = {
         const response = await axios.get(`${BASE_URL}/cities.json`);
         cities = response.data
           .map(city => ({
-            label: city.name,
+            label: cleanCityName(city.name),
             value: city.code,
           }))
           .sort((a, b) => a.label.localeCompare(b.label));
@@ -60,7 +69,7 @@ export const addressService = {
   },
 
 
-  async getBarangays(cityCode, searchTerm = '') {
+  async getBarangays(cityCode) {
     if (!cityCode) {
       throw new Error('City code is required');
     }
@@ -82,12 +91,7 @@ export const addressService = {
       } else {
         barangays = cachedData;
       }
-
-      if (searchTerm) {
-        return barangays.filter(barangay => 
-          barangay.label.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
+      
       return barangays;
     } catch (error) {
       throw new Error('Failed to fetch barangays');
