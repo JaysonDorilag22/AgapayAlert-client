@@ -123,7 +123,7 @@ const PersonDetailsForm = ({ onNext, onBack }) => {
     );
   };
   return (
-    <View style={tw`flex-1 bg-white p-3`}>
+    <View style={tw`flex-1 bg-white justify-between p-2`}>
       <Text style={tw`text-xl font-bold mb-2`}>Step 3 of 7</Text>
       <Text style={tw`text-2xl font-bold mb-2`}>Person Details</Text>
       <Text style={tw`text-sm mb-6 text-gray-600`}>
@@ -281,7 +281,7 @@ const PersonDetailsForm = ({ onNext, onBack }) => {
           )}
 
           {/* Date of Birth and Age Section */}
-          <View style={tw`flex-row mb-4`}>
+          <View style={tw`flex-row mb-2`}>
             <View style={tw`flex-1 mr-2`}>
               <View style={tw`flex-row items-center mb-1`}>
                 <Text style={tw`text-sm text-gray-600`}>Date of Birth</Text>

@@ -7,12 +7,12 @@ const colorAccent = '#DA1212';
 const colorBackground = '#EEEEEE';
 const colorDisabled = '#A9A9A9';
 const colorText = '#333333';
-
+const colorWhite = '#FFFFFF';
 const styles = {
 
   backgroundColorPrimary: {backgroundColor: colorPrimary},
   // Container styles
-  container: tw.style(`flex-1 justify-center items-center p-4`, { backgroundColor: colorBackground }),
+  container: tw.style(`flex-1 justify-center items-center p-4`, { backgroundColor: colorWhite }),
 
   // Text styles
   textPrimary: tw.style(`text-lg font-bold`, { color: colorPrimary }),

@@ -27,11 +27,11 @@ const BasicInfoForm = ({ onNext, onBack }) => {
   const [type, setType] = useState("");
 
   return (
-    <View style={tw`flex-1 bg-white p-3`}>
+    <View style={tw`flex-1 bg-white justify-between p-2`}>
     <Text style={tw`text-xl font-bold mb-2`}>Step 2 of 7</Text>
     <Text style={tw`text-2xl font-bold mb-2`}>Select Report Type</Text>
     
-    <View style={tw`bg-red-50 p-4 rounded-lg mb-3`}>
+    <View style={tw`bg-red-50 p-2 rounded-lg mb-3`}>
       <Text style={tw`text-red-800 font-medium mb-1`}>Important Note:</Text>
       <Text style={tw`text-red-600 text-sm`}>
         Please choose the most accurate type that describes your incident. This helps us route your report to the appropriate authorities.
@@ -48,7 +48,7 @@ const BasicInfoForm = ({ onNext, onBack }) => {
             <TouchableOpacity
               key={key}
               style={[
-                tw`w-full p-4 mb-4 rounded-xl border-2`,
+                tw`w-full p-2 mb-4 rounded-xl border-2`,
                 isSelected 
                   ? tw`border-blue-600 bg-blue-50` 
                   : tw`border-gray-200 bg-white`

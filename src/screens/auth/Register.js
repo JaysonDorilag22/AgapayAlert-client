@@ -100,7 +100,6 @@ export default function Register() {
     }
   };
 
-
   const handlePickImage = async (setFieldValue) => {
     const result = await pickImage();
     if (result) {
@@ -342,6 +341,12 @@ export default function Register() {
             )}
 
             {/* <View style={tw` mb-4`}> */}
+            {!selectedCity && (
+              <Text style={tw`text-sm text-gray-500 italic`}>
+                Please choose a city first to select barangay
+              </Text>
+            )}
+
             <TextInput
               style={styles.input}
               placeholder={t("city")}
@@ -413,25 +418,25 @@ export default function Register() {
             )}
 
             <View style={[styles.input, tw`p-0 justify-center`]}>
-            <Picker
-    selectedValue={selectedBarangay}
-    onValueChange={(itemValue) => {
-      setSelectedBarangay(itemValue);
-      const selected = barangays.find((b) => b.value === itemValue);
-      setFieldValue("barangay", selected?.label || "");
-      setFieldTouched("barangay", true);
-    }}
-    enabled={!!selectedCity && barangays.length > 0}
-  >
-    <Picker.Item label="Select Barangay" value="" />
-    {barangays.map((barangay) => (
-      <Picker.Item
-        key={barangay.value}
-        label={barangay.label}
-        value={barangay.value}
-      />
-    ))}
-  </Picker>
+              <Picker
+                selectedValue={selectedBarangay}
+                onValueChange={(itemValue) => {
+                  setSelectedBarangay(itemValue);
+                  const selected = barangays.find((b) => b.value === itemValue);
+                  setFieldValue("barangay", selected?.label || "");
+                  setFieldTouched("barangay", true);
+                }}
+                enabled={!!selectedCity && barangays.length > 0}
+              >
+                <Picker.Item label="Select Barangay" value="" />
+                {barangays.map((barangay) => (
+                  <Picker.Item
+                    key={barangay.value}
+                    label={barangay.label}
+                    value={barangay.value}
+                  />
+                ))}
+              </Picker>
             </View>
 
             {touched.barangay && errors.barangay && (
@@ -499,7 +504,7 @@ export default function Register() {
             </TouchableOpacity>
             <Text
               style={[
-                tw`text-sm font-bold mt-4`,
+                tw`text-sm font-bold mt-2`,
                 { color: styles.textPrimary.color, textAlign: "center" },
               ]}
             >

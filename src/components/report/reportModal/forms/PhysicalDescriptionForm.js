@@ -2,11 +2,23 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import tw from 'twrnc';
 import styles from 'styles/styles';
+import { Picker } from '@react-native-picker/picker';
+
+const genderOptions = [
+  { label: 'Select Gender', value: '' },
+  { label: 'Male', value: 'Male' },
+  { label: 'Female', value: 'Female' },
+  { label: 'Non-binary', value: 'Non-binary' },
+  { label: 'Transgender', value: 'Transgender' },
+  { label: 'Other', value: 'Other' }
+];
+
 
 const PhysicalDescriptionForm = ({ onNext, onBack }) => {
   const [formData, setFormData] = useState({
     // Physical attributes
     gender: '',
+    customGender: '',
     race: '',
     height: '',
     weight: '',
@@ -27,7 +39,7 @@ const PhysicalDescriptionForm = ({ onNext, onBack }) => {
   });
 
   return (
-    <View style={tw`flex-1 bg-white p-3`}>
+    <View style={tw`flex-1 bg-white justify-between p-2`}>
       <Text style={tw`text-xl font-bold mb-2`}>Step 4 of 7</Text>
       <Text style={tw`text-2xl font-bold mb-2`}>Physical Description</Text>
       <Text style={tw`text-sm mb-6 text-gray-600`}>
@@ -40,13 +52,40 @@ const PhysicalDescriptionForm = ({ onNext, onBack }) => {
           <Text style={tw`text-sm font-bold mb-4 text-gray-700`}>Physical Attributes</Text>
           
           <Text style={tw`text-sm text-gray-600 mb-1`}>Gender</Text>
-          <TextInput
-            style={styles.input2}
-            placeholder="Gender"
-            value={formData.gender}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, gender: text }))}
-          />
+<View style={[styles.input2, tw`p-0 justify-center`]}>
+  <Picker
+    selectedValue={formData.gender}
+    onValueChange={(itemValue) => 
+      setFormData(prev => ({ 
+        ...prev, 
+        gender: itemValue,
+        customGender: itemValue !== 'Other' ? '' : prev.customGender 
+      }))
+    }
+  >
+    {genderOptions.map(option => (
+      <Picker.Item 
+        key={option.value} 
+        label={option.label} 
+        value={option.value} 
+      />
+    ))}
+  </Picker>
+</View>
 
+{formData.gender === 'Other' && (
+  <View style={tw`mt-2`}>
+    <Text style={tw`text-sm text-gray-600 mb-1`}>Specify Gender</Text>
+    <TextInput
+      style={styles.input2}
+      placeholder="Enter gender"
+      value={formData.customGender}
+      onChangeText={(text) => 
+        setFormData(prev => ({ ...prev, customGender: text }))
+      }
+    />
+  </View>
+)}
           <Text style={tw`text-sm text-gray-600 mb-1`}>Race/Ethnicity</Text>
           <TextInput
             style={styles.input2}

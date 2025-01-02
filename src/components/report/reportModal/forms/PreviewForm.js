@@ -61,7 +61,7 @@ const PreviewForm = ({ onBack, onSubmit }) => {
   );
 
   return (
-    <View style={tw`flex-1 bg-white p-3`}>
+    <View style={tw`flex-1 bg-white justify-between p-2`}>
       <Text style={tw`text-xl font-bold mb-2`}>Step 7 of 7</Text>
       <Text style={tw`text-2xl font-bold mb-2`}>Preview Report</Text>
       <Text style={tw`text-sm mb-6 text-gray-600`}>

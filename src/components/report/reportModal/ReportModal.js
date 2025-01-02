@@ -43,7 +43,10 @@ const ReportModal = ({ visible, onClose }) => {
       case 5:
         return <LocationForm {...commonProps} onNext={handleNext} onBack={() => handleBack(4)} />;
       case 6:
-        return <PoliceStationForm {...commonProps} onNext={handleNext} onBack={() => handleBack(5)} />;
+        return <PoliceStationForm {...commonProps} 
+        initialData={formData}
+        onNext={handleNext} 
+        onBack={() => handleBack(5)} />;
       case 7:
         return <PreviewForm {...commonProps} formData={formData} onBack={() => handleBack(6)} />;
       default:
@@ -61,7 +64,7 @@ const ReportModal = ({ visible, onClose }) => {
           <X color={styles.textPrimary.color} size={24} />
         </TouchableOpacity>
         {renderStepContent()}
-        <View style={tw`p-2`}>
+        <View style={tw`px-2 pb-1`}> 
           <View style={tw`flex-row items-center justify-center`}>
             {Array(6).fill(0).map((_, index) => (
               <View
