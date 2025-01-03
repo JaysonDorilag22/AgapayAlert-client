@@ -18,70 +18,96 @@ import { createReport } from "redux/actions/reportActions";
 const PreviewForm = ({ onBack, onClose, initialData, loading = false, error = null }) => {
   const dispatch = useDispatch();
   const [submitting, setSubmitting] = useState(false);
-  const displayValue = (value) => value || 'None';
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 2;
 
+  const displayValue = (value) => value || 'N/A';
+
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
   const handleSubmit = async () => {
     try {
       setSubmitting(true);
+      let lastError = null;
   
-      const formData = new FormData();
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          if (attempt > 0) {
+            await sleep(1000 * attempt); // Exponential backoff
+            console.log(`Retry attempt ${attempt}/${MAX_RETRIES}`);
+          }
   
-      // Add reporter and type
-      formData.append('reporter', initialData.reporter._id);
-      formData.append('type', initialData.type);
-      formData.append('broadcastConsent', initialData.broadcastConsent);
+          const formData = new FormData();
   
-      // Add person details with corrected lastSeentime field
-      Object.entries(initialData.personInvolved).forEach(([key, value]) => {
-        if (key === 'mostRecentPhoto') {
-          formData.append('personInvolved[mostRecentPhoto]', {
-            uri: value.uri,
-            type: 'image/jpeg',
-            name: 'photo.jpg'
+          // Basic info
+          formData.append('reporter', initialData.reporter._id);
+          formData.append('type', initialData.type);
+          formData.append('broadcastConsent', initialData.broadcastConsent);
+  
+          // Person details
+          const person = initialData.personInvolved;
+          Object.entries(person).forEach(([key, value]) => {
+            if (key === 'mostRecentPhoto') {
+              formData.append('personInvolved[mostRecentPhoto]', {
+                uri: value.uri,
+                type: 'image/jpeg',
+                name: value.name || 'photo.jpg'
+              });
+            } else if (key === 'dateOfBirth' || key === 'lastSeenDate') {
+              formData.append(`personInvolved[${key}]`, value.toISOString());
+            } else if (key === 'lastSeenTime') {
+              formData.append('personInvolved[lastSeentime]', value);
+            } else {
+              formData.append(`personInvolved[${key}]`, value);
+            }
           });
-        } else if (key === 'dateOfBirth' || key === 'lastSeenDate') {
-          formData.append(`personInvolved[${key}]`, value.toISOString());
-        } else if (key === 'lastSeenTime') {
-          // Fix field name to match backend schema
-          formData.append('personInvolved[lastSeentime]', value);
-        } else {
-          formData.append(`personInvolved[${key}]`, value);
+  
+          // Location
+          formData.append('location[type]', 'Point');
+          formData.append('location[coordinates]', JSON.stringify(initialData.location.coordinates));
+          Object.entries(initialData.location.address).forEach(([key, value]) => {
+            formData.append(`location[address][${key}]`, value);
+          });
+  
+          // Police station
+          if (!initialData.isAutoAssign && initialData.assignedPoliceStation?._id) {
+            formData.append('assignedPoliceStation', initialData.assignedPoliceStation._id);
+          }
+  
+          // Additional images
+          initialData.additionalImages?.forEach((image, index) => {
+            formData.append('additionalImages', {
+              uri: image.uri,
+              type: image.mimeType || 'image/jpeg',
+              name: image.fileName || `additional_${index}.jpg`
+            });
+          });
+  
+          console.log('Submitting report...');
+          const result = await dispatch(createReport(formData));
+  
+          if (result.success) {
+            console.log('Report submitted successfully');
+            alert('Report submitted successfully');
+            onClose();
+            return;
+          } else {
+            throw new Error(result.error || 'Submission failed');
+          }
+        } catch (err) {
+          console.error(`Attempt ${attempt + 1} failed:`, err);
+          lastError = err;
+          if (attempt < MAX_RETRIES) continue;
         }
-      });
-  
-      // Add location and other fields
-      formData.append('location[type]', 'Point');
-      formData.append('location[coordinates]', JSON.stringify(initialData.location.coordinates));
-      Object.entries(initialData.location.address).forEach(([key, value]) => {
-        formData.append(`location[address][${key}]`, value);
-      });
-  
-      // Add police station if not auto-assigned
-      if (!initialData.isAutoAssign && initialData.assignedPoliceStation?._id) {
-        formData.append('assignedPoliceStation', initialData.assignedPoliceStation._id);
       }
   
-      // Add additional images
-      initialData.additionalImages?.forEach((image, index) => {
-        formData.append('additionalImages', {
-          uri: image.uri,
-          type: 'image/jpeg',
-          name: `additional_${index}.jpg`
-        });
-      });
+      // If all retries failed
+      setRetryCount(prev => Math.min(prev + 1, MAX_RETRIES));
+      throw lastError || new Error('Failed to submit report after all retries');
   
-      const result = await dispatch(createReport(formData));
-  
-      if (result.success) {
-        alert('Report submitted successfully');
-        onClose();
-      } else {
-        throw new Error(result.error || 'Failed to submit report');
-      }
     } catch (error) {
       console.error('Submit Error:', error);
-      alert('Error submitting report: ' + error.message);
+      alert(`Error submitting report: ${error.message}`);
     } finally {
       setSubmitting(false);
     }
