@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
-import { LogLevel, OneSignal } from 'react-native-onesignal';
-import Constants from "expo-constants";
+// import { LogLevel, OneSignal } from 'react-native-onesignal';
+// import Constants from "expo-constants";
 import React, { useState, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -12,11 +12,10 @@ import { LanguageContext } from './src/context/LanguageContext';
 
 const Stack = createStackNavigator();
 
-OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
+// OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+// OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
 
-// Also need enable notifications to complete OneSignal setup
-OneSignal.Notifications.requestPermission(true);
+// OneSignal.Notifications.requestPermission(true);
 
 export default function App() {
   const [language, setLanguage] = useState('en');

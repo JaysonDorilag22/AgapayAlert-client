@@ -5,6 +5,7 @@ import { FAB } from 'react-native-paper';
 import tw from 'twrnc';
 import BottomTabNavigator from './BottomTabNavigator';
 import ReportModal from 'components/report/reportModal/ReportModal';
+
 const MainNavigator = ({ navigation, route }) => {
   const initialRoute = route.params?.screen || 'HomeTab';
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -35,6 +36,7 @@ const MainNavigator = ({ navigation, route }) => {
       <ReportModal 
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
+       
       />
     </View>
   );

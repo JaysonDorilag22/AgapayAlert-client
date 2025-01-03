@@ -12,6 +12,7 @@ import styles from "styles/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserDetails } from "redux/actions/userActions";
 import UserInfoSkeleton from "components/skeletons/UserInfoSkeleton";
+import PropTypes from "prop-types";
 
 const ConfirmationModal = ({ onNext }) => {
   const { user, loading } = useSelector((state) => state.user || {});
@@ -23,8 +24,6 @@ const ConfirmationModal = ({ onNext }) => {
       dispatch(getUserDetails(authUser._id));
     }
   }, [dispatch, authUser]);
-
-  
 
   const reminders = [
     {
@@ -130,11 +129,10 @@ const ConfirmationModal = ({ onNext }) => {
       </Text>
 
       <ScrollView style={tw`flex-1`}>
-      {renderUserInfo()}
+        {renderUserInfo()}
       
         <View style={tw`bg-gray-50 rounded-lg p-4 mb-4`}>
           <Text style={tw`text-xl font-bold mb-4`}>Important Reminders</Text>
-
           {reminders.map((reminder, index) => {
             const Icon = reminder.icon;
             return (
@@ -164,13 +162,17 @@ const ConfirmationModal = ({ onNext }) => {
       </ScrollView>
 
       <TouchableOpacity
-        style={[styles.buttonPrimary, tw`mt-4`]}
-        onPress={() => onNext({})}
+        style={styles.buttonPrimary}
+        onPress={onNext}
       >
-        <Text style={styles.buttonTextPrimary}>Continue</Text>
+        <Text style={styles.buttonTextPrimary}>I Understand, Continue</Text>
       </TouchableOpacity>
     </View>
   );
+};
+
+ConfirmationModal.propTypes = {
+  onNext: PropTypes.func.isRequired
 };
 
 export default ConfirmationModal;

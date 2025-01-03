@@ -1,62 +1,268 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { Clock, MapPin, User, FileText, Shield } from 'lucide-react-native';
-import tw from 'twrnc';
-import styles from 'styles/styles';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { AlertCircle, Check } from "lucide-react-native";
+import PropTypes from 'prop-types';
+import tw from "twrnc";
+import styles from "styles/styles";
+import { reportModel } from "../model/reportModel";
+import { useDispatch } from "react-redux";
+import { createReport } from "redux/actions/reportActions";
+
+const PreviewForm = ({ onBack, onClose, initialData, loading = false, error = null }) => {
+  const dispatch = useDispatch();
+  const [submitting, setSubmitting] = useState(false);
+  const displayValue = (value) => value || 'None';
 
 
-
-const PreviewForm = ({ onBack, onSubmit }) => {
-  // Mock data
-  const mockData = {
-    basicInfo: {
-      type: 'Missing',
-      images: [
-        { url: 'https://images.unsplash.com/photo-1661107459646-a0110d8ac203?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }
-      ]
-    },
-    personInvolved: {
-      firstName: 'Juan',
-      lastName: 'Dela Cruz',
-      alias: 'Johnny',
-      relationship: 'Father',
-      lastKnownLocation: 'Manila City',
-      mostRecentPhoto: { url: 'https://media.istockphoto.com/id/1359499106/photo/grandmother-bonds-with-grandson-on-the-beach.webp?a=1&b=1&s=612x612&w=0&k=20&c=fHws_aSI9awOaSb5k-Is0zKWrPU8aT7hMHGOaXE7mYw=' }
-    },
-    physicalDescription: {
-      gender: 'Male',
-      race: 'Asian',
-      height: "5'8\"",
-      weight: '70kg',
-      eyeColor: 'Brown',
-      hairColor: 'Black',
-      scarsMarksTattoos: 'Scar on left arm',
-      birthDefects: 'None',
-      bloodType: 'O+',
-      medications: 'None'
-    },
-    location: {
-      address: {
-        streetAddress: '123 Main Street',
-        barangay: 'San Antonio',
-        city: 'Makati',
-        zipCode: '1200'
-      },
-      dateTime: {
-        date: '2024-03-20',
-        time: '14:30'
+  const handleSubmit = async () => {
+    try {
+      setSubmitting(true);
+  
+      const formData = new FormData();
+  
+      // Add reporter and type
+      formData.append('reporter', initialData.reporter._id);
+      formData.append('type', initialData.type);
+      formData.append('broadcastConsent', initialData.broadcastConsent);
+  
+      // Add person details with corrected lastSeentime field
+      Object.entries(initialData.personInvolved).forEach(([key, value]) => {
+        if (key === 'mostRecentPhoto') {
+          formData.append('personInvolved[mostRecentPhoto]', {
+            uri: value.uri,
+            type: 'image/jpeg',
+            name: 'photo.jpg'
+          });
+        } else if (key === 'dateOfBirth' || key === 'lastSeenDate') {
+          formData.append(`personInvolved[${key}]`, value.toISOString());
+        } else if (key === 'lastSeenTime') {
+          // Fix field name to match backend schema
+          formData.append('personInvolved[lastSeentime]', value);
+        } else {
+          formData.append(`personInvolved[${key}]`, value);
+        }
+      });
+  
+      // Add location and other fields
+      formData.append('location[type]', 'Point');
+      formData.append('location[coordinates]', JSON.stringify(initialData.location.coordinates));
+      Object.entries(initialData.location.address).forEach(([key, value]) => {
+        formData.append(`location[address][${key}]`, value);
+      });
+  
+      // Add police station if not auto-assigned
+      if (!initialData.isAutoAssign && initialData.assignedPoliceStation?._id) {
+        formData.append('assignedPoliceStation', initialData.assignedPoliceStation._id);
       }
-    },
-    policeStation: {
-      name: 'Central Police Station',
-      isAutoAssigned: true
+  
+      // Add additional images
+      initialData.additionalImages?.forEach((image, index) => {
+        formData.append('additionalImages', {
+          uri: image.uri,
+          type: 'image/jpeg',
+          name: `additional_${index}.jpg`
+        });
+      });
+  
+      const result = await dispatch(createReport(formData));
+  
+      if (result.success) {
+        alert('Report submitted successfully');
+        onClose();
+      } else {
+        throw new Error(result.error || 'Failed to submit report');
+      }
+    } catch (error) {
+      console.error('Submit Error:', error);
+      alert('Error submitting report: ' + error.message);
+    } finally {
+      setSubmitting(false);
     }
   };
+  
+  console.log(initialData);
 
-  const SectionHeader = ({ icon: Icon, title }) => (
-    <View style={tw`flex-row items-center mb-4 border-b border-gray-200 pb-2`}>
-      <Icon size={20} color="#4B5563" style={tw`mr-2`} />
-      <Text style={tw`text-lg font-bold text-gray-800`}>{title}</Text>
+  const renderReporterInfo = () => (
+    <View style={tw`mb-6`}>
+      <Text style={tw`text-lg font-bold mb-3`}>Reporter Information</Text>
+      <View style={tw`bg-gray-50 p-3 rounded-lg`}>
+      <Text style={tw`text-gray-600 mb-2`}>
+          ID: {displayValue(`${initialData?.reporter?._id}`)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Name: {displayValue(`${initialData?.reporter?.firstName} ${initialData?.reporter?.lastName}`)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Contact: {displayValue(initialData?.reporter?.phoneNumber)}
+        </Text>
+        <Text style={tw`text-gray-600`}>
+          Email: {displayValue(initialData?.reporter?.email)}
+        </Text>
+      </View>
+    </View>
+  );
+  
+  const renderBasicInfo = () => (
+    <View style={tw`mb-6`}>
+      <Text style={tw`text-lg font-bold mb-3`}>Report Type</Text>
+      <View style={tw`bg-gray-50 p-3 rounded-lg`}>
+        <Text style={tw`text-gray-800 font-medium`}>{initialData.type}</Text>
+      </View>
+    </View>
+  );
+
+  const renderPersonDetails = () => (
+    <View style={tw`mb-6`}>
+      <Text style={tw`text-lg font-bold mb-3`}>Person Details</Text>
+      <View style={tw`bg-gray-50 p-3 rounded-lg`}>
+        {/* Photo Section */}
+        {initialData?.personInvolved?.mostRecentPhoto?.uri ? (
+          <View style={tw`items-center mb-4`}>
+            <Image 
+              source={{ uri: initialData.personInvolved.mostRecentPhoto.uri }}
+              style={tw`h-40 w-40 rounded-lg mb-2`}
+              resizeMode="cover"
+            />
+          </View>
+        ) : (
+          <Text style={tw`text-gray-600 mb-4 text-center`}>No photo available</Text>
+        )}
+  
+        <Text style={tw`font-medium mb-2`}>
+          {`${initialData?.personInvolved?.firstName || ''} ${initialData?.personInvolved?.lastName || ''}`}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Age: {displayValue(initialData?.personInvolved?.age)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Alias: {displayValue(initialData?.personInvolved?.alias)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Relationship: {displayValue(initialData?.personInvolved?.relationship)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Date of Birth: {displayValue(initialData?.personInvolved?.dateOfBirth ? 
+            new Date(initialData.personInvolved.dateOfBirth).toLocaleDateString() : null)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Last Seen: {displayValue(`${new Date(initialData?.personInvolved?.lastSeenDate).toLocaleDateString()} ${initialData?.personInvolved?.lastSeenTime}`)}
+        </Text>
+        <Text style={tw`text-gray-600`}>
+          Last Known Location: {displayValue(initialData?.personInvolved?.lastKnownLocation)}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const renderPhysicalDescription = () => (
+    <View style={tw`mb-6`}>
+      <Text style={tw`text-lg font-bold mb-3`}>Physical Description</Text>
+      <View style={tw`bg-gray-50 p-3 rounded-lg`}>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Race: {displayValue(initialData?.personInvolved?.race)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Gender: {displayValue(initialData?.personInvolved?.gender)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Height: {displayValue(initialData?.personInvolved?.height)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Weight: {displayValue(initialData?.personInvolved?.weight)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Eye Color: {displayValue(initialData?.personInvolved?.eyeColor)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Hair Color: {displayValue(initialData?.personInvolved?.hairColor)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Scars/Marks/Tattoos: {displayValue(initialData?.personInvolved?.scarsMarksTattoos)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Birth Defects: {displayValue(initialData?.personInvolved?.birthDefects)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Prosthetics: {displayValue(initialData?.personInvolved?.prosthetics)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Blood Type: {displayValue(initialData?.personInvolved?.bloodType)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Medications: {displayValue(initialData?.personInvolved?.medications)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Last Known Clothing: {displayValue(initialData?.personInvolved?.lastKnownClothing)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Contact Information: {displayValue(initialData?.personInvolved?.contactInformation)}
+        </Text>
+        <Text style={tw`text-gray-600`}>
+          Other Information: {displayValue(initialData?.personInvolved?.otherInformation)}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const renderLocation = () => (
+    <View style={tw`mb-6`}>
+      <Text style={tw`text-lg font-bold mb-3`}>Location</Text>
+      <View style={tw`bg-gray-50 p-3 rounded-lg`}>
+        <Text style={tw`text-gray-600 mb-2`}>
+          {displayValue(initialData?.location?.address?.streetAddress)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          Brgy. {displayValue(initialData?.location?.address?.barangay)}, {displayValue(initialData?.location?.address?.city)}
+        </Text>
+        <Text style={tw`text-gray-600 mb-2`}>
+          ZIP: {displayValue(initialData?.location?.address?.zipCode)}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const renderAdditionalImages = () => (
+    <View style={tw`mb-6`}>
+      <Text style={tw`text-lg font-bold mb-3`}>Additional Images</Text>
+      <View style={tw`bg-gray-50 p-3 rounded-lg`}>
+        {initialData?.additionalImages?.length > 0 ? (
+          <View style={tw`flex-row flex-wrap`}>
+            {initialData.additionalImages.map((image, index) => (
+              <View key={index} style={tw`w-1/3 p-1`}>
+                <Image 
+                  source={{ uri: image.uri }}
+                  style={tw`h-24 w-full rounded-lg`}
+                  resizeMode="cover"
+                />
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text style={tw`text-gray-600 text-center`}>No additional images</Text>
+        )}
+      </View>
+    </View>
+  );
+
+  const renderPoliceStation = () => (
+    <View style={tw`mb-6`}>
+      <Text style={tw`text-lg font-bold mb-3`}>Police Station</Text>
+      <View style={tw`bg-gray-50 p-3 rounded-lg`}>
+        {initialData.isAutoAssign ? (
+          <Text style={tw`text-gray-600`}>Automatic Assignment Enabled</Text>
+        ) : (
+          <Text style={tw`text-gray-600`}>
+            {initialData.assignedPoliceStation?.name || 'No station selected'}
+          </Text>
+        )}
+      </View>
     </View>
   );
 
@@ -65,101 +271,56 @@ const PreviewForm = ({ onBack, onSubmit }) => {
       <Text style={tw`text-xl font-bold mb-2`}>Step 7 of 7</Text>
       <Text style={tw`text-2xl font-bold mb-2`}>Preview Report</Text>
       <Text style={tw`text-sm mb-6 text-gray-600`}>
-        Review your report details before submission
+        Review all information before submitting
       </Text>
 
       <ScrollView style={tw`flex-1`}>
-        {/* Basic Information */}
-        <View style={tw`mb-6 bg-gray-50 p-4 rounded-lg`}>
-          <SectionHeader icon={FileText} title="Report Information" />
-          <Text style={tw`text-gray-700 font-bold`}>Report Type</Text>
-          <Text style={tw`text-gray-600 mb-2`}>{mockData.basicInfo.type}</Text>
-          {mockData.basicInfo.images.length > 0 && (
-            <Text style={tw`text-gray-600`}>
-              {mockData.basicInfo.images.length} evidence photo(s) attached
-            </Text>
-          )}
-        </View>
+      {renderReporterInfo()} 
+        {renderBasicInfo()}
+        {renderPersonDetails()}
+        {renderPhysicalDescription()}
+        {renderLocation()}
+        {renderAdditionalImages()}
+        {renderPoliceStation()}
 
-        {/* Person Details */}
-        <View style={tw`mb-6 bg-gray-50 p-4 rounded-lg`}>
-          <SectionHeader icon={User} title="Person Details" />
-          <View style={tw`flex-row mb-4`}>
-            <Image
-              source={{ uri: mockData.personInvolved.mostRecentPhoto.url }}
-              style={tw`w-24 h-24 rounded-lg mr-4`}
-            />
-            <View style={tw`flex-1`}>
-              <Text style={tw`text-lg font-bold text-gray-800`}>
-                {mockData.personInvolved.firstName} {mockData.personInvolved.lastName}
-              </Text>
-              {mockData.personInvolved.alias && (
-                <Text style={tw`text-gray-600`}>Alias: {mockData.personInvolved.alias}</Text>
-              )}
-              <Text style={tw`text-gray-600`}>
-                Relationship: {mockData.personInvolved.relationship}
-              </Text>
-            </View>
+        {error && (
+          <View style={tw`bg-red-50 p-4 rounded-lg mb-4 flex-row items-center`}>
+            <AlertCircle color="#DC2626" size={20} style={tw`mr-2`} />
+            <Text style={tw`text-red-600 flex-1`}>{error}</Text>
           </View>
-        </View>
-
-        {/* Physical Description */}
-        <View style={tw`mb-6 bg-gray-50 p-4 rounded-lg`}>
-          <SectionHeader icon={User} title="Physical Description" />
-          <View style={tw`grid grid-cols-2 gap-2`}>
-            {Object.entries(mockData.physicalDescription).map(([key, value]) => (
-              <View key={key} style={tw`mb-2`}>
-                <Text style={tw`text-gray-700 font-bold`}>
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                </Text>
-                <Text style={tw`text-gray-600`}>{value}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Location Details */}
-        <View style={tw`mb-6 bg-gray-50 p-4 rounded-lg`}>
-          <SectionHeader icon={MapPin} title="Location Details" />
-          <Text style={tw`text-gray-700 mb-2`}>
-            {mockData.location.address.streetAddress},
-            {'\n'}Brgy. {mockData.location.address.barangay},
-            {'\n'}{mockData.location.address.city},
-          </Text>
-          <View style={tw`flex-row items-center mt-2`}>
-            <Clock size={16} color="#4B5563" style={tw`mr-2`} />
-            <Text style={tw`text-gray-600`}>
-              {mockData.location.dateTime.date} at {mockData.location.dateTime.time}
-            </Text>
-          </View>
-        </View>
-
-        {/* Police Station */}
-        <View style={tw`mb-6 bg-gray-50 p-4 rounded-lg`}>
-          <SectionHeader icon={Shield} title="Assigned Police Station" />
-          <Text style={tw`text-gray-700 font-bold`}>{mockData.policeStation.name}</Text>
-          <Text style={tw`text-gray-600`}>
-            {mockData.policeStation.isAutoAssigned ? 'Automatically assigned' : 'Manually selected'}
-          </Text>
-        </View>
+        )}
       </ScrollView>
 
       <View style={tw`flex-row mt-4`}>
-        <TouchableOpacity
-          style={[styles.buttonSecondary, tw`flex-1 mr-2`]}
-          onPress={onBack}
-        >
-          <Text style={styles.buttonTextPrimary}>Back</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.buttonPrimary, tw`flex-1 ml-2`]}
-          onPress={onSubmit}
-        >
+      <TouchableOpacity 
+        style={[styles.buttonSecondary, tw`flex-1 mr-2`]}
+        onPress={onBack}
+        disabled={submitting}
+      >
+        <Text style={styles.buttonTextPrimary}>Back</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.buttonPrimary, tw`flex-1 ml-2`]}
+        onPress={handleSubmit}
+        disabled={submitting}
+      >
+        {submitting ? (
+          <ActivityIndicator color="white" size="small" />
+        ) : (
           <Text style={styles.buttonTextPrimary}>Submit Report</Text>
-        </TouchableOpacity>
-      </View>
+        )}
+      </TouchableOpacity>
+    </View>
     </View>
   );
+};
+
+PreviewForm.propTypes = {
+  onBack: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  initialData: PropTypes.object.isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.string
 };
 
 export default PreviewForm;

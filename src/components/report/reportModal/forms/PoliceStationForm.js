@@ -13,7 +13,19 @@ import tw from "twrnc";
 import styles from "styles/styles";
 import { searchPoliceStations } from "redux/actions/policeStationActions";
 import PulsingCircle from "components/Pulse";
-const PoliceStationForm = ({ onNext, onBack, initialData }) => {
+import PropTypes from 'prop-types';
+
+
+const PoliceStationForm = ({ onNext, onBack, initialData = {
+  location: {
+    address: {
+      streetAddress: '',
+      barangay: '',
+      city: '',
+      zipCode: ''
+    }
+  },
+} }) => {
   const dispatch = useDispatch();
   const { loading, policeStations, error } = useSelector(
     (state) => state.policeStation
@@ -21,25 +33,16 @@ const PoliceStationForm = ({ onNext, onBack, initialData }) => {
   const [isAutoAssign, setIsAutoAssign] = useState(true);
   const [selectedStation, setSelectedStation] = useState(null);
 
-  // Format address for API
   useEffect(() => {
     if (!isAutoAssign && initialData?.location?.address) {
-      const { streetAddress, barangay, city, zipCode } =
-        initialData.location.address;
+      const { streetAddress, barangay, city, zipCode } = initialData.location.address;
       const formattedAddress = {
-        address: {
-          streetAddress,
-          barangay,
-          city,
-          zipCode,
-        },
+        address: { streetAddress, barangay, city, zipCode }
       };
-      console.log("formattedAddress", formattedAddress);
       dispatch(searchPoliceStations(formattedAddress));
     }
   }, [isAutoAssign, initialData, dispatch]);
 
-  // Update validation
   const handleManualToggle = (value) => {
     setIsAutoAssign(value);
     if (!value && !initialData?.location?.address) {
@@ -57,14 +60,10 @@ const PoliceStationForm = ({ onNext, onBack, initialData }) => {
         Choose how you want to assign a police station
       </Text>
 
-      <View
-        style={tw`flex-row items-center justify-between mb-6 bg-gray-50 p-4 rounded-lg`}
-      >
+      <View style={tw`flex-row items-center justify-between mb-6 bg-gray-50 p-4 rounded-lg`}>
         <View>
           <Text style={tw`font-bold text-gray-800`}>Automatic Assignment</Text>
-          <Text style={tw`text-sm text-gray-600`}>
-            Let system assign nearest station
-          </Text>
+          <Text style={tw`text-sm text-gray-600`}>Let system assign nearest station</Text>
         </View>
         <Switch
           value={isAutoAssign}
@@ -81,13 +80,13 @@ const PoliceStationForm = ({ onNext, onBack, initialData }) => {
           </Text>
 
           {loading ? (
-  <View style={tw`flex-1 items-center justify-center`}>
-    <PulsingCircle />
-    <Text style={tw`mt-4 text-gray-600 font-medium`}>
-      Searching nearby stations...
-    </Text>
-  </View>
-) : error ? (
+            <View style={tw`flex-1 items-center justify-center`}>
+              <PulsingCircle />
+              <Text style={tw`mt-4 text-gray-600 font-medium`}>
+                Searching nearby stations...
+              </Text>
+            </View>
+          ) : error ? (
             <Text style={tw`text-red-500 text-center`}>{error}</Text>
           ) : policeStations?.length > 0 ? (
             policeStations.map((station) => (
@@ -103,26 +102,22 @@ const PoliceStationForm = ({ onNext, onBack, initialData }) => {
               >
                 <MapPin
                   size={24}
-                  color={
-                    selectedStation?._id === station._id ? "#2563EB" : "#6B7280"
-                  }
+                  color={selectedStation?._id === station._id ? "#2563EB" : "#6B7280"}
                   style={tw`mr-3`}
                 />
                 <View style={tw`flex-1`}>
-                  <Text style={tw`font-bold text-gray-800`}>
-                    {station.name}
-                  </Text>
+                  <Text style={tw`font-bold text-gray-800`}>{station.name}</Text>
                   <Text style={tw`text-sm text-gray-600`}>
                     {`${station.address.streetAddress}, ${station.address.barangay}`}
                   </Text>
                 </View>
                 <View style={tw`items-end`}>
-        <Text style={tw`text-sm font-medium text-gray-600`}>
-          {station.estimatedRoadDistance 
-            ? `~${station.estimatedRoadDistance} km` 
-            : 'Calculating...'}
-        </Text>
-      </View>
+                  <Text style={tw`text-sm font-medium text-gray-600`}>
+                    {station.estimatedRoadDistance 
+                      ? `~${station.estimatedRoadDistance} km` 
+                      : 'Calculating...'}
+                  </Text>
+                </View>
               </TouchableOpacity>
             ))
           ) : (
@@ -138,8 +133,7 @@ const PoliceStationForm = ({ onNext, onBack, initialData }) => {
             Automatic Assignment
           </Text>
           <Text style={tw`text-sm text-gray-600 text-center mt-2 mx-8`}>
-            The system will automatically assign the nearest police station to
-            handle your case
+            The system will automatically assign the nearest police station to handle your case
           </Text>
         </View>
       )}
@@ -153,12 +147,10 @@ const PoliceStationForm = ({ onNext, onBack, initialData }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.buttonPrimary, tw`flex-1 ml-2`]}
-          onPress={() =>
-            onNext({
-              isAutoAssign,
-              assignedPoliceStation: isAutoAssign ? null : selectedStation,
-            })
-          }
+          onPress={() => onNext({
+            isAutoAssign,
+            assignedPoliceStation: isAutoAssign ? null : selectedStation,
+          })}
           disabled={!isAutoAssign && !selectedStation}
         >
           <Text style={styles.buttonTextPrimary}>Next</Text>
@@ -166,6 +158,24 @@ const PoliceStationForm = ({ onNext, onBack, initialData }) => {
       </View>
     </View>
   );
+};
+
+
+PoliceStationForm.propTypes = {
+  onNext: PropTypes.func.isRequired,
+  onBack: PropTypes.func.isRequired,
+  initialData: PropTypes.shape({
+    location: PropTypes.shape({
+      address: PropTypes.shape({
+        streetAddress: PropTypes.string,
+        barangay: PropTypes.string,
+        city: PropTypes.string,
+        zipCode: PropTypes.string
+      })
+    }),
+    isAutoAssign: PropTypes.bool,
+    assignedPoliceStation: PropTypes.object
+  })
 };
 
 export default PoliceStationForm;
