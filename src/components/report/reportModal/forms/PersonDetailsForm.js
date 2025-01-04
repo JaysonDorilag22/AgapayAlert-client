@@ -175,7 +175,7 @@ const PersonDetailsForm = ({
       Fill in the details of the person involved.
     </Text>
 
-    <ScrollView style={tw`flex-1`}>
+    <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
       {/* Photo Upload Section */}
       <View style={tw`mb-6`}>
         <View style={tw`items-center`}>

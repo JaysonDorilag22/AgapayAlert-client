@@ -195,7 +195,7 @@ const LocationForm = ({ onNext, onBack, initialData = {} }) => {
         Enter incident location and upload additional evidence photos (optional)
       </Text>
 
-      <ScrollView style={tw`flex-1`}>
+      <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
         {/* Additional Images Section */}
         <View style={tw`mb-6`}>
           <View style={tw`flex-row items-center justify-between mb-2`}>

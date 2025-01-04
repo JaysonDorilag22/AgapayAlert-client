@@ -72,7 +72,7 @@ const PoliceStationForm = ({ onNext, onBack, initialData = {
       </View>
 
       {!isAutoAssign ? (
-        <ScrollView style={tw`flex-1`}>
+        <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
           <Text style={tw`text-sm font-bold mb-4 text-gray-700`}>
             Nearby Police Stations {"Found: ("} { policeStations?.length} {")"}
           </Text>

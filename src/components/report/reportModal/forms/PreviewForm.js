@@ -294,7 +294,7 @@ const PreviewForm = ({ onBack, onClose, initialData, loading = false, error = nu
         Review all information before submitting
       </Text>
 
-      <ScrollView style={tw`flex-1`}>
+      <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
         {renderReporterInfo()} 
         {renderBasicInfo()}
         {renderPersonDetails()}

@@ -78,7 +78,7 @@ const PhysicalDescriptionForm = ({
         Optional but highly recommended to help identify the person
       </Text>
 
-      <ScrollView style={tw`flex-1`}>
+      <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
         {/* Physical Attributes Section */}
         <View style={tw`mb-6`}>
           <Text style={tw`text-sm font-bold mb-4 text-gray-700`}>
