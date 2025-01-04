@@ -7,13 +7,12 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import { AlertCircle, Check } from "lucide-react-native";
+import { AlertCircle } from "lucide-react-native";
 import PropTypes from 'prop-types';
 import tw from "twrnc";
-import styles from "styles/styles";
-import { reportModel } from "../model/reportModel";
+import styles from "@/styles/styles";
 import { useDispatch } from "react-redux";
-import { createReport } from "redux/actions/reportActions";
+import { createReport } from "@/redux/actions/reportActions";
 
 const PreviewForm = ({ onBack, onClose, initialData, loading = false, error = null }) => {
   const dispatch = useDispatch();
@@ -33,7 +32,7 @@ const PreviewForm = ({ onBack, onClose, initialData, loading = false, error = nu
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         try {
           if (attempt > 0) {
-            await sleep(1000 * attempt); // Exponential backoff
+            await sleep(1000 * attempt); 
             console.log(`Retry attempt ${attempt}/${MAX_RETRIES}`);
           }
   
@@ -116,17 +115,14 @@ const PreviewForm = ({ onBack, onClose, initialData, loading = false, error = nu
   console.log(initialData);
 
   const renderReporterInfo = () => (
-    <View style={tw`mb-6`}>
+    <View style={tw`mb-3`}>
       <Text style={tw`text-lg font-bold mb-3`}>Reporter Information</Text>
       <View style={tw`bg-gray-50 p-3 rounded-lg`}>
-      <Text style={tw`text-gray-600 mb-2`}>
-          ID: {displayValue(`${initialData?.reporter?._id}`)}
-        </Text>
         <Text style={tw`text-gray-600 mb-2`}>
           Name: {displayValue(`${initialData?.reporter?.firstName} ${initialData?.reporter?.lastName}`)}
         </Text>
         <Text style={tw`text-gray-600 mb-2`}>
-          Contact: {displayValue(initialData?.reporter?.phoneNumber)}
+          Contact: {displayValue(initialData?.reporter?.number)}
         </Text>
         <Text style={tw`text-gray-600`}>
           Email: {displayValue(initialData?.reporter?.email)}
@@ -242,7 +238,7 @@ const PreviewForm = ({ onBack, onClose, initialData, loading = false, error = nu
       <Text style={tw`text-lg font-bold mb-3`}>Location</Text>
       <View style={tw`bg-gray-50 p-3 rounded-lg`}>
         <Text style={tw`text-gray-600 mb-2`}>
-          {displayValue(initialData?.location?.address?.streetAddress)}
+          Street Address: {displayValue(initialData?.location?.address?.streetAddress)}
         </Text>
         <Text style={tw`text-gray-600 mb-2`}>
           Brgy. {displayValue(initialData?.location?.address?.barangay)}, {displayValue(initialData?.location?.address?.city)}
@@ -294,14 +290,12 @@ const PreviewForm = ({ onBack, onClose, initialData, loading = false, error = nu
 
   return (
     <View style={tw`flex-1 bg-white justify-between p-2`}>
-      <Text style={tw`text-xl font-bold mb-2`}>Step 7 of 7</Text>
-      <Text style={tw`text-2xl font-bold mb-2`}>Preview Report</Text>
-      <Text style={tw`text-sm mb-6 text-gray-600`}>
+      <Text style={tw`text-sm mb-3 text-gray-600 text-center`}>
         Review all information before submitting
       </Text>
 
       <ScrollView style={tw`flex-1`}>
-      {renderReporterInfo()} 
+        {renderReporterInfo()} 
         {renderBasicInfo()}
         {renderPersonDetails()}
         {renderPhysicalDescription()}

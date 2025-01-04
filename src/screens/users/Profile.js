@@ -1,30 +1,20 @@
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  TextInput,
-  Switch,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
-import { useSelector, useDispatch } from "react-redux";
-import { LogOut, MapPin, Mail, Info, Edit3 } from "lucide-react-native";
-import tw from "twrnc";
-import styles from "styles/styles";
-import {
-  logout,
-  clearAuthMessage,
-  clearAuthError,
-} from "redux/actions/authActions";
-import { getUserDetails, updateUserDetails } from "redux/actions/userActions";
-import { pickImage } from "utils/imagePicker";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, ScrollView, TextInput, Switch, TouchableOpacity, ActivityIndicator } from "react-native";
+
 import { useNavigation } from "@react-navigation/native";
-import showToast from "utils/toastUtils";
-import { ProfileSkeleton } from "components/skeletons";
-import ChangePassword from "components/auth/ChangePassword";
-import Seperator from "components/Seperator";
+import { MapPin, Mail, Info, Edit3 } from "lucide-react-native";
+import { useSelector, useDispatch } from "react-redux";
+import tw from "twrnc";
+
+import ChangePassword from "@/components/auth/ChangePassword";
+import { ProfileSkeleton } from "@/components/skeletons";
+import Seperator from "@/components/Seperator";
+
+import { logout, clearAuthMessage, clearAuthError } from "@/redux/actions/authActions";
+import { getUserDetails, updateUserDetails } from "@/redux/actions/userActions";
+import { pickImage } from "@/utils/imagePicker";
+import showToast from "@/utils/toastUtils";
+import styles from "@/styles/styles";
 
 const Profile = () => {
   const dispatch = useDispatch();

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { AlertCircle, UserX, UserX2, Users, Car } from "lucide-react-native";
 import PropTypes from 'prop-types';
 import tw from "twrnc";
-import styles from "styles/styles";
+import styles from "@/styles/styles";
 
 const reportTypes = {
   Missing: {
@@ -38,9 +38,6 @@ const BasicInfoForm = ({ onNext, onBack, initialData = { type: '' } }) => {
 
   return (
     <View style={tw`flex-1 bg-white justify-between p-2`}>
-      <Text style={tw`text-xl font-bold mb-2`}>Step 2 of 7</Text>
-      <Text style={tw`text-2xl font-bold mb-2`}>Select Report Type</Text>
-      
       <View style={tw`bg-red-50 p-2 rounded-lg mb-3`}>
         <Text style={tw`text-red-800 font-medium mb-1`}>Important Note:</Text>
         <Text style={tw`text-red-600 text-sm`}>
@@ -48,7 +45,7 @@ const BasicInfoForm = ({ onNext, onBack, initialData = { type: '' } }) => {
         </Text>
       </View>
 
-      <ScrollView style={tw`flex-1 p-2`}>
+      <ScrollView style={tw`flex-1`}>
         <View style={tw`flex-col`}>
           {Object.entries(reportTypes).map(([key, value]) => {
             const Icon = value.icon;
@@ -58,7 +55,7 @@ const BasicInfoForm = ({ onNext, onBack, initialData = { type: '' } }) => {
               <TouchableOpacity
                 key={key}
                 style={[
-                  tw`w-full p-2 mb-4 rounded-xl border-2`,
+                  tw`w-full p-2 mb-2 rounded-xl border-2`,
                   isSelected 
                     ? tw`border-blue-600 bg-blue-50` 
                     : tw`border-gray-200 bg-white`

@@ -1,26 +1,21 @@
+// React and React Native imports
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
-import tw from "twrnc";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { Formik } from "formik";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import { Formik } from "formik";
-import styles from "styles/styles";
-import Logo from "components/Logo";
-import {
-  resetPassword,
-  resendOtp,
-  clearAuthMessage,
-  clearAuthError,
-} from "../../redux/actions/authActions";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import showToast from "utils/toastUtils";
-import resetPasswordValidationSchema from "../../validation/resetPasswordValidation";
+import tw from "twrnc";
+
+import Logo from "@/components/Logo";
+
+import { resetPassword, resendOtp, clearAuthMessage, clearAuthError} from "@/redux/actions/authActions";
+
+import resetPasswordValidationSchema from "@/validation/resetPasswordValidation";
+import showToast from "@/utils/toastUtils";
+
+import styles from "@/styles/styles";
 
 export default function ResetPassword() {
   const { t } = useTranslation();

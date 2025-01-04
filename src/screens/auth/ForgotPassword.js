@@ -1,27 +1,19 @@
-import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
-import React, { useCallback, useState } from "react";
-import tw from "twrnc";
+import React, { useState } from "react";
+import { View, Text, TextInput, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+
+import { useNavigation } from "@react-navigation/native";
+import { Formik } from "formik";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import { Formik } from "formik";
-import styles from "styles/styles";
+import tw from "twrnc";
+
+import Logo from "@/components/Logo";
+
+import { forgotPassword, clearAuthMessage, clearAuthError } from "@/redux/actions/authActions";
+import forgotPasswordValidationSchema from "@/validation/forgotPasswordValidation";
+import showToast from "@/utils/toastUtils";
+import styles from "@/styles/styles";
 import person from "../../../assets/person.png";
-import Logo from "components/Logo";
-import {
-  forgotPassword,
-  clearAuthMessage,
-  clearAuthError,
-} from "../../redux/actions/authActions";
-import { useNavigation } from "@react-navigation/native";
-import forgotPasswordValidationSchema from "../../validation/forgotPasswordValidation";
-import showToast from "utils/toastUtils";
 
 export default function ForgotPassword() {
   const { t } = useTranslation();

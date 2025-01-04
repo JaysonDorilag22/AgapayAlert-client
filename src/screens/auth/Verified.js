@@ -1,12 +1,15 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
+
 import { useNavigation } from '@react-navigation/native';
-import tw from 'twrnc';
-import { useTranslation } from 'react-i18next';
-import styles from 'styles/styles';
-import Logo from 'components/Logo';
-import police from '../../../assets/police.png';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import { useTranslation } from 'react-i18next';
+import tw from 'twrnc';
+
+import Logo from '@/components/Logo';
+import styles from '@/styles/styles';
+
+import police from '../../../assets/police.png';
 
 export default function Verified() {
   const navigation = useNavigation();

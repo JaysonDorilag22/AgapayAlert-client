@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import tw from "twrnc";
-import { LanguageContext } from "src/context/LanguageContext";
+import { LanguageContext } from "@context/LanguageContext";
 import styles from "styles/styles";
 
 const languages = [

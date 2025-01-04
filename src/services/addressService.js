@@ -68,7 +68,7 @@ export const addressService = {
     }
   },
 
-
+  
   async getBarangays(cityCode) {
     if (!cityCode) {
       throw new Error('City code is required');
@@ -95,6 +95,34 @@ export const addressService = {
       return barangays;
     } catch (error) {
       throw new Error('Failed to fetch barangays');
+    }
+  },
+
+  async searchCities(searchText) {
+    try {
+      const cities = await this.getCities();
+      if (!searchText) return [];
+      
+      return cities.filter(city => 
+        city.label.toLowerCase().includes(searchText.toLowerCase())
+      );
+    } catch (error) {
+      throw new Error('Failed to search cities');
+    }
+  },
+
+  async handleCityChange(cityId) {
+    try {
+      const cityList = await this.getCities();
+      const selectedCity = cityList.find(city => city.value === cityId);
+      const barangayList = await this.getBarangays(cityId);
+      
+      return {
+        cityName: selectedCity?.label || '',
+        barangays: barangayList
+      };
+    } catch (error) {
+      throw new Error('Failed to handle city change');
     }
   },
 

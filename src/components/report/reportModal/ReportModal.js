@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from "react";
-import { Modal, View, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Modal, View, TouchableOpacity, ActivityIndicator, Text } from "react-native";
 import { X } from "lucide-react-native";
 import tw from "twrnc";
-import styles from "styles/styles";
 import {
   BasicInfoForm,
   ConfirmationModal,
@@ -13,9 +12,10 @@ import {
   PreviewForm,
 } from "./forms";
 import { useSelector } from "react-redux";
-
+import styles from "@/styles/styles";
+import StepIndicator from "@/components/StepIndicator";
 const initialFormState = {
-  reporter: "", // Add reporter field
+  reporter: "",
   type: "",
   details: {
     subject: "",
@@ -49,13 +49,12 @@ const initialFormState = {
   additionalImages: [],
 };
 
-
-const ReportModal = ({ visible, onClose}) => {
+const ReportModal = ({ visible, onClose }) => {
   const { user } = useSelector((state) => state.auth);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     ...initialFormState,
-    reporter: user || '', // Set reporter ID from auth state
+    reporter: user || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -75,14 +74,13 @@ const ReportModal = ({ visible, onClose}) => {
       if (data.nativeEvent) {
         data.persist();
       }
-  
-      // Include reporter in form data
+
       setFormData((prevData) => ({
         ...prevData,
         ...data,
-        reporter: data.reporter || prevData.reporter // Preserve reporter ID
+        reporter: data.reporter || prevData.reporter,
       }));
-  
+
       setStep((prevStep) => prevStep + 1);
       setError(null);
     } catch (err) {
@@ -109,70 +107,50 @@ const ReportModal = ({ visible, onClose}) => {
       case 2:
         return <BasicInfoForm {...commonProps} onBack={() => handleBack(1)} />;
       case 3:
-        return (
-          <PersonDetailsForm {...commonProps} onBack={() => handleBack(2)} />
-        );
+        return <PersonDetailsForm {...commonProps} onBack={() => handleBack(2)} />
       case 4:
-        return (
-          <PhysicalDescriptionForm
-            {...commonProps}
-            onBack={() => handleBack(3)}
-          />
-        );
+        return <PhysicalDescriptionForm {...commonProps} onBack={() => handleBack(3)} />
       case 5:
         return <LocationForm {...commonProps} onBack={() => handleBack(4)} />;
       case 6:
-        return (
-          <PoliceStationForm {...commonProps} onBack={() => handleBack(5)} />
-        );
+        return <PoliceStationForm {...commonProps} onBack={() => handleBack(5)} />
       case 7:
-        return (
-          <PreviewForm
-            {...commonProps}
-            onBack={() => handleBack(6)}
-            onClose={handleClose}
-          />
-        );
+        return <PreviewForm {...commonProps} onBack={() => handleBack(6)} onClose={handleClose}/>
       default:
         return null;
     }
   }, [step, formData, handleNext, handleBack, handleClose]);
 
+  const STEP_TITLES = [
+    "Terms & Conditions",
+    "Basic Information", 
+    "Person Details",
+    "Physical Description",
+    "Location Details",
+    "Police Station",
+    "Preview Report"
+  ];
+
   return (
     <Modal visible={visible} animationType="slide">
-      <View style={tw`flex-1 bg-white`}>
-        <TouchableOpacity style={tw`p-2 m-2 self-end`} onPress={handleClose}>
-          <X color={styles.textPrimary.color} size={24} />
-        </TouchableOpacity>
+    <View style={tw`flex-1 bg-white rounded-xl p-2 border border-gray-300`}>
+      <TouchableOpacity style={tw`self-end`} onPress={handleClose}>
+        <X color={styles.textPrimary.color} size={24} />
+      </TouchableOpacity>
+      <Text style={tw`${styles.textMedium} font-bold text-center mb-2`}>
+          {STEP_TITLES[step - 1]}
+        </Text>
+      <StepIndicator currentStep={step} totalSteps={TOTAL_STEPS} />
 
-        {loading ? (
-          <View style={tw`flex-1 justify-center items-center`}>
-            <ActivityIndicator size="large" color={styles.textPrimary.color} />
-          </View>
-        ) : (
-          renderStepContent()
-        )}
-
-        <View style={tw`px-2 pb-1`}>
-          <View style={tw`flex-row items-center justify-center`}>
-            {Array(TOTAL_STEPS)
-              .fill(0)
-              .map((_, index) => (
-                <View
-                  key={index}
-                  style={tw`h-2 w-2 rounded-full mx-1 ${
-                    index + 1 === step
-                      ? "bg-red-600"
-                      : index + 1 < step
-                      ? "bg-green-500"
-                      : "bg-gray-300"
-                  }`}
-                />
-              ))}
-          </View>
+      {loading ? (
+        <View style={tw`flex-1 justify-center items-center`}>
+          <ActivityIndicator size="large" color={styles.textPrimary.color} />
         </View>
-      </View>
-    </Modal>
+      ) : (
+        renderStepContent()
+      )}
+    </View>
+  </Modal>
   );
 };
 

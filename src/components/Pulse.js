@@ -27,14 +27,14 @@ const PulsingCircle = () => {
     <View style={tw`items-center justify-center`}>
       <Animated.View
         style={[
-          tw`w-24 h-24 rounded-full bg-blue-500 opacity-20 absolute`,
+          tw`w-30 h-30 rounded-full bg-blue-500 opacity-20 absolute`,
           {
             transform: [{ scale: pulseAnim }],
           },
         ]}
       />
       <View style={tw`w-16 h-16 rounded-full bg-blue-600 items-center justify-center`}>
-        <MapPin size={24} color="white" />
+        <MapPin size={30} color="white" />
       </View>
     </View>
   );

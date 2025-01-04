@@ -74,9 +74,7 @@ const PhysicalDescriptionForm = ({
   
   return (
     <View style={tw`flex-1 bg-white justify-between p-2`}>
-      <Text style={tw`text-xl font-bold mb-2`}>Step 4 of 7</Text>
-      <Text style={tw`text-2xl font-bold mb-2`}>Physical Description</Text>
-      <Text style={tw`text-sm mb-6 text-gray-600`}>
+      <Text style={tw`text-sm mb-3 text-gray-600 text-center`}>
         Optional but highly recommended to help identify the person
       </Text>
 
@@ -274,7 +272,7 @@ const PhysicalDescriptionForm = ({
 
           <Text style={tw`text-sm text-gray-600 mb-1`}>Other Information</Text>
           <TextInput
-            style={[styles.input2, tw`h-24`]}
+            style={[styles.input2]}
             placeholder="Any other relevant details"
             multiline
             value={formData.otherInformation}

@@ -1,28 +1,23 @@
+// React and React Native imports
 import React, { useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
-import tw from "twrnc";
+import { Eye, EyeOff } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  login,
-  clearAuthMessage,
-  clearAuthError,
-} from "redux/actions/authActions";
-import { loginValidationSchema } from "validation/loginValidation";
-import styles from "styles/styles";
-import Logo from "components/Logo";
-import { Eye, EyeOff } from "lucide-react-native";
-import showToast from "utils/toastUtils";
+import tw from "twrnc";
+
+import ChangeLanguage from "@/components/ChangeLanguage";
+import Logo from "@/components/Logo";
+
+import { clearAuthError, clearAuthMessage, login } from "@/redux/actions/authActions";
+import { loginValidationSchema } from "@/validation/loginValidation";
+import styles from "@/styles/styles";
+import showToast from "@/utils/toastUtils";
+
 // import GoogleAuth from "components/auth/GoogleAuth";
-import ChangeLanguage from "components/ChangeLanguage";
 
 export default function Login() {
   const navigation = useNavigation();
@@ -45,10 +40,8 @@ export default function Login() {
       navigation.navigate('Main'); 
       dispatch(clearAuthMessage());
     } else if (result.error) {
-      // Check if error is about unverified email
       if (result.error === 'Please verify your email first') {
         handleToast('Please verify your email first');
-        // Navigate to verification screen with email
         navigation.navigate('Verification', {
           email: credentials.email
         });

@@ -1,33 +1,29 @@
+// Core React and React Native imports
 import React, { useEffect, useState } from "react";
-import styles from "styles/styles";
-import tw from "twrnc";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  Image,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Image, ScrollView, ActivityIndicator } from "react-native";
+
 import { Camera } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { CheckBox } from "react-native-elements";
 import { useTranslation } from "react-i18next";
 import { Formik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  register,
-  clearAuthMessage,
-  clearAuthError,
-} from "../../redux/actions/authActions";
-import { registerValidationSchema } from "../../validation/registerValidation";
-import { pickImage } from "../../utils/imagePicker";
-import TermsModal from "../../components/TermsModal";
-import showToast from "utils/toastUtils";
-import * as FileSystem from "expo-file-system";
-import { addressService } from "src/services/addressService";
 import { Picker } from "@react-native-picker/picker";
+import * as FileSystem from "expo-file-system";
+
+import { register, clearAuthMessage, clearAuthError } from "@redux/actions/authActions";
+
+import { registerValidationSchema } from "@validation/registerValidation";
+
+import { pickImage } from "@utils/imagePicker";
+import showToast from "@utils/toastUtils";
+import { addressService } from "@services/addressService";
+
+import TermsModal from "@components/TermsModal";
+
+import styles from "@styles/styles";
+import tw from "twrnc";
+
 export default function Register() {
   const [avatar, setAvatar] = useState(null);
   const [isChecked, setIsChecked] = useState(false);

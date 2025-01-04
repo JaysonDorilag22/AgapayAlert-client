@@ -6,14 +6,13 @@ import {
   TextInput,
   ScrollView,
   Image,
-  Platform,
 } from "react-native";
 import { ImageIcon, X, ChevronDown, AlertCircle } from "lucide-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import tw from "twrnc";
-import { pickImage } from "../../../../utils/imagePicker";
-import styles from "styles/styles";
+import styles from "@/styles/styles";
 import PropTypes from "prop-types";
+import { pickImage } from "@/utils/imagePicker";
 const relationshipOptions = {
   "Family Members": [
     "Parent (Mother)",
@@ -172,10 +171,7 @@ const PersonDetailsForm = ({
   };
   return (
     <View style={tw`flex-1 bg-white justify-between p-2`}>
-    {/* Header */}
-    <Text style={tw`text-xl font-bold mb-2`}>Step 3 of 7</Text>
-    <Text style={tw`text-2xl font-bold mb-2`}>Person Details</Text>
-    <Text style={tw`text-sm mb-6 text-gray-600`}>
+    <Text style={tw`text-sm mb-3 text-gray-600 text-center`}>
       Fill in the details of the person involved.
     </Text>
 

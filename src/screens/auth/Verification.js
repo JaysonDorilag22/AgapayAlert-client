@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert, BackHandler } from 'react-native';
+
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { Formik } from 'formik';
-import tw from 'twrnc';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
-import styles from 'styles/styles';
-import Logo from 'components/Logo';
-import { verifyAccount, resendVerification, clearAuthMessage, clearAuthError } from '../../redux/actions/authActions';
-import { verificationValidationSchema } from 'validation/verificationValidation';
-import showToast from 'utils/toastUtils';
+import tw from 'twrnc';
+
+import Logo from '@/components/Logo';
+
+import { verifyAccount, resendVerification, clearAuthMessage, clearAuthError } from '@/redux/actions/authActions';
+import { verificationValidationSchema } from '@/validation/verificationValidation';
+import showToast from '@/utils/toastUtils';
+import styles from '@/styles/styles';
 
 export default function Verification() {
   const { t } = useTranslation();

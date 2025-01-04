@@ -1,11 +1,13 @@
+import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, BackHandler } from 'react-native';
-import React, { useEffect, useState, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { logout, clearAuthMessage, clearAuthError } from 'redux/actions/authActions';
+import { useDispatch, useSelector } from 'react-redux';
 import tw from 'twrnc';
-import styles from 'styles/styles';
-import showToast from 'utils/toastUtils';
+
+import { logout, clearAuthMessage, clearAuthError } from '@/redux/actions/authActions';
+import showToast from '@/utils/toastUtils';
+import styles from '@/styles/styles';
 
 export default function Home() {
   const dispatch = useDispatch();

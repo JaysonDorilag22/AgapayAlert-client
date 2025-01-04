@@ -1,3 +1,4 @@
+import { TextBase } from 'react-native';
 import tw from 'twrnc';
 
 // Base colors
@@ -30,6 +31,15 @@ const styles = {
   input: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { borderColor: colorDisabled, backgroundColor: colorBackground, color: colorText }),
   input2: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`),
   activeInput: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { borderColor: '#000000', backgroundColor: '#ffffff', color: '#000000' }),
+
+
+  //Text size
+  textSmall: tw.style(`text-sm`),
+  textMedium: tw.style(`text-md`),
+  TextBase: tw.style(`text-base`),
+  textLarge: tw.style(`text-lg`),
+  textExtraLarge: tw.style(`text-xl`),
+
 
   elevation: {
     elevation: 5,

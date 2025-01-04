@@ -10,10 +10,10 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { MapPin, Navigation2 } from "lucide-react-native";
 import tw from "twrnc";
-import styles from "styles/styles";
-import { searchPoliceStations } from "redux/actions/policeStationActions";
-import PulsingCircle from "components/Pulse";
+import styles from "@/styles/styles";
 import PropTypes from 'prop-types';
+import { searchPoliceStations } from "@/redux/actions/policeStationActions";
+import PulsingCircle from "@/components/Pulse";
 
 
 const PoliceStationForm = ({ onNext, onBack, initialData = {
@@ -54,9 +54,7 @@ const PoliceStationForm = ({ onNext, onBack, initialData = {
 
   return (
     <View style={tw`flex-1 bg-white justify-between p-2`}>
-      <Text style={tw`text-xl font-bold mb-2`}>Step 6 of 7</Text>
-      <Text style={tw`text-2xl font-bold mb-2`}>Police Station Assignment</Text>
-      <Text style={tw`text-sm mb-6 text-gray-600`}>
+      <Text style={tw`text-sm mb-3 text-gray-600 text-center`}>
         Choose how you want to assign a police station
       </Text>
 
@@ -68,21 +66,21 @@ const PoliceStationForm = ({ onNext, onBack, initialData = {
         <Switch
           value={isAutoAssign}
           onValueChange={handleManualToggle}
-          trackColor={{ false: "#767577", true: "#1D4ED8" }}
-          thumbColor={isAutoAssign ? "#1E3A8A" : "#f4f3f4"}
+          trackColor={{ false: "#767577", true: "#11468F" }}
+          thumbColor={isAutoAssign ? "#11468F" : "#f4f3f4"}
         />
       </View>
 
       {!isAutoAssign ? (
         <ScrollView style={tw`flex-1`}>
           <Text style={tw`text-sm font-bold mb-4 text-gray-700`}>
-            Nearby Police Stations
+            Nearby Police Stations {"Found: ("} { policeStations?.length} {")"}
           </Text>
 
           {loading ? (
-            <View style={tw`flex-1 items-center justify-center`}>
+            <View style={tw`flex-1 items-center justify-center mt-30`}>
               <PulsingCircle />
-              <Text style={tw`mt-4 text-gray-600 font-medium`}>
+              <Text style={tw`mt-8 text-gray-600 font-medium`}>
                 Searching nearby stations...
               </Text>
             </View>

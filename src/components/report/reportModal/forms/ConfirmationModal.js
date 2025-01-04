@@ -1,18 +1,21 @@
 import React, { useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, Image  } from "react-native";
 import {
   AlertCircle,
   PhoneCall,
   Bell,
   Shield,
   CheckCircle2,
+  Mail,
+  Phone,
+  MapPin,
 } from "lucide-react-native";
 import tw from "twrnc";
-import styles from "styles/styles";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserDetails } from "redux/actions/userActions";
-import UserInfoSkeleton from "components/skeletons/UserInfoSkeleton";
 import PropTypes from "prop-types";
+import { getUserDetails } from "@/redux/actions/userActions";
+import UserInfoSkeleton from "@/components/skeletons/UserInfoSkeleton";
+import styles from "@/styles/styles";
 
 const ConfirmationModal = ({ onNext }) => {
   const { user, loading } = useSelector((state) => state.user || {});
@@ -78,61 +81,58 @@ const ConfirmationModal = ({ onNext }) => {
     }
 
     return (
-      <View style={tw`bg-gray-50 rounded-lg p-3 mb-4`}>
-        <Text style={tw`text-xl font-bold mb-4`}>Reporter Information</Text>
-
+      <View style={tw`bg-white rounded-lg p-3 mb-4 border border-gray-200`}>
         <View style={tw`flex-row items-center mb-4`}>
           <Image
             source={{
               uri: user?.avatar?.url || "https://via.placeholder.com/150",
             }}
-            style={tw`w-20 h-20 rounded-full mr-4`}
+            style={tw`w-20 h-20 rounded-full mr-3`}
           />
-          <View>
-            <Text style={tw`text-lg font-bold`}>
+          <View style={tw`flex-1`}>
+            <Text style={tw`${styles.TextBase} font-bold`}>
               {user?.firstName?.charAt(0).toUpperCase() +
                 user?.firstName?.slice(1)}{" "}
               {user?.lastName?.charAt(0).toUpperCase() +
                 user?.lastName?.slice(1)}
             </Text>
-            <Text style={tw`text-gray-600`}>{user?.email}</Text>
-            <Text style={tw`text-gray-600`}>{user?.number}</Text>
+            <View style={tw`flex-row items-center mt-1`}>
+              <Mail size={16} color="#6B7280" style={tw`mr-2`} />
+              <Text style={styles.textSmall}>{user?.email}</Text>
+            </View>
+            <View style={tw`flex-row items-center mt-1`}>
+              <Phone size={16} color="#6B7280" style={tw`mr-2`} />
+              <Text style={styles.textSmall}>{user?.number}</Text>
+            </View>
+            <View style={tw`flex-row items-center mt-1`}>
+              <MapPin size={16} color="#6B7280" style={tw`mr-2`} />
+              <Text style={styles.textSmall}>
+                {user?.address?.streetAddress}, Brgy. {user?.address?.barangay}, {"\n"}
+                {user?.address?.zipCode}, {user?.address?.city} City
+              </Text>
+            </View>
           </View>
         </View>
 
-        <Text style={tw`text-gray-600 mb-1`}>Address</Text>
-        <Text style={tw`mb-3`}>
-          {user?.address?.streetAddress}, Brgy. {user?.address?.barangay},
-          {"\n"}
-          {user?.address?.zipCode}
-        </Text>
-
-        <View style={tw`flex-row items-center mt-2 bg-red-50 p-3 rounded-lg`}>
+        {/* <View style={tw`flex-row items-center bg-red-50 p-3 rounded-lg`}>
           <AlertCircle color="#EF4444" size={20} style={tw`mr-2`} />
-          <Text style={tw`text-red-600 flex-1`}>
+          <Text style={tw`${styles.textSmall} text-red-600 text-justify`}>
             Please ensure all your information above is correct before
             proceeding. You can edit your profile information from the Profile
             tab.
           </Text>
-        </View>
+        </View> */}
       </View>
     );
   };
 
   return (
-    <View style={tw`flex-1 bg-white justify-between p-2`}>
-      <Text style={tw`text-xl font-bold mb-2`}>Step 1 of 7</Text>
-      <Text style={tw`text-2xl font-bold mb-2`}>Confirmation</Text>
-      <Text style={tw`text-sm mb-6`}>
-        Please review your information and the important reminders below before
-        proceeding.
-      </Text>
-
-      <ScrollView style={tw`flex-1`}>
+    <View style={tw`flex-1 justify-between p-2`}>
         {renderUserInfo()}
-      
-        <View style={tw`bg-gray-50 rounded-lg p-4 mb-4`}>
-          <Text style={tw`text-xl font-bold mb-4`}>Important Reminders</Text>
+        <View style={tw`rounded-lg p-3 mb-4 border border-gray-200`}>
+          <Text style={tw`${styles.textLarge} font-bold mb-4`}>
+            Important Reminders
+          </Text>
           {reminders.map((reminder, index) => {
             const Icon = reminder.icon;
             return (
@@ -159,12 +159,8 @@ const ConfirmationModal = ({ onNext }) => {
             );
           })}
         </View>
-      </ScrollView>
 
-      <TouchableOpacity
-        style={styles.buttonPrimary}
-        onPress={onNext}
-      >
+      <TouchableOpacity style={styles.buttonPrimary} onPress={onNext}>
         <Text style={styles.buttonTextPrimary}>I Understand, Continue</Text>
       </TouchableOpacity>
     </View>
@@ -172,7 +168,7 @@ const ConfirmationModal = ({ onNext }) => {
 };
 
 ConfirmationModal.propTypes = {
-  onNext: PropTypes.func.isRequired
+  onNext: PropTypes.func.isRequired,
 };
 
 export default ConfirmationModal;

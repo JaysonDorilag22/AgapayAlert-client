@@ -1,15 +1,28 @@
 {
     "compilerOptions": {
-      "baseUrl": "./",
+      "module": "ESNext",
+      "moduleResolution": "Bundler",
+      "target": "ES2022",
+      "jsx": "react",
+      "allowImportingTsExtensions": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "baseUrl": ".",
       "paths": {
-        "components/*": ["src/components/*"],
-        "screens/*": ["src/screens/*"],
-        "styles/*": ["src/styles/*"],
-        "utils/*": ["src/utils/*"],
-        "redux/*": ["src/redux/*"],
-        "validation/*": ["src/validation/*"],
-        "assets/*": ["src/assets/*"],
+        "@/*": ["src/*"],
+        "@components/*": ["src/components/*"],
+        "@screens/*": ["src/screens/*"],
+        "@styles/*": ["src/styles/*"],
+        "@utils/*": ["src/utils/*"],
+        "@redux/*": ["src/redux/*"],
+        "@assets/*": ["assets/*"],
+        "@validation/*": ["src/validation/*"],
+        "@services/*": ["src/services/*"]
       }
     },
-    "exclude": ["node_modules", "dist"]
+    "exclude": [
+      "node_modules",
+      "**/node_modules/*",
+      "dist"
+    ]
   }
