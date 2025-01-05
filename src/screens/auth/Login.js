@@ -67,7 +67,7 @@ export default function Login() {
         touched,
       }) => (
         <View style={styles.container}>
-            <View style={tw`absolute top-0 right-0 z-10 p-4`}>
+            <View style={tw`absolute top-5 right-0 z-10 p-4`}>
           <ChangeLanguage />
         </View>
           <View style={tw`mb-10 justify-start items-start self-start`}>

@@ -24,6 +24,15 @@ import {
   ASSIGN_OFFICER_REQUEST,
   ASSIGN_OFFICER_SUCCESS,
   ASSIGN_OFFICER_FAIL,
+  GET_REPORT_FEED_REQUEST,
+  GET_REPORT_FEED_SUCCESS,
+  GET_REPORT_FEED_FAIL,
+  GET_CITIES_REQUEST,
+  GET_CITIES_SUCCESS,
+  GET_CITIES_FAIL,
+  GET_USER_REPORTS_REQUEST,
+  GET_USER_REPORTS_SUCCESS,
+  GET_USER_REPORTS_FAIL,
 } from "../actiontypes/reportTypes";
 
 // Create Report
@@ -229,3 +238,89 @@ export const assignOfficer = (assignmentData) => async (dispatch) => {
     return { success: false, error: message };
   }
 };
+
+// Get Report Feed
+export const getReportFeed = (params = {}) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_REPORT_FEED_REQUEST });
+
+    const queryParams = new URLSearchParams({
+      page: params.page || 1,
+      limit: params.limit || 10,
+      ...(params.city && { city: params.city }),
+      ...(params.type && { type: params.type }) // Add type parameter
+    });
+
+    const { data } = await axios.get(
+      `${serverConfig.baseURL}/report/public-feed?${queryParams}`,
+      { withCredentials: true }
+    );
+
+    dispatch({
+      type: GET_REPORT_FEED_SUCCESS,
+      payload: {
+        ...data.data,
+        isNewSearch: params.page === 1
+      }
+    });
+
+    return { success: true, data: data.data };
+  } catch (error) {
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: GET_REPORT_FEED_FAIL,
+      payload: message
+    });
+    return { success: false, error: message };
+  }
+};
+
+
+// Get Report Cities
+export const getCities = () => async (dispatch) => {
+  try {
+    dispatch({ type: GET_CITIES_REQUEST });
+    const { data } = await axios.get(`${serverConfig.baseURL}/report/cities`);
+    dispatch({ type: GET_CITIES_SUCCESS, payload: data.data.cities });
+  } catch (error) {
+    dispatch({ type: GET_CITIES_FAIL, payload: error.message });
+  }
+};
+
+
+// Get my Reports
+export const getUserReports = (params = {}) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_USER_REPORTS_REQUEST });
+
+    const queryParams = new URLSearchParams({
+      page: params.page || 1,
+      limit: params.limit || 10,
+      ...(params.status && { status: params.status }),
+      ...(params.type && { type: params.type })
+    });
+
+    const { data } = await axios.get(
+      `${serverConfig.baseURL}/report/user-reports?${queryParams}`,
+      { withCredentials: true }
+    );
+
+    dispatch({
+      type: GET_USER_REPORTS_SUCCESS,
+      payload: {
+        ...data.data,
+        isNewSearch: params.page === 1
+      }
+    });
+
+    return { success: true, data: data.data };
+  } catch (error) {
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: GET_USER_REPORTS_FAIL,
+      payload: message
+    });
+    return { success: false, error: message };
+  }
+};
+

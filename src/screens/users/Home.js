@@ -1,33 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, BackHandler } from 'react-native';
-
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 import tw from 'twrnc';
-
-import { logout, clearAuthMessage, clearAuthError } from '@/redux/actions/authActions';
 import showToast from '@/utils/toastUtils';
 import styles from '@/styles/styles';
-
-import LottieView from 'lottie-react-native';
+import ReportFeed from '@/screens/reports/ReportFeed';
 
 export default function Home() {
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const { loading } = useSelector(state => state.auth);
   const [backPressCount, setBackPressCount] = useState(0);
-
-  const handleLogout = useCallback(async () => {
-    const result = await dispatch(logout());
-    
-    if (result.success) {
-      navigation.navigate('Login');
-      dispatch(clearAuthMessage());
-    } else {
-      showToast(result.error);
-      dispatch(clearAuthError());
-    }
-  }, [dispatch, navigation]);
 
   useFocusEffect(
     useCallback(() => {
@@ -50,15 +30,8 @@ export default function Home() {
   );
 
   return (
-    <View style={tw`flex-1 justify-center items-center`}>
-      <LottieView source={require('@assets/Animation - 1736053844936.json')}
-      autoPlay
-      loop
-      style={{ width: 200, height: 200 }}
-
-      />
-      <Text style={tw`text-lg font-bold`}>Home Screen</Text>
-      
+    <View style={tw`flex-1 bg-white`}>
+      <ReportFeed />
     </View>
   );
 }
