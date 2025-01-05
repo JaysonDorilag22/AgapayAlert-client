@@ -9,6 +9,8 @@ import { logout, clearAuthMessage, clearAuthError } from '@/redux/actions/authAc
 import showToast from '@/utils/toastUtils';
 import styles from '@/styles/styles';
 
+import LottieView from 'lottie-react-native';
+
 export default function Home() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -49,14 +51,14 @@ export default function Home() {
 
   return (
     <View style={tw`flex-1 justify-center items-center`}>
-      <Text style={tw`text-2xl font-bold mb-5`}>Home</Text>
-      <TouchableOpacity style={styles.buttonPrimary} onPress={handleLogout} disabled={loading}>
-        {loading ? (
-          <ActivityIndicator size="small" color="#EEEEEE" />
-        ) : (
-          <Text style={styles.buttonTextPrimary}>Logout</Text>
-        )}
-      </TouchableOpacity>
+      <LottieView source={require('@assets/Animation - 1736053844936.json')}
+      autoPlay
+      loop
+      style={{ width: 200, height: 200 }}
+
+      />
+      <Text style={tw`text-lg font-bold`}>Home Screen</Text>
+      
     </View>
   );
 }
