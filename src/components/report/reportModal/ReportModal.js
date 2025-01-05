@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from "react";
-import { Modal, View, TouchableOpacity, ActivityIndicator, Text } from "react-native";
+import React, { useState, useCallback, useEffect } from "react";
+import { Modal, View, TouchableOpacity, ActivityIndicator, Text, Alert } from "react-native";
 import { X } from "lucide-react-native";
 import tw from "twrnc";
 import {
@@ -11,9 +11,10 @@ import {
   PoliceStationForm,
   PreviewForm,
 } from "./forms";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "@/styles/styles";
 import StepIndicator from "@/components/StepIndicator";
+import { loadReportDraft, saveReportDraft } from "@/redux/actions/reportActions";
 const initialFormState = {
   reporter: "",
   type: "",
@@ -50,6 +51,8 @@ const initialFormState = {
 };
 
 const ReportModal = ({ visible, onClose }) => {
+  const dispatch = useDispatch();
+  const { draft } = useSelector((state) => state.report)
   const { user } = useSelector((state) => state.auth);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -61,12 +64,98 @@ const ReportModal = ({ visible, onClose }) => {
 
   const TOTAL_STEPS = 7;
 
-  const handleClose = useCallback(() => {
-    setStep(1);
-    setFormData(initialFormState);
-    setError(null);
-    onClose();
-  }, [onClose]);
+// Update save draft handler
+const handleClose = useCallback(() => {
+  Alert.alert(
+    "Save Progress?",
+    "Do you want to save your progress?",
+    [
+      {
+        text: "Don't Save",
+        style: "destructive",
+        onPress: () => {
+          setStep(1);
+          setFormData(initialFormState);
+          onClose();
+        }
+      },
+      {
+        text: "Save",
+        onPress: async () => {
+          try {
+            const { _targetInst, nativeEvent, ...cleanFormData } = formData;
+            const dataToSave = {
+              ...cleanFormData,
+              lastStep: step, // Save current step
+              personInvolved: {
+                ...cleanFormData.personInvolved,
+                dateOfBirth: cleanFormData.personInvolved?.dateOfBirth instanceof Date 
+                  ? cleanFormData.personInvolved.dateOfBirth.toISOString()
+                  : cleanFormData.personInvolved?.dateOfBirth || null,
+                lastSeenDate: cleanFormData.personInvolved?.lastSeenDate instanceof Date
+                  ? cleanFormData.personInvolved.lastSeenDate.toISOString()
+                  : cleanFormData.personInvolved?.lastSeenDate || null
+              }
+            };
+            await dispatch(saveReportDraft(dataToSave));
+            setStep(1);
+            onClose();
+          } catch (error) {
+            console.error('Error saving draft:', error);
+          }
+        }
+      }
+    ],
+    { cancelable: false }
+  );
+}, [formData, onClose, dispatch, step]);
+
+// Update continue draft handler in useEffect
+useEffect(() => {
+  if (visible) {
+    dispatch(loadReportDraft()).then(result => {
+      if (result.success && result.data) {
+        Alert.alert(
+          "Continue Draft?",
+          "You have a saved report draft. Would you like to continue where you left off?",
+          [
+            {
+              text: "Start New",
+              style: "destructive",
+              onPress: () => {
+                setFormData({
+                  ...initialFormState,
+                  reporter: user || "",
+                });
+                setStep(1);
+              }
+            },
+            {
+              text: "Continue Draft",
+              onPress: () => {
+                const formattedData = {
+                  ...result.data,
+                  personInvolved: {
+                    ...result.data.personInvolved,
+                    dateOfBirth: result.data.personInvolved?.dateOfBirth 
+                      ? new Date(result.data.personInvolved.dateOfBirth) 
+                      : new Date(),
+                    lastSeenDate: result.data.personInvolved?.lastSeenDate 
+                      ? new Date(result.data.personInvolved.lastSeenDate) 
+                      : new Date()
+                  }
+                };
+                setFormData(formattedData);
+                setStep(result.data.lastStep || 1); // Set to last saved step
+              }
+            }
+          ],
+          { cancelable: false }
+        );
+      }
+    });
+  }
+}, [visible, dispatch, user]);
 
   const handleNext = useCallback((data) => {
     try {

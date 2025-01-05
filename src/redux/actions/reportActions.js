@@ -1,5 +1,4 @@
-// src/redux/actions/reportActions.js
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
 import serverConfig from "../../config/serverConfig";
 import {
@@ -33,6 +32,9 @@ import {
   GET_USER_REPORTS_REQUEST,
   GET_USER_REPORTS_SUCCESS,
   GET_USER_REPORTS_FAIL,
+  SAVE_REPORT_DRAFT,
+  LOAD_REPORT_DRAFT,
+  DELETE_REPORT_DRAFT
 } from "../actiontypes/reportTypes";
 
 // Create Report
@@ -321,6 +323,55 @@ export const getUserReports = (params = {}) => async (dispatch) => {
       payload: message
     });
     return { success: false, error: message };
+  }
+};
+
+
+//drafts
+export const saveReportDraft = (draftData) => async (dispatch) => {
+  try {
+    // Ensure we have clean data to serialize
+    const cleanData = {
+      ...draftData,
+      personInvolved: {
+        ...draftData.personInvolved,
+        dateOfBirth: draftData.personInvolved?.dateOfBirth 
+          ? typeof draftData.personInvolved.dateOfBirth === 'object'
+            ? draftData.personInvolved.dateOfBirth.toISOString()
+            : draftData.personInvolved.dateOfBirth
+          : null,
+        lastSeenDate: draftData.personInvolved?.lastSeenDate
+          ? typeof draftData.personInvolved.lastSeenDate === 'object'
+            ? draftData.personInvolved.lastSeenDate.toISOString()
+            : draftData.personInvolved.lastSeenDate
+          : null
+      }
+    };
+
+    // Remove any non-serializable data
+    const serializedData = JSON.parse(JSON.stringify(cleanData));
+
+    await AsyncStorage.setItem('reportDraft', JSON.stringify(serializedData));
+    dispatch({ type: SAVE_REPORT_DRAFT, payload: serializedData });
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving draft:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const loadReportDraft = () => async (dispatch) => {
+  try {
+    const draftData = await AsyncStorage.getItem('reportDraft');
+    if (draftData) {
+      const parsedData = JSON.parse(draftData);
+      dispatch({ type: LOAD_REPORT_DRAFT, payload: parsedData });
+      return { success: true, data: parsedData };
+    }
+    return { success: false };
+  } catch (error) {
+    console.error('Error loading draft:', error);
+    return { success: false, error: error.message };
   }
 };
 

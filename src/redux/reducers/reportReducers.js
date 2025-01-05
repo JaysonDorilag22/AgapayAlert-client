@@ -29,6 +29,8 @@ import {
   GET_USER_REPORTS_REQUEST,
   GET_USER_REPORTS_SUCCESS,
   GET_USER_REPORTS_FAIL,
+  SAVE_REPORT_DRAFT,
+  LOAD_REPORT_DRAFT,
 } from "../actiontypes/reportTypes";
 
 const initialState = {
@@ -54,6 +56,7 @@ const initialState = {
     totalReports: 0,
     hasMore: false,
   },
+  draft: null,
 };
 
 export const reportReducer = (state = initialState, action) => {
@@ -176,6 +179,31 @@ export const reportReducer = (state = initialState, action) => {
       };
     case GET_USER_REPORTS_FAIL:
       return { ...state, loading: false, error: action.payload };
+
+      case SAVE_REPORT_DRAFT:
+        return { 
+          ...state, 
+          draft: {
+            ...action.payload,
+            personInvolved: {
+              ...action.payload.personInvolved,
+              dateOfBirth: action.payload.personInvolved?.dateOfBirth || null,
+              lastSeenDate: action.payload.personInvolved?.lastSeenDate || null
+            }
+          }
+        };
+      case LOAD_REPORT_DRAFT:
+        return { 
+          ...state, 
+          draft: {
+            ...action.payload,
+            personInvolved: {
+              ...action.payload.personInvolved,
+              dateOfBirth: action.payload.personInvolved?.dateOfBirth || null,
+              lastSeenDate: action.payload.personInvolved?.lastSeenDate || null
+            }
+          }
+        };
 
     default:
       return state;
