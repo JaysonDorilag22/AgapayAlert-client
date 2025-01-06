@@ -105,11 +105,14 @@ const handleLoadMore = () => {
       <FlatList
         data={feed.reports}
         renderItem={({ item }) => (
-          <View style={tw`px-2`}>
-            <ReportCard report={item} onPress={(report) => console.log('Report pressed:', report)} />
-          </View>
+          <View key={item._id} style={tw`px-2`}>
+          <ReportCard 
+            report={item} 
+            onPress={(report) => console.log('Report pressed:', report)} 
+          />
+        </View>
         )}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item._id}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
@@ -122,6 +125,7 @@ const handleLoadMore = () => {
           minIndexForVisible: 0,
           autoscrollToTopThreshold: 10
         }}
+        contentContainerStyle={tw`pb-20`}
       />
     </View>
   );

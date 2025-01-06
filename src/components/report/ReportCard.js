@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { MapPin, Clock, User } from 'lucide-react-native';
+import { MapPin, Clock, User, Eye } from 'lucide-react-native';
 import { format } from 'date-fns';
 import tw from 'twrnc';
 
@@ -47,6 +47,17 @@ const ReportCard = ({ report, onPress }) => {
           <User size={16} color="#6B7280" style={tw`mr-1`} />
           <Text style={tw`text-sm text-gray-600`}>Age: {report.age}</Text>
         </View>
+        <TouchableOpacity
+          style={tw`mt-4 bg-red-600 rounded-lg py-2 px-4 flex-row items-center justify-center`}
+          onPress={(e) => {
+            e.stopPropagation(); // Prevent card press
+            // TODO: Implement sighting report handler
+            console.log('Report sighting for:', report.id);
+          }}
+        >
+          <Eye size={18} color="white" style={tw`mr-2`} />
+          <Text style={tw`text-white font-medium`}>I Found This Person</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );

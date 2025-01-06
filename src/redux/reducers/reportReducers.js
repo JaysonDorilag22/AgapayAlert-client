@@ -31,6 +31,9 @@ import {
   GET_USER_REPORTS_FAIL,
   SAVE_REPORT_DRAFT,
   LOAD_REPORT_DRAFT,
+  GET_REPORT_DETAILS_REQUEST,
+  GET_REPORT_DETAILS_SUCCESS,
+  GET_REPORT_DETAILS_FAIL,
 } from "../actiontypes/reportTypes";
 
 const initialState = {
@@ -57,6 +60,9 @@ const initialState = {
     hasMore: false,
   },
   draft: null,
+  currentReport: null,
+  detailsLoading: false,
+  detailsError: null,
 };
 
 export const reportReducer = (state = initialState, action) => {
@@ -180,30 +186,54 @@ export const reportReducer = (state = initialState, action) => {
     case GET_USER_REPORTS_FAIL:
       return { ...state, loading: false, error: action.payload };
 
-      case SAVE_REPORT_DRAFT:
-        return { 
-          ...state, 
-          draft: {
-            ...action.payload,
-            personInvolved: {
-              ...action.payload.personInvolved,
-              dateOfBirth: action.payload.personInvolved?.dateOfBirth || null,
-              lastSeenDate: action.payload.personInvolved?.lastSeenDate || null
-            }
-          }
-        };
-      case LOAD_REPORT_DRAFT:
-        return { 
-          ...state, 
-          draft: {
-            ...action.payload,
-            personInvolved: {
-              ...action.payload.personInvolved,
-              dateOfBirth: action.payload.personInvolved?.dateOfBirth || null,
-              lastSeenDate: action.payload.personInvolved?.lastSeenDate || null
-            }
-          }
-        };
+    case SAVE_REPORT_DRAFT:
+      return {
+        ...state,
+        draft: {
+          ...action.payload,
+          personInvolved: {
+            ...action.payload.personInvolved,
+            dateOfBirth: action.payload.personInvolved?.dateOfBirth || null,
+            lastSeenDate: action.payload.personInvolved?.lastSeenDate || null,
+          },
+        },
+      };
+    case LOAD_REPORT_DRAFT:
+      return {
+        ...state,
+        draft: {
+          ...action.payload,
+          personInvolved: {
+            ...action.payload.personInvolved,
+            dateOfBirth: action.payload.personInvolved?.dateOfBirth || null,
+            lastSeenDate: action.payload.personInvolved?.lastSeenDate || null,
+          },
+        },
+      };
+
+    case GET_REPORT_DETAILS_REQUEST:
+      return {
+        ...state,
+        detailsLoading: true,
+        detailsError: null,
+        currentReport: null,
+      };
+
+    case GET_REPORT_DETAILS_SUCCESS:
+      return {
+        ...state,
+        detailsLoading: false,
+        currentReport: action.payload,
+        detailsError: null,
+      };
+
+    case GET_REPORT_DETAILS_FAIL:
+      return {
+        ...state,
+        detailsLoading: false,
+        detailsError: action.payload,
+        currentReport: null,
+      };
 
     default:
       return state;

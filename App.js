@@ -9,6 +9,7 @@ import i18n from './src/i18n';
 import { Login, Register, Verification, Verified, ForgotPassword, ResetPassword } from './src/screens/auth';
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import { LanguageContext } from './src/context/LanguageContext';
+import { ReportDetails } from '@/screens/reports';
 
 const Stack = createStackNavigator();
 
@@ -37,6 +38,7 @@ export default function App() {
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             <Stack.Screen name="ResetPassword" component={ResetPassword} />
             <Stack.Screen name="Main" component={DrawerNavigator} />
+            <Stack.Screen name="ReportDetails" component={ReportDetails} options={{ headerShown: true, headerTitle: 'Report Details', headerTintColor: '#fff', headerStyle: { backgroundColor: '#041562'}}}/>
           </Stack.Navigator>
         </NavigationContainer>
       </I18nextProvider>

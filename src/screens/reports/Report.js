@@ -1,16 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { View, FlatList, RefreshControl, ActivityIndicator, Text } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import tw from 'twrnc';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+  Text,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import tw from "twrnc";
 
-import ReportListItem from '@/components/report/ReportListItem';
-import TypeBadges from '@/components/report/TypeBadges';
-import { getUserReports } from '@/redux/actions/reportActions';
-import { ReportListItemSkeleton } from '@/components/skeletons';
-import styles from '@/styles/styles';
+import ReportListItem from "@/components/report/ReportListItem";
+import TypeBadges from "@/components/report/TypeBadges";
+import { getUserReports } from "@/redux/actions/reportActions";
+import { ReportListItemSkeleton } from "@/components/skeletons";
+import styles from "@/styles/styles";
+import { useNavigation } from "@react-navigation/native";
+
 export default function Report() {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { userReports, loading } = useSelector(state => state.report);
+  const { userReports, loading } = useSelector((state) => state.report);
   const [selectedType, setSelectedType] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,7 +28,7 @@ export default function Report() {
     const params = {
       page,
       limit: 15,
-      ...(type && { type })
+      ...(type && { type }),
     };
     await dispatch(getUserReports(params));
   };
@@ -75,37 +84,39 @@ export default function Report() {
     );
   }
 
+  const handleReportPress = (report) => {
+    navigation.navigate("ReportDetails", { reportId: report._id });
+  };
+
   return (
     <View style={tw`flex-1 bg-gray-50`}>
       <View style={tw`flex-row items-center justify-between px-2`}>
         <View style={tw`flex-1`}>
-          <Text style={[tw `font-bold ml-2`,styles.textLarge]}>My Reports</Text>
+          <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Reports</Text>
         </View>
-      <View style={tw`w-10`}>
-        <TypeBadges
-          selectedType={selectedType}
-          onSelectType={handleTypeSelect}
-        />
+        <View style={tw`w-10`}>
+          <TypeBadges
+            selectedType={selectedType}
+            onSelectType={handleTypeSelect}
+          />
+        </View>
       </View>
-    </View>
 
       <FlatList
         data={userReports?.reports || []}
         renderItem={({ item }) => (
-          <ReportListItem 
-            report={item} 
-            onPress={(report) => console.log('Report pressed:', report)}
-          />
+          <View key={item._id} >
+          <ReportListItem report={item} onPress={handleReportPress} />
+          </View>
         )}
-        keyExtractor={item => item._id}
+        keyExtractor={(item) => item._id}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          loading && <ActivityIndicator style={tw`py-4`} />
-        }
+        ListFooterComponent={loading && <ActivityIndicator style={tw`py-4`} />}
+        contentContainerStyle={tw`pb-20`}
       />
     </View>
   );

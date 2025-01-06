@@ -34,7 +34,10 @@ import {
   GET_USER_REPORTS_FAIL,
   SAVE_REPORT_DRAFT,
   LOAD_REPORT_DRAFT,
-  DELETE_REPORT_DRAFT
+  DELETE_REPORT_DRAFT,
+  GET_REPORT_DETAILS_REQUEST,
+  GET_REPORT_DETAILS_SUCCESS,
+  GET_REPORT_DETAILS_FAIL,
 } from "../actiontypes/reportTypes";
 
 // Create Report
@@ -372,6 +375,33 @@ export const loadReportDraft = () => async (dispatch) => {
   } catch (error) {
     console.error('Error loading draft:', error);
     return { success: false, error: error.message };
+  }
+};
+
+
+// Get Report Details
+export const getReportDetails = (reportId) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_REPORT_DETAILS_REQUEST });
+
+    const { data } = await axios.get(
+      `${serverConfig.baseURL}/report/user-report/${reportId}`,
+      { withCredentials: true }
+    );
+
+    dispatch({
+      type: GET_REPORT_DETAILS_SUCCESS,
+      payload: data.data
+    });
+
+    return { success: true, data: data.data };
+  } catch (error) {
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: GET_REPORT_DETAILS_FAIL,
+      payload: message
+    });
+    return { success: false, error: message };
   }
 };
 
