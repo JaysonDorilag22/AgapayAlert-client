@@ -10,7 +10,7 @@ import { Login, Register, Verification, Verified, ForgotPassword, ResetPassword 
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import { LanguageContext } from './src/context/LanguageContext';
 import { ReportDetails } from '@/screens/reports';
-
+import Splash from '@/components/Splash';
 const Stack = createStackNavigator();
 
 // OneSignal.Debug.setLogLevel(LogLevel.Verbose);
@@ -28,20 +28,30 @@ export default function App() {
 
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage }}>
-      <I18nextProvider i18n={i18n}>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Register" component={Register} />
-            <Stack.Screen name="Verification" component={Verification} />
-            <Stack.Screen name="Verified" component={Verified} />
-            <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-            <Stack.Screen name="ResetPassword" component={ResetPassword} />
-            <Stack.Screen name="Main" component={DrawerNavigator} />
-            <Stack.Screen name="ReportDetails" component={ReportDetails} options={{ headerShown: true, headerTitle: 'Report Details', headerTintColor: '#fff', headerStyle: { backgroundColor: '#041562'}}}/>
-          </Stack.Navigator>
-        </NavigationContainer>
-      </I18nextProvider>
-    </LanguageContext.Provider>
+    <I18nextProvider i18n={i18n}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Splash" component={Splash} />
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Register" component={Register} />
+          <Stack.Screen name="Verification" component={Verification} />
+          <Stack.Screen name="Verified" component={Verified} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+          <Stack.Screen name="ResetPassword" component={ResetPassword} />
+          <Stack.Screen name="Main" component={DrawerNavigator} />
+          <Stack.Screen 
+            name="ReportDetails" 
+            component={ReportDetails} 
+            options={{ 
+              headerShown: true, 
+              headerTitle: 'Report Details', 
+              headerTintColor: '#fff', 
+              headerStyle: { backgroundColor: '#041562'}
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </I18nextProvider>
+  </LanguageContext.Provider>
   );
 }
