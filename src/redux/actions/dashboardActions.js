@@ -16,7 +16,7 @@ import {
   GET_LOCATION_HOTSPOTS_REQUEST,
   GET_LOCATION_HOTSPOTS_SUCCESS,
   GET_LOCATION_HOTSPOTS_FAIL
-} from '../actiontypes/dashboardTypes';
+} from '@/redux/actiontypes/dashboardTypes';
 
 // Basic Analytics
 export const getBasicAnalytics = () => async (dispatch) => {
