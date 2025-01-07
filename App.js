@@ -12,7 +12,7 @@ import { LanguageContext } from './src/context/LanguageContext';
 import { ReportDetails } from '@/screens/reports';
 import Splash from '@/components/Splash';
 const Stack = createStackNavigator();
-
+import AdminNavigator from './src/navigation/AdminNavigator';
 // OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 // OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
 
@@ -39,6 +39,7 @@ export default function App() {
           <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
           <Stack.Screen name="ResetPassword" component={ResetPassword} />
           <Stack.Screen name="Main" component={DrawerNavigator} />
+          <Stack.Screen name="Admin" component={AdminNavigator} />
           <Stack.Screen 
             name="ReportDetails" 
             component={ReportDetails} 

@@ -3,6 +3,7 @@ import { authReducer } from './reducers/authReducers';
 import { userReducer } from './reducers/userReducers';
 import { policeStationReducer } from './reducers/policeStationReducers';
 import { reportReducer } from './reducers/reportReducers';
+import { dashboardReducer } from './reducers/dashBoardReducers';
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     user: userReducer,
     policeStation: policeStationReducer,
     report: reportReducer,
+    dashboard: dashboardReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

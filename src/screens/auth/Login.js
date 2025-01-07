@@ -37,8 +37,14 @@ export default function Login() {
     
     if (result.success) {
       handleToast('Logged in successfully');
-      navigation.navigate('Main'); 
-      dispatch(clearAuthMessage());
+    
+    // Check user role and navigate accordingly
+    const adminRoles = ['police_officer', 'police_admin', 'city_admin', 'super_admin'];
+    if (adminRoles.includes(result.data.user.roles[0])) {
+      navigation.navigate('Admin');
+    } else {
+      navigation.navigate('Main');
+    }
     } else if (result.error) {
       if (result.error === 'Please verify your email first') {
         handleToast('Please verify your email first');
