@@ -73,30 +73,37 @@ export const createReport = (reportData) => async (dispatch) => {
 };
 
 // Get Reports
-export const getReports = (filters = {}) => async (dispatch) => {
-    try {
-      dispatch({ type: GET_REPORTS_REQUEST });
+export const getReports = ({ page = 1, limit = 10 }) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_REPORTS_REQUEST });
 
-      const { data } = await axios.get(`${serverConfig.baseURL}/report`, {
-        params: filters,
-        withCredentials: true,
-      });
+    // Match exact API endpoint format
+    const url = `${serverConfig.baseURL}/report/getReports?page=${page}&limit=${limit}`;
 
-      dispatch({
-        type: GET_REPORTS_SUCCESS,
-        payload: data,
-      });
+    const { data } = await axios.get(url, {
+      withCredentials: true
+    });
 
-      return { success: true, data };
-    } catch (error) {
-      const message = error.response?.data?.msg || error.message;
-      dispatch({
-        type: GET_REPORTS_FAIL,
-        payload: message,
-      });
-      return { success: false, error: message };
-    }
-  };
+    dispatch({
+      type: GET_REPORTS_SUCCESS,
+      payload: {
+        reports: data.data.reports,
+        currentPage: parseInt(page),
+        totalPages: parseInt(data.data.totalPages),
+        totalReports: parseInt(data.data.totalReports),
+        hasMore: page * limit < data.data.totalReports
+      }
+    });
+
+    return { success: true, data: data.data };
+  } catch (error) {
+    dispatch({
+      type: GET_REPORTS_FAIL,
+      payload: error.response?.data?.msg || error.message
+    });
+    return { success: false, error: error.response?.data?.msg || error.message };
+  }
+};
 
 // Update Report
 export const updateReport = (reportId, updateData) => async (dispatch) => {

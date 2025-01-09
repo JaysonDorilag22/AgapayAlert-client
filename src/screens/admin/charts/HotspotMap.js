@@ -1,25 +1,18 @@
 import React from 'react';
 import { View, Text, Dimensions } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Heatmap } from 'react-native-maps';
-import { BarChart } from "react-native-chart-kit";
 import tw from 'twrnc';
+import MapComponent from '@/components/MapComponent';
+import { BarChart } from "react-native-chart-kit";
 
 const HotspotMap = ({ data }) => {
   if (!data?.analysis) return null;
 
   const { analysis } = data;
-  
-  const points = analysis.map(item => ({
-    latitude: 14.5176,
-    longitude: 121.0509,
-    weight: item.riskScore / 100
-  }));
 
-  // Prepare data for bar chart
   const chartData = {
     labels: analysis.slice(0, 5).map(item => item.barangay),
     datasets: [{
-      data: analysis.slice(0, 5).map(item => item.currentIncidents)
+      data: analysis.slice(0, 5).map(item => item.riskScore)
     }]
   };
 
@@ -34,52 +27,39 @@ const HotspotMap = ({ data }) => {
     useShadowColorFromDataset: false
   };
 
+  const mapMarkers = analysis.map(item => ({
+    lat: item.latitude || 14.5176,
+    lng: item.longitude || 121.0509,
+    title: `${item.barangay}\nRisk Level: ${item.riskLevel}`
+  }));
+
   return (
     <View style={tw`bg-white rounded-lg border border-gray-200 p-4`}>
       <Text style={tw`text-lg font-bold text-gray-800 mb-4`}>Location Hotspots</Text>
       
-      {/* Heatmap */}
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={{
-          width: Dimensions.get('window').width - 65,
-          height: 300,
-        }}
-        initialRegion={{
-          latitude: 14.5995,
-          longitude: 121.0359,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-        mapType="satellite"
-      >
-        <Heatmap
-          points={points}
-          radius={50}
-          opacity={0.7}
-          gradient={{
-            colors: ["#79BC6A", "#BBCF4C", "#EEC20B", "#F29305", "#E50000"],
-            startPoints: [0.2, 0.4, 0.6, 0.8, 1.0]
-          }}
-        />
-      </MapView>
+      <MapComponent 
+        markers={mapMarkers}
+        center={{ lat: 14.5176, lng: 121.0359 }}
+        zoom={13}
+        height={300}
+        onMapError={(error) => console.error('Map Error:', error)}
+        onMapLoad={() => console.log('Map loaded')}
+      />
 
-      {/* Bar Chart */}
       <View style={tw`mt-6`}>
         <Text style={tw`text-base font-semibold text-gray-800 mb-4`}>Top 5 Hotspot Areas</Text>
         <BarChart
           data={chartData}
-          width={Dimensions.get("window").width - 65}
+          width={Dimensions.get("window").width - 70}
           height={220}
           chartConfig={chartConfig}
-          verticalLabelRotation={30}
+          verticalLabelRotation={0}
           showValuesOnTopOfBars={true}
           fromZero={true}
           style={tw`rounded-lg -ml-4`}
         />
       </View>
 
-      {/* Analysis Table */}
       <View style={tw`mt-6`}>
         <Text style={tw`text-base font-semibold text-gray-800 mb-4`}>Area Analysis</Text>
         {analysis.slice(0, 5).map((item, index) => (

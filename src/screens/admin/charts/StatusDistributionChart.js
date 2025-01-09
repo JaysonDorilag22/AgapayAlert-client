@@ -33,7 +33,7 @@ const StatusDistributionChart = ({ data }) => {
       <Text style={tw`text-lg font-bold text-gray-800 mb-4`}>Status Distribution</Text>
       <BarChart
         data={chartData}
-        width={Dimensions.get("window").width - 40}
+        width={Dimensions.get("window").width - 70}
         height={220}
         chartConfig={chartConfig}
         verticalLabelRotation={0}

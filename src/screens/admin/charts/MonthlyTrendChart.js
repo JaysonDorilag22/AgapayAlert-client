@@ -39,7 +39,7 @@ const MonthlyTrendChart = ({ data }) => {
       <Text style={tw`text-lg font-bold text-gray-800 mb-4`}>Monthly Reports Trend</Text>
       <LineChart
         data={chartData}
-        width={Dimensions.get("window").width - 40}
+        width={Dimensions.get("window").width - 70}
         height={220}
         chartConfig={chartConfig}
         bezier

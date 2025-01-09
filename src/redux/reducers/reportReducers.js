@@ -34,6 +34,7 @@ import {
   GET_REPORT_DETAILS_REQUEST,
   GET_REPORT_DETAILS_SUCCESS,
   GET_REPORT_DETAILS_FAIL,
+  CLEAR_REPORTS
 } from "../actiontypes/reportTypes";
 
 const initialState = {
@@ -80,15 +81,34 @@ export const reportReducer = (state = initialState, action) => {
       return { ...state, loading: false, error: action.payload };
 
     case GET_REPORTS_REQUEST:
-      return { ...state, loading: true };
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+
     case GET_REPORTS_SUCCESS:
       return {
         ...state,
         loading: false,
-        reports: action.payload,
+        reports:
+          action.payload.currentPage === 1
+            ? action.payload.reports
+            : [...state.reports, ...action.payload.reports],
+        currentPage: action.payload.currentPage,
+        totalPages:
+          action.payload.totalPages ||
+          Math.ceil(action.payload.totalReports / 10),
+        totalReports: action.payload.totalReports,
+        hasMore: action.payload.hasMore,
       };
+
     case GET_REPORTS_FAIL:
-      return { ...state, loading: false, error: action.payload };
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
 
     case UPDATE_REPORT_REQUEST:
     case UPDATE_STATUS_REQUEST:
@@ -234,6 +254,12 @@ export const reportReducer = (state = initialState, action) => {
         detailsError: action.payload,
         currentReport: null,
       };
+
+      case CLEAR_REPORTS:
+  return {
+    ...state,
+    reports: []
+  };
 
     default:
       return state;

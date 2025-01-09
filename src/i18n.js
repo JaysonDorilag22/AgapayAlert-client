@@ -8,7 +8,7 @@ const resources = {
   en: {
     translation: {
       welcome: "Welcome to",
-      signIn: "Sign on to your account",
+      signIn: "Sign in to your account",
       login: "Log In",
       google: "Google",
       noAccount: "Don't have an account?",

@@ -1,5 +1,5 @@
 // React and React Native imports
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
@@ -26,17 +26,12 @@ export default function Login() {
   const { loading } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleToast = useCallback((msg) => {
-    if (msg) {
-      showToast(msg);
-    }
-  }, []);
 
   const handleLogin = async (credentials) => {
     const result = await dispatch(login(credentials));
     
     if (result.success) {
-      handleToast('Logged in successfully');
+      showToast('Logged in successfully');
     
     // Check user role and navigate accordingly
     const adminRoles = ['police_officer', 'police_admin', 'city_admin', 'super_admin'];
@@ -47,12 +42,12 @@ export default function Login() {
     }
     } else if (result.error) {
       if (result.error === 'Please verify your email first') {
-        handleToast('Please verify your email first');
+        showToast('Please verify your email first');
         navigation.navigate('Verification', {
           email: credentials.email
         });
       } else {
-        handleToast(result.error);
+        showToast(result.error);
       }
       dispatch(clearAuthError());
     }
