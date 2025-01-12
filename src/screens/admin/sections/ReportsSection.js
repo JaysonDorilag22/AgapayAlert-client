@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { DataTable } from 'react-native-paper';
 import { RefreshCw } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 import tw from 'twrnc';
 
-const REPORT_TYPES = ['All', 'Missing', 'Abducted'];
+const REPORT_TYPES = ['All', 'Missing', 'Abducted', 'Kidnapped', 'Hit-and-Run']
 
 const ReportsSection = ({ 
   reports = [], 
@@ -17,9 +18,15 @@ const ReportsSection = ({
   itemsPerPage = 10,
   totalReports = 0
 }) => {
+  const navigation = useNavigation();
   const [page, setPage] = useState(0);
   const [error, setError] = useState(null);
   const [selectedType, setSelectedType] = useState('All');
+
+  const handleRowPress = (report) => {
+    navigation.navigate('ReportDetails', { reportId: report._id });
+  };
+
   
   useEffect(() => {
     setPage(currentPage - 1);
@@ -46,33 +53,39 @@ const ReportsSection = ({
     }
   };
 
-  const renderRow = (report, index) => (
-    <DataTable.Row key={`report-${report._id || index}`}>
-      <DataTable.Cell>
-        <Image 
-          source={{ 
-            uri: report?.personInvolved?.mostRecentPhoto?.url || 
-                 'https://via.placeholder.com/40'
-          }}
-          style={tw`w-10 h-10 rounded-full`}
-        />
-      </DataTable.Cell>
-      <DataTable.Cell>{report.type || 'N/A'}</DataTable.Cell>
-      <DataTable.Cell>
-        {`${report?.personInvolved?.firstName || ''} ${report?.personInvolved?.lastName || ''}`.trim() || 'N/A'}
-      </DataTable.Cell>
-      <DataTable.Cell>{report.status || 'N/A'}</DataTable.Cell>
-    </DataTable.Row>
-  );
+  const renderRow = (report, index) => {
+    if (!report) return null;
+    
+    return (
+      <TouchableOpacity onPress={() => handleRowPress(report)}>
+        <DataTable.Row key={`report-${report._id || index}`}>
+          <DataTable.Cell>
+            <Image 
+              source={{ 
+                uri: report?.personInvolved?.mostRecentPhoto?.url || 
+                     'https://via.placeholder.com/40'
+              }}
+              style={tw`w-10 h-10 rounded-full`}
+            />
+          </DataTable.Cell>
+          <DataTable.Cell>{report?.type || 'N/A'}</DataTable.Cell>
+          <DataTable.Cell>
+            {`${report?.personInvolved?.firstName || ''} ${report?.personInvolved?.lastName || ''}`.trim() || 'N/A'}
+          </DataTable.Cell>
+          <DataTable.Cell>{report?.status || 'N/A'}</DataTable.Cell>
+        </DataTable.Row>
+      </TouchableOpacity>
+    );
+  };
 
   const renderSkeletonRow = (index) => (
     <DataTable.Row key={`skeleton-${index}`}>
       <DataTable.Cell>
-        <View style={tw`w-10 h-10 bg-gray-200 rounded-full animate-pulse`} />
+        <View style={tw`w-10 h-10 bg-gray-200 rounded-full`} />
       </DataTable.Cell>
-      <DataTable.Cell><View style={tw`w-16 h-4 bg-gray-200 rounded animate-pulse`} /></DataTable.Cell>
-      <DataTable.Cell><View style={tw`w-24 h-4 bg-gray-200 rounded animate-pulse`} /></DataTable.Cell>
-      <DataTable.Cell><View style={tw`w-16 h-4 bg-gray-200 rounded animate-pulse`} /></DataTable.Cell>
+      <DataTable.Cell><View style={tw`w-16 h-4 bg-gray-200 rounded`} /></DataTable.Cell>
+      <DataTable.Cell><View style={tw`w-24 h-4 bg-gray-200 rounded`} /></DataTable.Cell>
+      <DataTable.Cell><View style={tw`w-16 h-4 bg-gray-200 rounded`} /></DataTable.Cell>
     </DataTable.Row>
   );
 
@@ -101,7 +114,6 @@ const ReportsSection = ({
           <RefreshCw 
             size={20} 
             color={isDisabled ? '#9CA3AF' : '#3B82F6'}
-            style={refreshing ? tw`animate-spin` : {}}
           />
         </TouchableOpacity>
       </View>

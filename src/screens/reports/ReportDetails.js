@@ -11,6 +11,19 @@ const ReportDetails = ({ route }) => {
   const dispatch = useDispatch();
   const { currentReport, detailsLoading, detailsError } = useSelector(state => state.report);
 
+  console.log("REPORT:",currentReport)
+  useEffect(() => {
+    if (currentReport) {
+      console.log('Report Data:', {
+        id: currentReport._id,
+        person: currentReport.personInvolved,
+        location: currentReport.location,
+        reporter: currentReport.reporter,
+        station: currentReport.assignedPoliceStation
+      });
+    }
+  }, [currentReport]);
+
   // Safe date formatting helper
   const formatDate = (dateString) => {
     try {
@@ -53,6 +66,8 @@ const ReportDetails = ({ route }) => {
         <Text style={tw`text-red-600 text-center`}>{detailsError}</Text>
       </View>
     );
+
+    
   }
 
   const DetailRow = ({ icon, label, value }) => (
@@ -60,7 +75,9 @@ const ReportDetails = ({ route }) => {
       <View style={tw`mr-3`}>{icon}</View>
       <View>
         <Text style={tw`text-gray-500 text-xs`}>{label}</Text>
-        <Text style={tw`text-gray-700`}>{value || 'N/A'}</Text>
+        <Text style={tw`text-gray-700`}>
+          {value !== undefined && value !== null ? value : 'N/A'}
+        </Text>
       </View>
     </View>
   );
@@ -74,6 +91,9 @@ const ReportDetails = ({ route }) => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  
+  
 
   return (
     <ScrollView style={tw`flex-1 bg-gray-50`}>

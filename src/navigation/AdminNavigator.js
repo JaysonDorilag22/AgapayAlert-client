@@ -1,12 +1,16 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import AdminDashboard from '@/screens/admin/Dashboard';
-// import AdminReports from '@/screens/admin/Reports';
-// import AdminUsers from '@/screens/admin/Users';
-// import AdminPoliceStations from '@/screens/admin/PoliceStations';
-// import AdminProfile from '@/screens/admin/Profile';
 import CustomAdminDrawer from '@/components/admin/CustomAdminDrawer';
 import tw from 'twrnc';
+import Reports from '@/screens/admin/reports/Reports';
+import PoliceStation from '@/screens/admin/policeStation/PoliceStation';
+import City from '@/screens/admin/city/City';
+import Alert from '@/screens/admin/alerts/Alert';
+import Broadcast from '@/screens/admin/broadcast/Broadcast'; 
+import Finder from '@/screens/admin/finder/Finder';
+import ReportDetails from '@/screens/admin/reports/ReportDetails';
+
 
 const Drawer = createDrawerNavigator();
 
@@ -29,29 +33,41 @@ const AdminNavigator = () => {
       />
       <Drawer.Screen 
         name="AdminReports" 
-        component={"#"} 
+        component={Reports}
         options={{ title: 'Reports' }}
       />
       <Drawer.Screen 
+        name="AdminFinder" 
+        component={Finder}
+        options={{ title: 'Finder' }}
+      />
+      <Drawer.Screen 
         name="AdminPoliceStations" 
-        component={"#"}
+        component={PoliceStation}
         options={{ title: 'Police Stations' }}
       />
       <Drawer.Screen 
         name="AdminCities" 
-        component={"#"}
+        component={City}
         options={{ title: 'Cities' }}
       />
       <Drawer.Screen 
-        name="AdminUsers" 
-        component={"#"}
-        options={{ title: 'Users' }}  
+        name="AdminAlerts" 
+        component={Alert}
+        options={{ title: 'Alerts' }}
       />
-      
       <Drawer.Screen 
-        name="AdminProfile" 
-        component={"#"}
-        options={{ title: 'Profile' }}
+        name="AdminBroadcasts" 
+        component={Broadcast}
+        options={{ title: 'Broadcasts' }}
+      />
+      <Drawer.Screen 
+        name="ReportDetails" 
+        component={ReportDetails}
+        options={{ 
+          title: 'Report Details',
+          drawerItemStyle: { display: 'none' } 
+        }}
       />
     </Drawer.Navigator>
   );

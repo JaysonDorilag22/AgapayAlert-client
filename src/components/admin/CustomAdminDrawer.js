@@ -76,7 +76,7 @@ const CustomAdminDrawer = (props) => {
       <DrawerItemList {...props} />
 
       <TouchableOpacity
-        style={styles.buttonSecondary}
+        style={[styles.buttonSecondary, tw`mt-2`]}
         onPress={handleLogout}
         disabled={loading}
       >

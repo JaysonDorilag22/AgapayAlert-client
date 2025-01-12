@@ -72,13 +72,19 @@ export const createReport = (reportData) => async (dispatch) => {
   }
 };
 
-// Get Reports
-export const getReports = ({ page = 1, limit = 10 }) => async (dispatch) => {
+// In reportActions.js
+export const getReports = ({ page = 1, limit = 10, type = null }) => async (dispatch) => {
   try {
     dispatch({ type: GET_REPORTS_REQUEST });
 
-    // Match exact API endpoint format
-    const url = `${serverConfig.baseURL}/report/getReports?page=${page}&limit=${limit}`;
+    // Build query parameters properly
+    const queryParams = new URLSearchParams({
+      page,
+      limit,
+      ...(type && { type }) // Only add type if it exists
+    });
+
+    const url = `${serverConfig.baseURL}/report/getReports?${queryParams}`;
 
     const { data } = await axios.get(url, {
       withCredentials: true
@@ -88,10 +94,10 @@ export const getReports = ({ page = 1, limit = 10 }) => async (dispatch) => {
       type: GET_REPORTS_SUCCESS,
       payload: {
         reports: data.data.reports,
-        currentPage: parseInt(page),
+        currentPage: parseInt(data.data.currentPage),
         totalPages: parseInt(data.data.totalPages),
         totalReports: parseInt(data.data.totalReports),
-        hasMore: page * limit < data.data.totalReports
+        hasMore: data.data.hasMore
       }
     });
 

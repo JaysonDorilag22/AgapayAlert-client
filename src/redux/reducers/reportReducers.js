@@ -87,21 +87,16 @@ export const reportReducer = (state = initialState, action) => {
         error: null,
       };
 
-    case GET_REPORTS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        reports:
-          action.payload.currentPage === 1
-            ? action.payload.reports
-            : [...state.reports, ...action.payload.reports],
-        currentPage: action.payload.currentPage,
-        totalPages:
-          action.payload.totalPages ||
-          Math.ceil(action.payload.totalReports / 10),
-        totalReports: action.payload.totalReports,
-        hasMore: action.payload.hasMore,
-      };
+      case GET_REPORTS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          reports: action.payload.reports, // Replace instead of accumulate
+          currentPage: action.payload.currentPage,
+          totalPages: action.payload.totalPages,
+          totalReports: action.payload.totalReports,
+          hasMore: action.payload.currentPage < action.payload.totalPages
+        };
 
     case GET_REPORTS_FAIL:
       return {

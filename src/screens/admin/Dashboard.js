@@ -19,6 +19,7 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
+  const [currentFilter, setCurrentFilter] = useState(null);
 
   const { 
     basicAnalytics, 
@@ -54,24 +55,25 @@ const Dashboard = () => {
     setRefreshing(false);
   };
 
-  const handleLoadMore = async (newPage) => {
+  const handleLoadMore = async (newPage, type = null) => {
     try {
       setPage(newPage);
-      // Clear existing reports before loading new page
-      dispatch({ type: 'CLEAR_REPORTS' });
+      // Update current filter
+      if (type !== currentFilter) {
+        setCurrentFilter(type);
+        dispatch({ type: 'CLEAR_REPORTS' });
+      }
+      
       await dispatch(getReports({ 
         page: newPage,
-        limit: 10
+        limit: 10,
+        type: type || undefined
       }));
     } catch (error) {
       console.error('Error loading more reports:', error);
       setPage(page);
     }
   };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
 
   const sections = [
@@ -127,6 +129,7 @@ const Dashboard = () => {
     }
   ];
 
+ 
   return (
     <SectionList
       sections={sections}
