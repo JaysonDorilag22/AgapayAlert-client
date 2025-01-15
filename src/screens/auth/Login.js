@@ -1,7 +1,7 @@
 // React and React Native imports
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect} from 'react';
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
-
+import {  OneSignal } from 'react-native-onesignal';
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
 import { Eye, EyeOff } from "lucide-react-native";
@@ -17,7 +17,7 @@ import { loginValidationSchema } from "@/validation/loginValidation";
 import styles from "@/styles/styles";
 import showToast from "@/utils/toastUtils";
 
-// import GoogleAuth from "components/auth/GoogleAuth";
+import GoogleAuth from "components/auth/GoogleAuth";
 
 export default function Login() {
   const navigation = useNavigation();
@@ -26,33 +26,70 @@ export default function Login() {
   const { loading } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
 
+  const [playerId, setPlayerId] = useState(null);
+
+
+  useEffect(() => {
+    const getPlayerId = async () => {
+      try {
+        const deviceState = await OneSignal.User.pushSubscription.getPushSubscriptionId();
+        if (deviceState) {
+          setPlayerId(deviceState);
+        }
+      } catch (error) {
+        console.error('OneSignal Error:', error);
+      }
+    };
+
+    // Initial fetch
+    getPlayerId();
+
+    // Subscription listener
+    const subscription = OneSignal.User.pushSubscription.addEventListener('change', getPlayerId);
+    return () => subscription?.remove();
+  }, []);
+
 
   const handleLogin = async (credentials) => {
-    const result = await dispatch(login(credentials));
-    
-    if (result.success) {
-      showToast('Logged in successfully');
-    
-    // Check user role and navigate accordingly
-    const adminRoles = ['police_officer', 'police_admin', 'city_admin', 'super_admin'];
-    if (adminRoles.includes(result.data.user.roles[0])) {
-      navigation.navigate('Admin');
-    } else {
-      navigation.navigate('Main');
-    }
-    } else if (result.error) {
-      if (result.error === 'Please verify your email first') {
-        showToast('Please verify your email first');
-        navigation.navigate('Verification', {
-          email: credentials.email
-        });
-      } else {
-        showToast(result.error);
+    try {
+      if (!playerId) {
+        console.warn('No OneSignal Player ID available');
       }
-      dispatch(clearAuthError());
+
+      const loginData = {
+        email: credentials.email,
+        password: credentials.password,
+        deviceToken: playerId
+      };
+
+      const result = await dispatch(login(loginData));
+      
+      if (result.success) {
+        showToast('Logged in successfully');
+        
+        // 4. Handle navigation based on role
+        const adminRoles = ['police_officer', 'police_admin', 'city_admin', 'super_admin'];
+        if (adminRoles.includes(result.data.user.roles[0])) {
+          navigation.navigate('Admin');
+        } else {
+          navigation.navigate('Main');
+        }
+      } else if (result.error) {
+        if (result.error === 'Please verify your email first') {
+          showToast('Please verify your email first');
+          navigation.navigate('Verification', {
+            email: credentials.email
+          });
+        } else {
+          showToast(result.error);
+        }
+        dispatch(clearAuthError());
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      showToast('Failed to login. Please try again.');
     }
   };
-  
   return (
     <Formik
       initialValues={{ email: "", password: "" }}
@@ -156,9 +193,9 @@ export default function Login() {
                 <Text style={styles.buttonTextPrimary}>{t("login")}</Text>
               )}
             </TouchableOpacity>
-            {/* <View> */}
-            {/* <GoogleAuth />  */}
-            {/* </View> */}
+            <View>
+            <GoogleAuth /> 
+            </View>
             <Text
               style={[
                 tw`text-sm mt-5 p-2`,

@@ -50,9 +50,7 @@ const ReportCard = ({ report, onPress }) => {
         <TouchableOpacity
           style={tw`mt-4 bg-red-600 rounded-lg py-2 px-4 flex-row items-center justify-center`}
           onPress={(e) => {
-            e.stopPropagation(); // Prevent card press
-            // TODO: Implement sighting report handler
-            console.log('Report sighting for:', report.id);
+            e.stopPropagation(); 
           }}
         >
           <Eye size={18} color="white" style={tw`mr-2`} />

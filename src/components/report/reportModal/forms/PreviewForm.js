@@ -111,7 +111,6 @@ const PreviewForm = ({
             });
           });
 
-          console.log("INFORMATION:",formData)
 
           const result = await dispatch(createReport(formData));
 

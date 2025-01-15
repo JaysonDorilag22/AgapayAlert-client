@@ -69,16 +69,26 @@ export const verifyAccount = (verificationData) => async (dispatch) => {
 export const login = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
-    const { data } = await axios.post(
-      `${serverConfig.baseURL}/auth/login`,
-      credentials
-    );
-    dispatch({ type: LOGIN_SUCCESS, payload: data });
+    const { data } = await axios.post(`${serverConfig.baseURL}/auth/login`, {
+      email: credentials.email,
+      password: credentials.password,
+      deviceToken: credentials.deviceToken
+    });
+
+    dispatch({ 
+      type: LOGIN_SUCCESS,
+      payload: data 
+    });
+
     return { success: true, data };
+
   } catch (error) {
-    const msg = error.response?.data?.msg || error.msg;
-    dispatch({ type: LOGIN_FAILURE, payload: { msg: msg } });
-    return { success: false, error: msg };
+    const errorMessage = error.response?.data?.msg || error.message;
+    dispatch({ 
+      type: LOGIN_FAILURE, 
+      payload: errorMessage 
+    });
+    return { success: false, error: errorMessage };
   }
 };
 
@@ -124,7 +134,6 @@ export const forgotPassword = (email) => async (dispatch) => {
   } catch (error) {
     // Extract error message from backend response
     const msg = error.response?.data?.msg || "Failed to send OTP";
-    console.log(msg)
     dispatch({
       type: FORGOT_PASSWORD_FAILURE,
       payload: { msg },
@@ -189,7 +198,7 @@ export const resendOtp = (email) => async (dispatch) => {
 };
 
 // Google Auth
-export const googleAuth = (userInfo) => async (dispatch) => {
+export const googleAuth = ({ userInfo, deviceToken }) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
     const { email, givenName, familyName, photo } = userInfo?.data?.user || {};
@@ -198,6 +207,7 @@ export const googleAuth = (userInfo) => async (dispatch) => {
       firstName: givenName,
       lastName: familyName,
       avatar: photo,
+      deviceToken
     });
 
     const actionType = data.exists ? LOGIN_SUCCESS : REGISTER_SUCCESS;

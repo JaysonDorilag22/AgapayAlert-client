@@ -293,7 +293,6 @@ export const getReportFeed = (params = {}) => async (dispatch) => {
   }
 };
 
-
 // Get Report Cities
 export const getCities = () => async (dispatch) => {
   try {
@@ -390,7 +389,6 @@ export const loadReportDraft = () => async (dispatch) => {
     return { success: false, error: error.message };
   }
 };
-
 
 // Get Report Details
 export const getReportDetails = (reportId) => async (dispatch) => {

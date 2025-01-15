@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SectionList, RefreshControl } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import tw from 'twrnc';
@@ -32,6 +32,9 @@ const Dashboard = () => {
   
   const { reports, totalPages, totalReports } = useSelector(state => state.report);
 
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const loadData = async () => {
     try {
@@ -58,7 +61,6 @@ const Dashboard = () => {
   const handleLoadMore = async (newPage, type = null) => {
     try {
       setPage(newPage);
-      // Update current filter
       if (type !== currentFilter) {
         setCurrentFilter(type);
         dispatch({ type: 'CLEAR_REPORTS' });
@@ -75,8 +77,7 @@ const Dashboard = () => {
     }
   };
 
-
-  const sections = [
+  const sections = useMemo(() => [
     {
       title: 'Analytics',
       data: [{
@@ -127,9 +128,9 @@ const Dashboard = () => {
       }],
       renderItem: ({ item }) => <ReportsSection {...item} />
     }
-  ];
+  ], [basicAnalytics, typeDistribution, statusDistribution, monthlyTrend, 
+      locationHotspots, loading, reports, refreshing, page, totalPages, totalReports]);
 
- 
   return (
     <SectionList
       sections={sections}

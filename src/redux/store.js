@@ -4,6 +4,9 @@ import { userReducer } from './reducers/userReducers';
 import { policeStationReducer } from './reducers/policeStationReducers';
 import { reportReducer } from './reducers/reportReducers';
 import { dashboardReducer } from './reducers/dashBoardReducers';
+import { broadcastReducer } from './reducers/broadcastReducers';
+import { notificationReducer } from './reducers/notificationReducers';
+import { alprReducer } from './reducers/alprReducers';
 
 const store = configureStore({
   reducer: {
@@ -12,6 +15,9 @@ const store = configureStore({
     policeStation: policeStationReducer,
     report: reportReducer,
     dashboard: dashboardReducer,
+    broadcast: broadcastReducer,
+    notification: notificationReducer,
+    alpr: alprReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

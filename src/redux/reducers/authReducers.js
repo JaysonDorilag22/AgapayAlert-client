@@ -49,6 +49,7 @@ export const authReducer = (state = initialState, action) => {
         loadingAction: null,
         user: action.payload.user,
         token: action.payload.token,
+        deviceToken: action.payload.deviceToken,
         msg: action.payload.msg,
         isAuthenticated: true,
         success: true,

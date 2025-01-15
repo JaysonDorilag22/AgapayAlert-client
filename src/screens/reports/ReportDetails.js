@@ -11,19 +11,6 @@ const ReportDetails = ({ route }) => {
   const dispatch = useDispatch();
   const { currentReport, detailsLoading, detailsError } = useSelector(state => state.report);
 
-  console.log("REPORT:",currentReport)
-  useEffect(() => {
-    if (currentReport) {
-      console.log('Report Data:', {
-        id: currentReport._id,
-        person: currentReport.personInvolved,
-        location: currentReport.location,
-        reporter: currentReport.reporter,
-        station: currentReport.assignedPoliceStation
-      });
-    }
-  }, [currentReport]);
-
   // Safe date formatting helper
   const formatDate = (dateString) => {
     try {

@@ -10,6 +10,7 @@ import Alert from '@/screens/admin/alerts/Alert';
 import Broadcast from '@/screens/admin/broadcast/Broadcast'; 
 import Finder from '@/screens/admin/finder/Finder';
 import ReportDetails from '@/screens/admin/reports/ReportDetails';
+import Alpr from '@/screens/admin/alpr/Alpr';
 
 
 const Drawer = createDrawerNavigator();
@@ -68,6 +69,11 @@ const AdminNavigator = () => {
           title: 'Report Details',
           drawerItemStyle: { display: 'none' } 
         }}
+      />
+      <Drawer.Screen 
+        name="AdminAlpr" 
+        component={Alpr}
+        options={{ title: 'ALPR' }}
       />
     </Drawer.Navigator>
   );

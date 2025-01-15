@@ -48,8 +48,6 @@ const Profile = () => {
     }
   }, [dispatch, authUser]);
 
-  console.log(authUser)
-
   useEffect(() => {
     if (user) {
       setFormData({

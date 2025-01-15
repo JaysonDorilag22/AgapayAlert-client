@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text } from "react-native";
+import { OneSignal } from 'react-native-onesignal';
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -14,6 +15,7 @@ import showToast from 'utils/toastUtils';
 export default function GoogleAuth() {
   const [error, setError] = useState(null);
   const [isInProgress, setIsInProgress] = useState(false);
+  const [playerId, setPlayerId] = useState(null);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -24,24 +26,61 @@ export default function GoogleAuth() {
     });
   }, []);
 
+  // Add useEffect for OneSignal Player ID
+  useEffect(() => {
+    const getPlayerId = async () => {
+      try {
+        const deviceState = await OneSignal.User.pushSubscription.getPushSubscriptionId();
+        if (deviceState) {
+          setPlayerId(deviceState);
+        }
+      } catch (error) {
+        console.error('OneSignal Error:', error);
+      }
+    };
+
+    // Initial fetch
+    getPlayerId();
+
+    // Subscription listener
+    const subscription = OneSignal.User.pushSubscription.addEventListener('change', getPlayerId);
+    return () => subscription?.remove();
+  }, []);
+
   const signIn = useCallback(async () => {
     setIsInProgress(true);
     try {
+      if (!playerId) {
+        console.warn('No OneSignal Player ID available');
+      }
+
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       
-      const result = await dispatch(googleAuth(userInfo));
+      // Include deviceToken in the googleAuth call
+      const result = await dispatch(googleAuth({ 
+        userInfo,
+        deviceToken: playerId 
+      }));
       
       if (result.success) {
         if (result.data.exists) {
           showToast('Logged in successfully');
-          navigation.navigate('Main');
+          
+          // Check user roles for navigation
+          const adminRoles = ['police_officer', 'police_admin', 'city_admin', 'super_admin'];
+          if (adminRoles.includes(result.data.user.roles[0])) {
+            navigation.navigate('Admin');
+          } else {
+            navigation.navigate('Main');
+          }
         } else {
           navigation.navigate('Register', {
             email: result.data.user.email,
             firstName: result.data.user.firstName,
             lastName: result.data.user.lastName,
             avatar: result.data.user.avatar,
+            deviceToken: playerId // Pass deviceToken to Register
           });
         }
       } else {
@@ -58,7 +97,7 @@ export default function GoogleAuth() {
     } finally {
       setIsInProgress(false);
     }
-  }, [dispatch, navigation]);
+  }, [dispatch, navigation, playerId]);
 
   return (
     <View>

@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
-// import { LogLevel, OneSignal } from 'react-native-onesignal';
-// import Constants from "expo-constants";
-import React, { useState, useCallback } from 'react';
+import { LogLevel, OneSignal } from 'react-native-onesignal';
+import Constants from "expo-constants";
+import React, { useState, useCallback, useEffect} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { I18nextProvider } from 'react-i18next';
@@ -13,21 +13,56 @@ import { ReportDetails } from '@/screens/reports';
 import Splash from '@/components/Splash';
 const Stack = createStackNavigator();
 import AdminNavigator from './src/navigation/AdminNavigator';
-// OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-// OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
+import showToast from '@/utils/toastUtils';
+OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
 
-// OneSignal.Notifications.requestPermission(true);
+OneSignal.Notifications.requestPermission(true);
+
+
 
 export default function App() {
   const [language, setLanguage] = useState('en');
+  const [playerId, setPlayerId] = useState(null);
+
+  useEffect(() => {
+    // Get the Player ID when the app starts
+    const getPlayerId = async () => {
+      try {
+        const deviceState = OneSignal.User.pushSubscription.getPushSubscriptionId();
+        setPlayerId(deviceState);
+      } catch (error) {
+        showToast('Error getting player ID');
+      }
+    };
+
+    getPlayerId();
+
+       // Listen for subscription changes
+       const subscription = OneSignal.User.pushSubscription.addEventListener('change', () => {
+        getPlayerId();
+      });
+  
+      return () => {
+        subscription?.remove();
+      };
+
+  }, []);
 
   const toggleLanguage = useCallback((newLanguage) => {
     setLanguage(newLanguage);
     i18n.changeLanguage(newLanguage);
   }, []);
 
+  const contextValue = {
+    language,
+    toggleLanguage,
+    playerId
+  };
+
+
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage }}>
+    <LanguageContext.Provider value={{ language, toggleLanguage, contextValue }}>
     <I18nextProvider i18n={i18n}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>

@@ -5,7 +5,6 @@ import {
   POLICE_STATION_SEARCH_FAIL,
 } from '../actiontypes/policeStationType';
 import serverConfig from "../../config/serverConfig";
-console.log(serverConfig.baseURL)
 
 export const searchPoliceStations = (addressData) => async (dispatch) => {
   try {
@@ -41,7 +40,6 @@ export const searchPoliceStations = (addressData) => async (dispatch) => {
 
     return { success: true, data };
   } catch (error) {
-    console.log('Error Response:', error.response);
     dispatch({
       type: POLICE_STATION_SEARCH_FAIL,
       payload: error.response?.data?.msg || error.message,

@@ -32,6 +32,9 @@ const styles = {
   input2: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`),
   activeInput: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { borderColor: '#000000', backgroundColor: '#ffffff', color: '#000000' }),
 
+  buttonDanger: tw`bg-red-600 px-4 py-2 rounded-lg`,
+buttonTextDanger: tw`text-white font-medium text-center`,
+
 
   //Text size
   textSmall: tw.style(`text-sm`),
