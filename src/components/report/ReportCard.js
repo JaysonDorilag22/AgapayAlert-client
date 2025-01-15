@@ -13,7 +13,7 @@ const ReportCard = ({ report, onPress }) => {
 
   return (
     <TouchableOpacity 
-      style={tw`bg-white rounded-xl shadow-sm mb-4 overflow-hidden`}
+      style={tw`bg-white shadow-sm mb-4 overflow-hidden`}
       onPress={() => onPress(report)}
     >
       <Image 

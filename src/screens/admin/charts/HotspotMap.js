@@ -34,14 +34,14 @@ const HotspotMap = ({ data }) => {
   }));
 
   return (
-    <View style={tw`bg-white rounded-lg border border-gray-200 p-4`}>
+    <View>
       <Text style={tw`text-lg font-bold text-gray-800 mb-4`}>Location Hotspots</Text>
       
       <MapComponent 
         markers={mapMarkers}
         center={{ lat: 14.5176, lng: 121.0359 }}
         zoom={13}
-        height={300}
+        height={500}
         onMapError={(error) => console.error('Map Error:', error)}
         onMapLoad={() => console.log('Map loaded')}
       />

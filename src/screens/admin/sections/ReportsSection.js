@@ -1,33 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { DataTable } from 'react-native-paper';
-import { RefreshCw } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
-import tw from 'twrnc';
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import { DataTable } from "react-native-paper";
+import { RefreshCw } from "lucide-react-native";
+import { useNavigation } from "@react-navigation/native";
+import tw from "twrnc";
 
-const REPORT_TYPES = ['All', 'Missing', 'Abducted', 'Kidnapped', 'Hit-and-Run']
+const REPORT_TYPES = ["All", "Missing", "Abducted", "Kidnapped", "Hit-and-Run"];
 
-const ReportsSection = ({ 
-  reports = [], 
-  loading = false, 
-  refreshing = false, 
+const ReportsSection = ({
+  reports = [],
+  loading = false,
+  refreshing = false,
   onRefresh,
   onLoadMore,
   totalPages = 1,
   currentPage = 1,
   itemsPerPage = 10,
-  totalReports = 0
+  totalReports = 0,
 }) => {
   const navigation = useNavigation();
   const [page, setPage] = useState(0);
   const [error, setError] = useState(null);
-  const [selectedType, setSelectedType] = useState('All');
+  const [selectedType, setSelectedType] = useState("All");
 
   const handleRowPress = (report) => {
-    navigation.navigate('ReportDetails', { reportId: report._id });
+    navigation.navigate("ReportDetails", { reportId: report._id });
   };
 
-  
   useEffect(() => {
     setPage(currentPage - 1);
   }, [currentPage]);
@@ -35,9 +34,12 @@ const ReportsSection = ({
   const handlePageChange = async (newPage) => {
     try {
       setPage(newPage);
-      await onLoadMore?.(newPage + 1, selectedType !== 'All' ? selectedType : null);
+      await onLoadMore?.(
+        newPage + 1,
+        selectedType !== "All" ? selectedType : null
+      );
     } catch (err) {
-      console.error('Pagination error:', err);
+      console.error("Pagination error:", err);
       setPage(page);
     }
   };
@@ -46,33 +48,39 @@ const ReportsSection = ({
     setSelectedType(type);
     setPage(0);
     try {
-      await onLoadMore?.(1, type !== 'All' ? type : null);
+      await onLoadMore?.(1, type !== "All" ? type : null);
       setError(null);
     } catch (err) {
-      setError('Failed to filter reports');
+      setError("Failed to filter reports");
     }
   };
 
   const renderRow = (report, index) => {
     if (!report) return null;
-    
+
     return (
-      <TouchableOpacity onPress={() => handleRowPress(report)}>
-        <DataTable.Row key={`report-${report._id || index}`}>
+      <TouchableOpacity
+        key={`report-${report._id || index}`}
+        onPress={() => handleRowPress(report)}
+      >
+        <DataTable.Row>
           <DataTable.Cell>
-            <Image 
-              source={{ 
-                uri: report?.personInvolved?.mostRecentPhoto?.url || 
-                     'https://via.placeholder.com/40'
+            <Image
+              source={{
+                uri:
+                  report?.personInvolved?.mostRecentPhoto?.url ||
+                  "https://via.placeholder.com/40",
               }}
               style={tw`w-10 h-10 rounded-full`}
             />
           </DataTable.Cell>
-          <DataTable.Cell>{report?.type || 'N/A'}</DataTable.Cell>
+          <DataTable.Cell>{report?.type || "N/A"}</DataTable.Cell>
           <DataTable.Cell>
-            {`${report?.personInvolved?.firstName || ''} ${report?.personInvolved?.lastName || ''}`.trim() || 'N/A'}
+            {`${report?.personInvolved?.firstName || ""} ${
+              report?.personInvolved?.lastName || ""
+            }`.trim() || "N/A"}
           </DataTable.Cell>
-          <DataTable.Cell>{report?.status || 'N/A'}</DataTable.Cell>
+          <DataTable.Cell>{report?.status || "N/A"}</DataTable.Cell>
         </DataTable.Row>
       </TouchableOpacity>
     );
@@ -83,9 +91,15 @@ const ReportsSection = ({
       <DataTable.Cell>
         <View style={tw`w-10 h-10 bg-gray-200 rounded-full`} />
       </DataTable.Cell>
-      <DataTable.Cell><View style={tw`w-16 h-4 bg-gray-200 rounded`} /></DataTable.Cell>
-      <DataTable.Cell><View style={tw`w-24 h-4 bg-gray-200 rounded`} /></DataTable.Cell>
-      <DataTable.Cell><View style={tw`w-16 h-4 bg-gray-200 rounded`} /></DataTable.Cell>
+      <DataTable.Cell>
+        <View style={tw`w-16 h-4 bg-gray-200 rounded`} />
+      </DataTable.Cell>
+      <DataTable.Cell>
+        <View style={tw`w-24 h-4 bg-gray-200 rounded`} />
+      </DataTable.Cell>
+      <DataTable.Cell>
+        <View style={tw`w-16 h-4 bg-gray-200 rounded`} />
+      </DataTable.Cell>
     </DataTable.Row>
   );
 
@@ -94,11 +108,11 @@ const ReportsSection = ({
 
   const handleRefresh = async () => {
     try {
-      setSelectedType('All');
+      setSelectedType("All");
       await onRefresh?.();
       setError(null);
     } catch (err) {
-      setError('Failed to refresh');
+      setError("Failed to refresh");
     }
   };
 
@@ -106,20 +120,17 @@ const ReportsSection = ({
     <View style={tw`bg-white rounded-lg border border-gray-200 p-4 mt-4`}>
       <View style={tw`flex-row justify-between items-center mb-3`}>
         <Text style={tw`text-lg font-bold text-gray-800`}>Recent Reports</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={handleRefresh}
           disabled={isDisabled}
           style={tw`p-2`}
         >
-          <RefreshCw 
-            size={20} 
-            color={isDisabled ? '#9CA3AF' : '#3B82F6'}
-          />
+          <RefreshCw size={20} color={isDisabled ? "#9CA3AF" : "#3B82F6"} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         style={tw`mb-4`}
       >
@@ -129,20 +140,22 @@ const ReportsSection = ({
               key={type}
               onPress={() => handleTypeChange(type)}
               style={tw`mr-2 px-4 py-2 rounded-full ${
-                selectedType === type ? 'bg-blue-500' : 'bg-gray-200'
+                selectedType === type ? "bg-blue-500" : "bg-gray-200"
               }`}
             >
-              <Text style={tw`${selectedType === type ? 'text-white' : 'text-gray-700'}`}>
+              <Text
+                style={tw`${
+                  selectedType === type ? "text-white" : "text-gray-700"
+                }`}
+              >
                 {type}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
-      
-      {error && (
-        <Text style={tw`text-red-500 mb-2`}>{error}</Text>
-      )}
+
+      {error && <Text style={tw`text-red-500 mb-2`}>{error}</Text>}
 
       <DataTable>
         <DataTable.Header style={tw`border-b border-gray-200`}>
@@ -153,14 +166,18 @@ const ReportsSection = ({
         </DataTable.Header>
 
         {loading && !reports.length ? (
-          Array(itemsPerPage).fill(0).map((_, index) => renderSkeletonRow(index))
+          Array(itemsPerPage)
+            .fill(0)
+            .map((_, index) => renderSkeletonRow(index))
         ) : reports.length > 0 ? (
           reports.map((report, index) => renderRow(report, index))
         ) : (
-          <DataTable.Row key="no-reports">
-            <DataTable.Cell style={tw`text-center`} colSpan={5}>
+          <DataTable.Row>
+            <DataTable.Cell style={tw`text-center`} colSpan={4}>
               <Text style={tw`text-gray-500`}>
-                {selectedType !== 'All' ? `No ${selectedType} reports found` : 'No reports found'}
+                {selectedType !== "All"
+                  ? `No ${selectedType} reports found`
+                  : "No reports found"}
               </Text>
             </DataTable.Cell>
           </DataTable.Row>
