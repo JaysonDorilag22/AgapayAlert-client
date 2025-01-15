@@ -55,7 +55,7 @@ export const getNotificationDetails = (notificationId) => async (dispatch) => {
     dispatch({ type: GET_NOTIFICATION_DETAILS });
 
     const { data } = await axios.get(
-      `${serverConfig.baseURL}/notifications/${notificationId}`,
+      `${serverConfig.baseURL}/notifications/${notificationId}/details`,
       { withCredentials: true }
     );
 

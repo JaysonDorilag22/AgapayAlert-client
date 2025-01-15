@@ -15,7 +15,7 @@ const MainNavigator = ({ navigation, route }) => {
   };
   return (
     <View style={tw`flex-1`}>
-      <View style={tw`flex-row items-center bg-white p-5 pt-10`}>
+      <View style={tw`flex-row items-center bg-white px-2 pt-5`}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Menu color="black" size={24} />
         </TouchableOpacity>

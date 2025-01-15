@@ -11,6 +11,7 @@ import Broadcast from '@/screens/admin/broadcast/Broadcast';
 import Finder from '@/screens/admin/finder/Finder';
 import ReportDetails from '@/screens/admin/reports/ReportDetails';
 import Alpr from '@/screens/admin/alpr/Alpr';
+import AlertDetails from '@/screens/alerts/AlertDetails';
 
 
 const Drawer = createDrawerNavigator();

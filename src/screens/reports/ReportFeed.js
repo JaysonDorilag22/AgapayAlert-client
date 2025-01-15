@@ -13,9 +13,10 @@ import CityBadges from "@/components/report/CityBadges";
 import TypeBadges from "@/components/report/TypeBadges";
 import { getCities, getReportFeed } from "@/redux/actions/reportActions";
 import { ReportCardSkeleton } from "@/components/skeletons";
-
+import { useNavigation } from '@react-navigation/native';
 export default function ReportFeed() {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const { feed, loading, cities } = useSelector((state) => state.report);
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
@@ -85,15 +86,27 @@ export default function ReportFeed() {
     );
   }
 
-  const renderItem = ({ item }) => (
-    <View key={item._id}>
-      <ReportCard
-        report={item}
-        onPress={(report) => console.log("Report pressed:", report)}
-        style={tw`px-2`}
-      />
-    </View>
-  );
+  const renderItem = ({ item }) => {
+    // Debug log
+  
+    return (
+      <View key={item.id}>
+        <ReportCard
+          report={item}
+          onPress={(report) => {
+            if (report && report.id) {
+              navigation.navigate('ReportDetails', { 
+                reportId: report.id // Changed from _id to id
+              });
+            } else {
+              console.error('Invalid report object:', report);
+            }
+          }}
+          style={tw`px-2`}
+        />
+      </View>
+    );
+  };
   return (
     <View style={tw`flex-1`}>
       <View style={tw`flex-row items-center justify-between px-2`}>

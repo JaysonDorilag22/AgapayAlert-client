@@ -5,6 +5,7 @@ import { Bell, CheckCircle } from 'lucide-react-native';
 import tw from 'twrnc';
 import { getUserNotifications, markNotificationAsRead } from '@/redux/actions/notificationActions';
 import showToast from '@/utils/toastUtils';
+import { useNavigation } from '@react-navigation/native';
 
 const NOTIFICATION_TYPES = [
   'REPORT_CREATED',
@@ -15,6 +16,7 @@ const NOTIFICATION_TYPES = [
 ];
 
 export default function Alert() {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,13 +63,23 @@ export default function Alert() {
     try {
       const result = await dispatch(markNotificationAsRead(notificationId));
       if (result.success) {
-        showToast('Marked as read');
       } else {
         showToast(result.error || 'Failed to mark as read');
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      showToast('Failed to mark as read');
+    }
+  };
+
+  const handleNotificationPress = async (notification) => {
+    try {
+      await handleMarkAsRead(notification._id);
+      navigation.navigate('AlertDetails', { 
+        notificationId: notification._id });
+      
+    } catch (error) {
+      console.error('Error handling notification press:', error);
+      showToast('Failed to process notification');
     }
   };
 
@@ -123,7 +135,7 @@ export default function Alert() {
   const renderNotification = ({ item }) => (
     <TouchableOpacity 
       style={tw`bg-white p-4 mb-2 rounded-lg shadow-sm ${!item.isRead ? 'bg-blue-50' : ''}`}
-      onPress={() => handleMarkAsRead(item._id)}
+      onPress={() => handleNotificationPress(item)}
     >
       <View style={tw`flex-row justify-between items-start`}>
         <View style={tw`flex-1`}>

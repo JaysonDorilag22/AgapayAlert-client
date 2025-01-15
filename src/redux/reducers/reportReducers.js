@@ -34,7 +34,10 @@ import {
   GET_REPORT_DETAILS_REQUEST,
   GET_REPORT_DETAILS_SUCCESS,
   GET_REPORT_DETAILS_FAIL,
-  CLEAR_REPORTS
+  SEARCH_REPORTS_REQUEST,
+  SEARCH_REPORTS_SUCCESS,
+  SEARCH_REPORTS_FAIL,
+  CLEAR_REPORTS,
 } from "../actiontypes/reportTypes";
 
 const initialState = {
@@ -64,6 +67,15 @@ const initialState = {
   currentReport: null,
   detailsLoading: false,
   detailsError: null,
+  searchResults: {
+    reports: [],
+    currentPage: 1,
+    totalPages: 0,
+    totalReports: 0,
+    hasMore: false,
+  },
+  searchLoading: false,
+  searchError: null,
 };
 
 export const reportReducer = (state = initialState, action) => {
@@ -87,16 +99,16 @@ export const reportReducer = (state = initialState, action) => {
         error: null,
       };
 
-      case GET_REPORTS_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          reports: action.payload.reports, // Replace instead of accumulate
-          currentPage: action.payload.currentPage,
-          totalPages: action.payload.totalPages,
-          totalReports: action.payload.totalReports,
-          hasMore: action.payload.currentPage < action.payload.totalPages
-        };
+    case GET_REPORTS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        reports: action.payload.reports, // Replace instead of accumulate
+        currentPage: action.payload.currentPage,
+        totalPages: action.payload.totalPages,
+        totalReports: action.payload.totalReports,
+        hasMore: action.payload.currentPage < action.payload.totalPages,
+      };
 
     case GET_REPORTS_FAIL:
       return {
@@ -250,11 +262,40 @@ export const reportReducer = (state = initialState, action) => {
         currentReport: null,
       };
 
-      case CLEAR_REPORTS:
-  return {
-    ...state,
-    reports: []
-  };
+    case CLEAR_REPORTS:
+      return {
+        ...state,
+        reports: [],
+      };
+
+    case SEARCH_REPORTS_REQUEST:
+      return {
+        ...state,
+        searchLoading: true,
+        searchError: null,
+      };
+
+    case SEARCH_REPORTS_SUCCESS:
+      return {
+        ...state,
+        searchLoading: false,
+        searchResults: {
+          reports: action.payload.isNewSearch
+            ? action.payload.reports
+            : [...state.searchResults.reports, ...action.payload.reports],
+          currentPage: action.payload.currentPage,
+          totalPages: action.payload.totalPages,
+          totalReports: action.payload.totalReports,
+          hasMore: action.payload.hasMore,
+        },
+      };
+
+    case SEARCH_REPORTS_FAIL:
+      return {
+        ...state,
+        searchLoading: false,
+        searchError: action.payload,
+      };
 
     default:
       return state;

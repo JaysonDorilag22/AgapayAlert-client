@@ -14,6 +14,9 @@ import Splash from '@/components/Splash';
 const Stack = createStackNavigator();
 import AdminNavigator from './src/navigation/AdminNavigator';
 import showToast from '@/utils/toastUtils';
+import { AlertDetails } from '@/screens/alerts';
+
+
 OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
 
@@ -62,32 +65,42 @@ export default function App() {
 
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, contextValue }}>
-    <I18nextProvider i18n={i18n}>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Splash" component={Splash} />
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Register" component={Register} />
-          <Stack.Screen name="Verification" component={Verification} />
-          <Stack.Screen name="Verified" component={Verified} />
-          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-          <Stack.Screen name="ResetPassword" component={ResetPassword} />
-          <Stack.Screen name="Main" component={DrawerNavigator} />
-          <Stack.Screen name="Admin" component={AdminNavigator} />
-          <Stack.Screen 
-            name="ReportDetails" 
-            component={ReportDetails} 
-            options={{ 
-              headerShown: true, 
-              headerTitle: 'Report Details', 
-              headerTintColor: '#fff', 
-              headerStyle: { backgroundColor: '#041562'}
-            }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </I18nextProvider>
-  </LanguageContext.Provider>
+    <LanguageContext.Provider value={{ language, toggleLanguage }}>
+      <I18nextProvider i18n={i18n}>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Splash" component={Splash} />
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Register" component={Register} />
+            <Stack.Screen name="Verification" component={Verification} />
+            <Stack.Screen name="Verified" component={Verified} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+            <Stack.Screen name="ResetPassword" component={ResetPassword} />
+            <Stack.Screen name="Main" component={DrawerNavigator} />
+            <Stack.Screen name="Admin" component={AdminNavigator} />
+            <Stack.Screen 
+              name="ReportDetails" 
+              component={ReportDetails}
+              options={{ 
+                headerShown: true,
+                headerTitle: 'Report Details',
+                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: '#041562'}
+              }}
+            />
+            <Stack.Screen 
+              name="AlertDetails" 
+              component={AlertDetails}
+              options={{ 
+                headerShown: true,
+                headerTitle: 'Notification Details',
+                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: '#041562'}
+              }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </I18nextProvider>
+    </LanguageContext.Provider>
   );
 }

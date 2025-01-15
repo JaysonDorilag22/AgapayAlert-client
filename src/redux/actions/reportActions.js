@@ -38,6 +38,9 @@ import {
   GET_REPORT_DETAILS_REQUEST,
   GET_REPORT_DETAILS_SUCCESS,
   GET_REPORT_DETAILS_FAIL,
+  SEARCH_REPORTS_REQUEST,
+  SEARCH_REPORTS_SUCCESS,
+  SEARCH_REPORTS_FAIL
 } from "../actiontypes/reportTypes";
 
 // Create Report
@@ -416,3 +419,47 @@ export const getReportDetails = (reportId) => async (dispatch) => {
   }
 };
 
+
+// Search Reports
+export const searchReports = (searchParams = {}) => async (dispatch) => {
+  try {
+    dispatch({ type: SEARCH_REPORTS_REQUEST });
+
+    // Build query parameters
+    const queryParams = new URLSearchParams({
+      page: searchParams.page || 1,
+      limit: searchParams.limit || 10,
+      ...(searchParams.query && { query: searchParams.query }),
+      ...(searchParams.status && { status: searchParams.status }),
+      ...(searchParams.type && { type: searchParams.type }),
+      ...(searchParams.startDate && { startDate: searchParams.startDate }),
+      ...(searchParams.endDate && { endDate: searchParams.endDate })
+    });
+
+    const { data } = await axios.get(
+      `${serverConfig.baseURL}/report/search?${queryParams}`,
+      { withCredentials: true }
+    );
+
+    dispatch({
+      type: SEARCH_REPORTS_SUCCESS,
+      payload: {
+        reports: data.data.reports,
+        currentPage: data.data.currentPage,
+        totalPages: data.data.totalPages,
+        totalReports: data.data.totalReports,
+        hasMore: data.data.hasMore,
+        isNewSearch: searchParams.page === 1
+      }
+    });
+
+    return { success: true, data: data.data };
+  } catch (error) {
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: SEARCH_REPORTS_FAIL,
+      payload: message
+    });
+    return { success: false, error: message };
+  }
+};

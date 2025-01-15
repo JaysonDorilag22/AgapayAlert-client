@@ -99,7 +99,6 @@ const ReportDetails = ({ route }) => {
       <View style={tw`bg-red-100 rounded-full px-3 py-1`}>
         <Text style={tw`text-red-600 text-xs font-medium`}>{currentReport?.type}</Text>
       </View>
-      <Text style={tw`text-white text-xs font-medium`}>Case #{currentReport?._id.slice(-6)}</Text>
     </View>
   </View>
 
