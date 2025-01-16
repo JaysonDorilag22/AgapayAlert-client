@@ -12,6 +12,7 @@ import Finder from '@/screens/admin/finder/Finder';
 import ReportDetails from '@/screens/admin/reports/ReportDetails';
 import Alpr from '@/screens/admin/alpr/Alpr';
 import AlertDetails from '@/screens/alerts/AlertDetails';
+import Users from '@/screens/admin/users/Users';
 
 
 const Drawer = createDrawerNavigator();
@@ -75,6 +76,12 @@ const AdminNavigator = () => {
         name="AdminAlpr" 
         component={Alpr}
         options={{ title: 'ALPR' }}
+      />
+      {/* // users */}
+      <Drawer.Screen 
+        name="AdminUsers" 
+        component={Users}
+        options={{ title: 'Users' }}
       />
     </Drawer.Navigator>
   );

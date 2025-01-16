@@ -344,7 +344,6 @@ export const getUserReports = (params = {}) => async (dispatch) => {
   }
 };
 
-
 //drafts
 export const saveReportDraft = (draftData) => async (dispatch) => {
   try {
@@ -378,6 +377,7 @@ export const saveReportDraft = (draftData) => async (dispatch) => {
   }
 };
 
+//load drafts
 export const loadReportDraft = () => async (dispatch) => {
   try {
     const draftData = await AsyncStorage.getItem('reportDraft');
@@ -418,7 +418,6 @@ export const getReportDetails = (reportId) => async (dispatch) => {
     return { success: false, error: message };
   }
 };
-
 
 // Search Reports
 export const searchReports = (searchParams = {}) => async (dispatch) => {

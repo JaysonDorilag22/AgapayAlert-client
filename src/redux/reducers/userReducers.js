@@ -1,18 +1,34 @@
 import {
-  GET_USER_REQUEST, GET_USER_SUCCESS, GET_USER_FAILURE,
-  UPDATE_USER_REQUEST, UPDATE_USER_SUCCESS, UPDATE_USER_FAILURE,
-  CHANGE_PASSWORD_REQUEST, CHANGE_PASSWORD_SUCCESS, CHANGE_PASSWORD_FAILURE,
-  DELETE_USER_REQUEST, DELETE_USER_SUCCESS, DELETE_USER_FAILURE,
-  CLEAR_USER_MESSAGE, CLEAR_USER_ERROR,
-} from '../actiontypes/userTypes';
+  GET_USER_REQUEST,
+  GET_USER_SUCCESS,
+  GET_USER_FAILURE,
+  UPDATE_USER_REQUEST,
+  UPDATE_USER_SUCCESS,
+  UPDATE_USER_FAILURE,
+  CHANGE_PASSWORD_REQUEST,
+  CHANGE_PASSWORD_SUCCESS,
+  CHANGE_PASSWORD_FAILURE,
+  DELETE_USER_REQUEST,
+  DELETE_USER_SUCCESS,
+  DELETE_USER_FAILURE,
+  GET_USER_LIST_REQUEST,
+  GET_USER_LIST_SUCCESS,
+  GET_USER_LIST_FAIL,
+  CREATE_USER_REQUEST,
+  CREATE_USER_SUCCESS,
+  CREATE_USER_FAIL,
+  CLEAR_USER_MESSAGE,
+  CLEAR_USER_ERROR,
+} from "../actiontypes/userTypes";
 
 const initialState = {
   loading: false,
   loadingAction: null,
   user: null,
+  users: [],
   error: null,
   message: null,
-  success: false
+  success: false,
 };
 
 export const userReducer = (state = initialState, action) => {
@@ -27,7 +43,7 @@ export const userReducer = (state = initialState, action) => {
         loading: true,
         loadingAction: action.type,
         error: null,
-        success: false
+        success: false,
       };
 
     // Success cases for user data
@@ -38,11 +54,12 @@ export const userReducer = (state = initialState, action) => {
         loading: false,
         loadingAction: null,
         user: action.payload.user || action.payload,
-        message: action.type === UPDATE_USER_SUCCESS 
-          ? 'User updated successfully' 
-          : null,
+        message:
+          action.type === UPDATE_USER_SUCCESS
+            ? "User updated successfully"
+            : null,
         success: true,
-        error: null
+        error: null,
       };
 
     // Password change success
@@ -51,17 +68,17 @@ export const userReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         loadingAction: null,
-        message: action.payload.msg || 'Password changed successfully',
+        message: action.payload.msg || "Password changed successfully",
         success: true,
-        error: null
+        error: null,
       };
 
     // Delete success
     case DELETE_USER_SUCCESS:
       return {
         ...initialState,
-        message: 'User deleted successfully',
-        success: true
+        message: "User deleted successfully",
+        success: true,
       };
 
     // Failure cases
@@ -74,20 +91,66 @@ export const userReducer = (state = initialState, action) => {
         loading: false,
         loadingAction: null,
         error: action.payload.msg,
-        success: false
+        success: false,
+      };
+    // Request cases
+    case GET_USER_LIST_REQUEST:
+    case CREATE_USER_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        loadingAction: action.type,
+        error: null,
+        success: false,
+      };
+
+    // Success cases
+    case GET_USER_LIST_SUCCESS:
+  return {
+    ...state,
+    loading: false,
+    users: action.payload.currentPage === 1 
+      ? action.payload.users 
+      : [...state.users, ...action.payload.users],
+    currentPage: action.payload.currentPage,
+    totalPages: action.payload.totalPages,
+    hasMore: action.payload.hasMore,
+    error: null
+  };
+
+    case CREATE_USER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loadingAction: null,
+        users: [...state.users, action.payload.user],
+        message: "User created successfully",
+        success: true,
+        error: null,
+      };
+
+    // Failure cases
+    case GET_USER_LIST_FAIL:
+    case CREATE_USER_FAIL:
+      return {
+        ...state,
+        loading: false,
+        loadingAction: null,
+        error: action.payload.msg,
+        success: false,
       };
 
     // Clear states
     case CLEAR_USER_MESSAGE:
       return {
         ...state,
-        message: null
+        message: null,
       };
 
     case CLEAR_USER_ERROR:
       return {
         ...state,
-        error: null
+        error: null,
       };
 
     default:
