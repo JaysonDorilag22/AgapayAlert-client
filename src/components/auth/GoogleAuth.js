@@ -12,21 +12,24 @@ import { useNavigation } from "@react-navigation/native";
 import { googleAuth } from "redux/actions/authActions";
 import showToast from 'utils/toastUtils';
 
+GoogleSignin.configure({
+  webClientId: "1061555533518-r40h9dmhi9s24v8da9vf7nigmoa4eemf.apps.googleusercontent.com",
+  offlineAccess: false,
+  forceCodeForRefreshToken: true
+});
+
+const ERROR_MESSAGES = {
+  [statusCodes.SIGN_IN_CANCELLED]: "Sign in was cancelled",
+  [statusCodes.IN_PROGRESS]: "Sign in is in progress",
+  [statusCodes.PLAY_SERVICES_NOT_AVAILABLE]: "Play services not available or outdated"
+};
+
 export default function GoogleAuth() {
-  const [error, setError] = useState(null);
   const [isInProgress, setIsInProgress] = useState(false);
   const [playerId, setPlayerId] = useState(null);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: "1061555533518-r40h9dmhi9s24v8da9vf7nigmoa4eemf.apps.googleusercontent.com",
-      offlineAccess: false,
-    });
-  }, []);
-
-  // Add useEffect for OneSignal Player ID
   useEffect(() => {
     const getPlayerId = async () => {
       try {
@@ -39,65 +42,68 @@ export default function GoogleAuth() {
       }
     };
 
-    // Initial fetch
     getPlayerId();
-
-    // Subscription listener
     const subscription = OneSignal.User.pushSubscription.addEventListener('change', getPlayerId);
     return () => subscription?.remove();
   }, []);
 
-  const signIn = useCallback(async () => {
+  const signIn = async () => {
     setIsInProgress(true);
     try {
       if (!playerId) {
         console.warn('No OneSignal Player ID available');
       }
-
+  
       await GoogleSignin.hasPlayServices();
+  
+      const isSignedIn = await GoogleSignin.signIn;
+      if (isSignedIn) {
+        console.log('Clearing cached session');
+        await GoogleSignin.signOut(); 
+      }
+  
       const userInfo = await GoogleSignin.signIn();
-      
-      // Include deviceToken in the googleAuth call
-      const result = await dispatch(googleAuth({ 
-        userInfo,
-        deviceToken: playerId 
-      }));
-      
+  
+      if (!userInfo) {
+        setIsInProgress(false);
+        return;
+      }
+  
+      const result = await dispatch(
+        googleAuth({
+          userInfo,
+          deviceToken: playerId,
+        })
+      );
+  
       if (result.success) {
         if (result.data.exists) {
           showToast('Logged in successfully');
-          
-          // Check user roles for navigation
           const adminRoles = ['police_officer', 'police_admin', 'city_admin', 'super_admin'];
-          if (adminRoles.includes(result.data.user.roles[0])) {
-            navigation.navigate('Admin');
-          } else {
-            navigation.navigate('Main');
-          }
+          navigation.navigate(adminRoles.includes(result.data.user.roles[0]) ? 'Admin' : 'Main');
         } else {
           navigation.navigate('Register', {
             email: result.data.user.email,
             firstName: result.data.user.firstName,
             lastName: result.data.user.lastName,
             avatar: result.data.user.avatar,
-            deviceToken: playerId // Pass deviceToken to Register
+            deviceToken: playerId,
           });
         }
       } else {
         showToast(result.error);
       }
     } catch (error) {
-      const errorMessage = {
-        [statusCodes.SIGN_IN_CANCELLED]: "Sign in was cancelled",
-        [statusCodes.IN_PROGRESS]: "Sign in is in progress",
-        [statusCodes.PLAY_SERVICES_NOT_AVAILABLE]: "Play services not available or outdated"
-      }[error.code] || error.message;
-      
-      showToast(errorMessage);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User cancelled sign-in');
+      } else {
+        showToast(ERROR_MESSAGES[error.code] || error.message);
+      }
     } finally {
       setIsInProgress(false);
     }
-  }, [dispatch, navigation, playerId]);
+  };
+  
 
   return (
     <View>
