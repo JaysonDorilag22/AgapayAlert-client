@@ -98,7 +98,6 @@ const BasicInfoForm = ({ onNext, onBack, initialData = { type: '' } }) => {
             <Text style={tw`text-red-600`}>{error}</Text>
           </View>
         )}
-      </ScrollView>
 
       <View style={tw`flex-row mt-4`}>
         <TouchableOpacity
@@ -119,6 +118,7 @@ const BasicInfoForm = ({ onNext, onBack, initialData = { type: '' } }) => {
           <Text style={styles.buttonTextPrimary}>Next</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
     </View>
   );
 };

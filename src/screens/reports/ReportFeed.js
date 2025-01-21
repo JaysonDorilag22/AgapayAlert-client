@@ -13,7 +13,9 @@ import CityBadges from "@/components/report/CityBadges";
 import TypeBadges from "@/components/report/TypeBadges";
 import { getCities, getReportFeed } from "@/redux/actions/reportActions";
 import { ReportCardSkeleton } from "@/components/skeletons";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
+import NoDataFound from "@/components/NoDataFound";
+
 export default function ReportFeed() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -72,11 +74,12 @@ export default function ReportFeed() {
   if (loading && !feed.reports.length) {
     return (
       <View style={tw`flex-1`}>
-        <CityBadges
-          cities={cities}
-          selectedCity={selectedCity}
-          onSelectCity={handleCitySelect}
-        />
+        <View style={tw` mb-2`}>
+          <TypeBadges
+            selectedType={selectedType}
+            onSelectType={handleTypeSelect}
+          />
+        </View>
         <View style={tw`px-2`}>
           {[...Array(5)].map((_, index) => (
             <ReportCardSkeleton key={index} />
@@ -88,18 +91,18 @@ export default function ReportFeed() {
 
   const renderItem = ({ item }) => {
     // Debug log
-  
+
     return (
       <View key={item.id}>
         <ReportCard
           report={item}
           onPress={(report) => {
             if (report && report.id) {
-              navigation.navigate('ReportDetails', { 
-                reportId: report.id // Changed from _id to id
+              navigation.navigate("ReportDetails", {
+                reportId: report.id, // Changed from _id to id
               });
             } else {
-              console.error('Invalid report object:', report);
+              console.error("Invalid report object:", report);
             }
           }}
           style={tw`px-2`}
@@ -109,36 +112,45 @@ export default function ReportFeed() {
   };
   return (
     <View style={tw`flex-1`}>
-      <View style={tw`flex-row items-center justify-between px-2`}>
-        <View style={tw`flex-1`}>
-          <CityBadges
-            cities={cities}
-            selectedCity={selectedCity}
-            onSelectCity={handleCitySelect}
-          />
-        </View>
-        <View style={tw`ml-2 mb-2`}>
-          <TypeBadges
-            selectedType={selectedType}
-            onSelectType={handleTypeSelect}
-          />
-        </View>
+      <View style={tw`flex-col items-center`}>
+      <View style={tw`mb-2`}>
+        <TypeBadges
+          selectedType={selectedType}
+          onSelectType={handleTypeSelect}
+        />
       </View>
+      {/* <View style={tw`mb-2`}>
+        <CityBadges
+          cities={cities}
+          selectedCity={selectedCity}
+          onSelectCity={handleCitySelect}
+        />
+      </View> */}
+    </View>
 
       <FlatList
-      data={feed.reports || []}
-      renderItem={renderItem}
-      keyExtractor={item => item?._id || Math.random().toString()} // Added fallback
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-      }
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.5}
-      ListFooterComponent={
-        loading ? <ActivityIndicator style={tw`py-4`} /> : null
-      }
-      contentContainerStyle={tw`pb-20`}
-    />
+        data={feed.reports || []}
+        renderItem={renderItem}
+        keyExtractor={(item) => item?._id || Math.random().toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={() => (
+          <NoDataFound 
+            message={
+              selectedType
+                ? `No ${selectedType.toLowerCase()} reports found`
+                : "No reports found"
+            }
+          />
+        )}
+        ListFooterComponent={
+          loading ? <ActivityIndicator style={tw`py-4`} /> : null
+        }
+        contentContainerStyle={tw`pb-20`}
+      />
     </View>
   );
 }

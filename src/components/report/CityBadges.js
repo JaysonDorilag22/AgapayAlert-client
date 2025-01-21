@@ -1,48 +1,42 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, Text } from 'react-native';
 import tw from 'twrnc';
+import styles from "@/styles/styles";
 
-const CityBadges = ({ cities, selectedCity, onSelectCity }) => {
+const CityBadges = ({ cities = [], selectedCity, onCitySelect }) => {
   return (
     <ScrollView 
       horizontal 
       showsHorizontalScrollIndicator={false}
-      style={tw`my-3`}
-      contentContainerStyle={tw`px-4`}
+      style={tw`flex-grow-0`}
+      contentContainerStyle={tw`p-2`}
     >
       <TouchableOpacity
         style={[
-          tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border mb-2`,
+          tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
           !selectedCity 
-            ? tw`bg-blue-600 border-blue-600` 
+            ? styles.backgroundColorPrimary
             : tw`bg-white border-gray-300`
         ]}
-        onPress={() => onSelectCity(null)}
+        onPress={() => onCitySelect(null)}
       >
-        <Text style={[
-          tw`text-[14px] font-medium`,
-          !selectedCity ? tw`text-white` : tw`text-gray-700`
-        ]}>All Cities</Text>
+        <Text style={tw`${!selectedCity ? 'text-white' : 'text-gray-700'} text-[14px] font-medium`}>
+          All Cities
+        </Text>
       </TouchableOpacity>
-      
-      {cities.map((city) => (
+
+      {Array.isArray(cities) && cities.map((city) => (
         <TouchableOpacity
           key={city}
           style={[
             tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
             selectedCity === city 
-              ? tw`bg-blue-600 border-blue-600` 
+              ? styles.backgroundColorPrimary
               : tw`bg-white border-gray-300`
           ]}
-          onPress={() => onSelectCity(city)}
+          onPress={() => onCitySelect(city)}
         >
-          <Text 
-            numberOfLines={1}
-            style={[
-              tw`text-[14px] font-medium px-3`,
-              selectedCity === city ? tw`text-white` : tw`text-gray-700`
-            ]}
-          >
+          <Text style={tw`${selectedCity === city ? 'text-white' : 'text-gray-700'} text-[14px] font-medium px-3`}>
             {city}
           </Text>
         </TouchableOpacity>

@@ -4,6 +4,34 @@ import { DataTable } from "react-native-paper";
 import { RefreshCw } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import tw from "twrnc";
+import styles from "@/styles/styles";
+
+const STATUS_COLORS = {
+  Pending: "bg-yellow-500 text-yellow-800",
+  Assigned: "bg-blue-500 text-blue-800",
+  "Under Investigation": "bg-purple-500 text-purple-800 text-xsm",
+  Resolved: "bg-green-500 text-green-800",
+  Closed: "bg-gray-500 text-gray-800",
+};
+
+const TYPE_COLORS = {
+  Missing: {
+    backgroundColor: styles.colorPrimary + "20",
+    color: styles.colorPrimary,
+  },
+  Abducted: {
+    backgroundColor: styles.colorPrimary + "20",
+    color: styles.colorPrimary,
+  },
+  Kidnapped: {
+    backgroundColor: styles.colorPrimary + "20",
+    color: styles.colorPrimary,
+  },
+  "Hit-and-Run": {
+    backgroundColor: styles.colorPrimary + "20",
+    color: styles.colorPrimary,
+  },
+};
 
 const REPORT_TYPES = ["All", "Missing", "Abducted", "Kidnapped", "Hit-and-Run"];
 
@@ -71,16 +99,47 @@ const ReportsSection = ({
                   report?.personInvolved?.mostRecentPhoto?.url ||
                   "https://via.placeholder.com/40",
               }}
-              style={tw`w-10 h-10 rounded-full`}
+              style={tw`w-10 h-10 rounded-md`}
             />
           </DataTable.Cell>
-          <DataTable.Cell>{report?.type || "N/A"}</DataTable.Cell>
+          <DataTable.Cell>
+            <View
+              style={[
+                tw`px-2 py-1 rounded-md`,
+                TYPE_COLORS[report?.type] || tw`bg-gray-100`,
+              ]}
+            >
+              <Text
+                style={[
+                  tw`text-sm`,
+                  { color: TYPE_COLORS[report?.type]?.color || "#374151" },
+                ]}
+              >
+                {report?.type || "N/A"}
+              </Text>
+            </View>
+          </DataTable.Cell>
           <DataTable.Cell>
             {`${report?.personInvolved?.firstName || ""} ${
               report?.personInvolved?.lastName || ""
             }`.trim() || "N/A"}
           </DataTable.Cell>
-          <DataTable.Cell>{report?.status || "N/A"}</DataTable.Cell>
+          <DataTable.Cell>
+            <View
+              style={tw`${
+                STATUS_COLORS[report?.status]?.split(" ")[0] || "bg-gray-100"
+              } px-2 py-1 rounded-lg`}
+            >
+              <Text
+                style={tw`${
+                  STATUS_COLORS[report?.status]?.split(" ")[1] ||
+                  "text-gray-800"
+                } text-sm`}
+              >
+                {report?.status || "N/A"}
+              </Text>
+            </View>
+          </DataTable.Cell>
         </DataTable.Row>
       </TouchableOpacity>
     );
@@ -139,14 +198,17 @@ const ReportsSection = ({
             <TouchableOpacity
               key={type}
               onPress={() => handleTypeChange(type)}
-              style={tw`mr-2 px-4 py-2 rounded-full ${
-                selectedType === type ? "bg-blue-500" : "bg-gray-200"
-              }`}
+              style={[
+                tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
+                selectedType === type
+                  ? styles.backgroundColorPrimary
+                  : tw`bg-white border-gray-300`,
+              ]}
             >
               <Text
                 style={tw`${
                   selectedType === type ? "text-white" : "text-gray-700"
-                }`}
+                } text-[14px] font-medium`}
               >
                 {type}
               </Text>

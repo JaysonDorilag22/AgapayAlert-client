@@ -59,7 +59,7 @@ export default function GoogleAuth() {
       const isSignedIn = await GoogleSignin.signIn;
       if (isSignedIn) {
         console.log('Clearing cached session');
-        await GoogleSignin.signOut(); 
+        await GoogleSignin.signOut();
       }
   
       const userInfo = await GoogleSignin.signIn();
@@ -96,6 +96,7 @@ export default function GoogleAuth() {
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('User cancelled sign-in');
+        showToast('Sign-in cancelled. Please try again.');
       } else {
         showToast(ERROR_MESSAGES[error.code] || error.message);
       }
@@ -103,6 +104,7 @@ export default function GoogleAuth() {
       setIsInProgress(false);
     }
   };
+  
   
 
   return (

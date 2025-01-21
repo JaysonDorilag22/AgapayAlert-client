@@ -6,6 +6,8 @@ import tw from 'twrnc';
 import { getNotificationDetails } from '@/redux/actions/notificationActions';
 import { format, parseISO } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
+import styles from '@styles/styles';
+import NetworkError from '@/components/NetworkError';
 
 const AlertDetails = ({ route }) => {
   const navigation = useNavigation();
@@ -26,6 +28,10 @@ const AlertDetails = ({ route }) => {
     }
   };
 
+  const handleRetry = () => {
+    dispatch(getNotificationDetails(notificationId));
+  };
+
   if (loading) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
@@ -36,9 +42,10 @@ const AlertDetails = ({ route }) => {
 
   if (error) {
     return (
-      <View style={tw`flex-1 justify-center items-center p-4`}>
-        <Text style={tw`text-red-600 text-center`}>{error}</Text>
-      </View>
+      <NetworkError 
+        onRetry={handleRetry}
+        message="Unable to load notification details. Please try again."
+      />
     );
   }
 
@@ -83,7 +90,7 @@ const AlertDetails = ({ route }) => {
           )}
         </View>
         <TouchableOpacity
-          style={tw`mt-4 flex-row items-center justify-center bg-blue-600 px-4 py-2 rounded-lg`}
+          style={[tw`mt-4 flex-row items-center justify-center px-4 py-2 rounded-lg`, styles.backgroundColorPrimary]}
           onPress={() => navigation.navigate('ReportDetails', { reportId: report._id })}
         >
           <Text style={tw`text-white font-semibold mr-2`}>View Full Report</Text>

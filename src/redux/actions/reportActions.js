@@ -203,32 +203,31 @@ export const assignPoliceStation = (assignmentData) => async (dispatch) => {
 export const updateUserReport = (reportId, updateData) => async (dispatch) => {
   try {
     dispatch({ type: UPDATE_STATUS_REQUEST });
-
-    const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      withCredentials: true,
-    };
-
+    console.log('updateData', updateData, reportId);
     const { data } = await axios.put(
       `${serverConfig.baseURL}/report/update-status/${reportId}`,
       updateData,
-      config
+      { 
+        headers: {
+          "Content-Type": "application/json"
+        },
+        withCredentials: true 
+      }
     );
 
     dispatch({
       type: UPDATE_STATUS_SUCCESS,
-      payload: data,
+      payload: data.data // Access the data property from response
     });
 
-    return { success: true, data };
+    return { success: true, data: data.data };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
     dispatch({
       type: UPDATE_STATUS_FAIL,
-      payload: message,
+      payload: message
     });
+    console.error('Error updating report:', message);
     return { success: false, error: message };
   }
 };

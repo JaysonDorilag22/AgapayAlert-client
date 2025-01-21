@@ -18,6 +18,8 @@ import {
 import showToast from "@/utils/toastUtils";
 import { useNavigation } from "@react-navigation/native";
 import styles from "@/styles/styles";
+import { AlertSkeleton } from '@/components/skeletons';
+import NoDataFound from '@/components/NoDataFound';
 
 const NOTIFICATION_TYPES = [
   "REPORT_CREATED",
@@ -110,43 +112,29 @@ export default function Alert() {
         style={[
           tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border mb-2`,
           !activeFilter
-            ? tw`bg-blue-600 border-blue-600`
+            ? styles.backgroundColorPrimary
             : tw`bg-white border-gray-300`,
         ]}
         onPress={() => setActiveFilter(null)}
       >
-        <Text
-          style={[
-            tw`text-[14px] font-medium`,
-            !activeFilter ? tw`text-white` : tw`text-gray-700`,
-          ]}
-        >
+        <Text style={tw`${!activeFilter ? 'text-white' : 'text-gray-700'} text-[14px] font-medium`}>
           All Types
         </Text>
       </TouchableOpacity>
-
+  
       {NOTIFICATION_TYPES.map((type) => (
         <TouchableOpacity
           key={type}
           style={[
             tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
             activeFilter === type
-              ? tw`bg-blue-600 border-blue-600`
+              ? styles.backgroundColorPrimary
               : tw`bg-white border-gray-300`,
           ]}
           onPress={() => setActiveFilter(type === activeFilter ? null : type)}
         >
-          <Text
-            numberOfLines={1}
-            style={[
-              tw`text-[14px] font-medium px-3`,
-              activeFilter === type ? tw`text-white` : tw`text-gray-700`,
-            ]}
-          >
-            {type
-              .split("_")
-              .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
-              .join(" ")}
+          <Text style={tw`${activeFilter === type ? 'text-white' : 'text-gray-700'} text-[14px] font-medium px-3`}>
+            {type.split("_").map((word) => word.charAt(0) + word.slice(1).toLowerCase()).join(" ")}
           </Text>
         </TouchableOpacity>
       ))}
@@ -155,57 +143,81 @@ export default function Alert() {
 
   const renderNotification = ({ item }) => (
     <TouchableOpacity
-  onPress={() => handleNotificationPress(item)}
-  style={tw`flex-row items-center bg-white p-4 border-b border-gray-200 `}
->
+      onPress={() => handleNotificationPress(item)}
+      style={tw`flex-row items-center bg-white p-4 border-b border-gray-200`}
+    >
       {/* Notification Icon */}
-      <View
-        style={tw`w-12 h-12 rounded-lg mr-3 ${
-          item.isRead ? "bg-blue-100" : "bg-red-100"
-        } items-center justify-center`}
-      >
+      <View style={[
+        tw`w-12 h-12 rounded-lg mr-3 items-center justify-center`,
+        item.isRead ? { backgroundColor: styles.colorPrimary + '20' } : tw`bg-red-100`
+      ]}>
         {item.isRead ? (
-          <CheckCircle size={24} color="#3B82F6" />
+          <CheckCircle size={24} color={styles.colorPrimary} />
         ) : (
           <Bell size={24} color="#EF4444" />
         )}
       </View>
-
+  
       <View style={tw`flex-1`}>
-        {/* Type Badge and ID */}
+        {/* Type Badge */}
         <View style={tw`flex-row items-center mb-1`}>
-          <View style={tw`bg-blue-100 rounded-full px-2 py-0.5 mr-2 ${item.isRead ? "bg-blue-100 " : "bg-red-100 "}`}>
-            <Text style={tw`text-blue-600 text-xs font-medium ${item.isRead ? "text-thin" : "text-bold text-red-600"}`}>
-              {item.type
-                .split("_")
+          <View style={[
+            tw`rounded-full px-2 py-0.5 mr-2`,
+            item.isRead 
+              ? { backgroundColor: styles.colorPrimary + '20' }
+              : tw`bg-red-100`
+          ]}>
+            <Text style={[
+              tw`text-xs font-medium`,
+              item.isRead 
+                ? { color: styles.colorPrimary }
+                : tw`text-red-600`
+            ]}>
+              {item.type.split("_")
                 .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
                 .join(" ")}
             </Text>
           </View>
         </View>
-
-        {/* Title */}
-        <Text style={tw`text-gray-900 font-medium mb-1 `}>{item.title}</Text>
-
-        {/* Message and Report Info */}
-        <Text style={tw`text-gray-500 text-sm mb-1 ${item.isRead ? "text-sm" : "font-bold"}`}>{item.message}</Text>
-
+  
+        {/* Title and Message */}
+        <Text style={tw`text-gray-900 ${item.isRead ? 'font-medium' : 'font-bold'} mb-1`}>
+          {item.title}
+        </Text>
+        <Text style={tw`text-gray-500 ${item.isRead ? 'text-sm' : 'font-bold'}`}>
+          {item.message}
+        </Text>
+  
+        {/* Report Info */}
         {item.data?.reportId && (
-          <Text style={tw`text-gray-500 text-xs ${item.isRead ? "text-sm" : "font-bold"}`}>
+          <Text style={tw`text-gray-500 ${item.isRead ? 'text-xs' : 'text-xs font-bold'}`}>
             {item.data.reportId.type} • Status: {item.data.reportId.status}
           </Text>
         )}
       </View>
-
-      <ChevronRight size={20} color="#9CA3AF" />
+  
+      <ChevronRight size={20} color={styles.colorPrimary} />
     </TouchableOpacity>
   );
+
+  if (loading && !notifications.length) {
+    return (
+      <View style={tw`bg-white flex-1`}>
+        <View>
+          <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Alerts</Text>
+      {renderFilterChips()}
+
+        </View>
+        <AlertSkeleton />
+      </View>
+    );
+  }
 
   return (
     <View style={tw`bg-white`}>
       <View>
-          <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Alerts</Text>
-        </View>
+        <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Alerts</Text>
+      </View>
       {renderFilterChips()}
       <FlatList
         data={notifications}
@@ -217,13 +229,13 @@ export default function Alert() {
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
         ListEmptyComponent={() => (
-          <View style={tw`flex-1 justify-center items-center py-8`}>
-            <Text style={tw`text-gray-500`}>
-              {activeFilter
-                ? "No notifications of this type"
-                : "No notifications"}
-            </Text>
-          </View>
+          <NoDataFound 
+            message={
+              activeFilter
+                ? `No ${activeFilter.toLowerCase().split('_').join(' ')} notifications found`
+                : "No notifications found"
+            }
+          />
         )}
         ListFooterComponent={loading && <ActivityIndicator style={tw`py-4`} />}
         contentContainerStyle={tw`pb-60`}

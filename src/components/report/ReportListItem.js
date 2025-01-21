@@ -2,8 +2,24 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import tw from 'twrnc';
+import styles from '@/styles/styles';
 
 const ReportListItem = ({ report, onPress }) => {
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending":
+        return "bg-yellow-500 text-yellow-800";
+      case "Assigned":
+        return "bg-blue-500 text-blue-800";
+      case "Under Investigation":
+        return "bg-purple-500 text-purple-800";
+      case "Resolved":
+        return "bg-green-500 text-green-800";
+      default:
+        return "bg-gray-500 text-gray-800";
+    }
+  };
+
   return (
     <TouchableOpacity 
       onPress={() => onPress(report)}
@@ -17,10 +33,14 @@ const ReportListItem = ({ report, onPress }) => {
       
       <View style={tw`flex-1`}>
         <View style={tw`flex-row items-center mb-1`}>
-          <View style={tw`bg-red-100 rounded-full px-2 py-0.5 mr-2`}>
-            <Text style={tw`text-red-600 text-xs font-medium`}>{report.type}</Text>
+          <View style={[tw`rounded-full px-2 py-0.5 mr-2`, styles.backgroundColorPrimary]}>
+            <Text style={tw`text-white text-xs font-medium`}>{report.type}</Text>
           </View>
-          <Text style={tw`text-gray-500 text-xs`}>Case #{report._id.slice(-6)}</Text>
+          <View style={tw`${getStatusColor(report.status)}, rounded-full`}>
+            <Text style={tw`px-2 py-0.5 text-xs font-medium`}>
+              {report.status}
+            </Text>
+          </View>
         </View>
         
         <Text style={tw`text-gray-900 font-medium mb-1`}>
@@ -28,7 +48,7 @@ const ReportListItem = ({ report, onPress }) => {
         </Text>
         
         <Text style={tw`text-gray-500 text-xs`}>
-          {report.location.address.city} • Status: {report.status}
+          {report.location.address.city}
         </Text>
       </View>
       

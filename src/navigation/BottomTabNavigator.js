@@ -5,6 +5,7 @@ import tw from 'twrnc';
 import { Home, Profile } from 'screens/users';
 import { Alert } from 'screens/alerts';
 import { Report } from 'screens/reports';
+import styles from '@/styles/styles';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,7 +28,7 @@ const BottomTabNavigator = ({ initialRouteName }) => (
 
         return <IconComponent color={color} size={size} />;
       },
-      tabBarActiveTintColor: '#DA1212',
+      tabBarActiveTintColor: styles.colorPrimary,
       tabBarInactiveTintColor: 'gray',
       headerShown: false,
       tabBarStyle: tw`absolute bottom-5 m-2 left-5 right-5 bg-white rounded-lg h-13 shadow-sm`,

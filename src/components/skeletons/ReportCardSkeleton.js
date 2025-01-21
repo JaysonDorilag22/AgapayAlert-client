@@ -1,3 +1,4 @@
+// src/components/skeletons/ReportCardSkeleton.js
 import React from 'react';
 import { View } from 'react-native';
 import tw from 'twrnc';
@@ -5,15 +6,15 @@ import Skeleton from './Skeleton';
 
 const ReportCardSkeleton = () => {
   return (
-    <View style={tw`bg-white rounded-xl shadow-sm mb-4 overflow-hidden`}>
+    <View style={tw`bg-white shadow-sm mb-4 overflow-hidden`}>
       {/* Image skeleton */}
       <Skeleton 
         width="100%" 
-        height={192} // Same as h-48 in tw
+        height={192} // h-48
       />
       
       <View style={tw`p-4`}>
-        {/* Report type badge skeleton */}
+        {/* Type badge */}
         <View style={tw`flex-row items-center mb-2`}>
           <Skeleton 
             width={80} 
@@ -22,27 +23,14 @@ const ReportCardSkeleton = () => {
           />
         </View>
 
-        {/* Person name skeleton */}
+        {/* Person name */}
         <Skeleton 
           width={200} 
           height={28} 
           style={tw`mb-2`}
         />
         
-        {/* Last seen info skeleton */}
-        <View style={tw`flex-row items-center mb-2`}>
-          <Skeleton 
-            width={16} 
-            height={16} 
-            style={tw`rounded-full mr-1`}
-          />
-          <Skeleton 
-            width={150} 
-            height={20}
-          />
-        </View>
-
-        {/* Location skeleton */}
+        {/* Last seen info */}
         <View style={tw`flex-row items-center mb-2`}>
           <Skeleton 
             width={16} 
@@ -51,11 +39,24 @@ const ReportCardSkeleton = () => {
           />
           <Skeleton 
             width={180} 
-            height={20}
+            height={16}
           />
         </View>
 
-        {/* Age skeleton */}
+        {/* Location */}
+        <View style={tw`flex-row items-center mb-2`}>
+          <Skeleton 
+            width={16} 
+            height={16} 
+            style={tw`rounded-full mr-1`}
+          />
+          <Skeleton 
+            width={160} 
+            height={16}
+          />
+        </View>
+
+        {/* Age */}
         <View style={tw`flex-row items-center`}>
           <Skeleton 
             width={16} 
@@ -63,10 +64,17 @@ const ReportCardSkeleton = () => {
             style={tw`rounded-full mr-1`}
           />
           <Skeleton 
-            width={60} 
-            height={20}
+            width={80} 
+            height={16}
           />
         </View>
+
+        {/* Action button */}
+        <Skeleton 
+          width="100%" 
+          height={40} 
+          style={tw`mt-4 rounded-lg`}
+        />
       </View>
     </View>
   );

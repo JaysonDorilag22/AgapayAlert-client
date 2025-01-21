@@ -11,6 +11,7 @@ import tw from "twrnc";
 
 import ReportListItem from "@/components/report/ReportListItem";
 import TypeBadges from "@/components/report/TypeBadges";
+import NoDataFound from "@/components/NoDataFound";
 import { getUserReports } from "@/redux/actions/reportActions";
 import { ReportListItemSkeleton } from "@/components/skeletons";
 import styles from "@/styles/styles";
@@ -23,6 +24,7 @@ export default function Report() {
   const [selectedType, setSelectedType] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const skeletonCount = 12;
 
   const loadReports = async (type = selectedType, page = 1) => {
     const params = {
@@ -60,26 +62,39 @@ export default function Report() {
 
   if (loading && !userReports.reports.length) {
     return (
-      <View style={tw`flex-1`}>
-        <View style={tw`px-4 py-2`}>
+      <View style={tw`flex-1 bg-white`}>
+        <View>
+          <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Reports</Text>
           <TypeBadges
-            selectedType={selectedType}
-            onSelectType={handleTypeSelect}
-          />
+          selectedType={selectedType}
+          onSelectType={handleTypeSelect}
+        />
         </View>
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
-        <ReportListItemSkeleton />
+        
+        {[...Array(10)].map((_, index) => (
+          <ReportListItemSkeleton key={`skeleton-${index}`} />
+        ))}
+      </View>
+    );
+  }
+
+  if (!loading && (!userReports?.reports || userReports.reports.length === 0)) {
+    return (
+      <View style={tw`flex-1 bg-white`}>
+        <View>
+          <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Reports</Text>
+          <TypeBadges
+          selectedType={selectedType}
+          onSelectType={handleTypeSelect}
+        />
+        </View>
+        <NoDataFound
+          message={
+            selectedType
+              ? `No ${selectedType.toLowerCase()} reports found`
+              : "No reports found"
+          }
+        />
       </View>
     );
   }
@@ -89,24 +104,18 @@ export default function Report() {
   };
 
   return (
-    <View style={tw`flex-1 bg-gray-50`}>
-      <View style={tw`flex-row items-center justify-between px-2`}>
+    <View style={tw`flex-1 bg-white`}>
+      <View style={tw`flex-row items-center justify-between `}>
         <View style={tw`flex-1`}>
           <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Reports</Text>
         </View>
-        <View style={tw`w-10`}>
-          <TypeBadges
-            selectedType={selectedType}
-            onSelectType={handleTypeSelect}
-          />
-        </View>
       </View>
-
+      <TypeBadges selectedType={selectedType} onSelectType={handleTypeSelect} />
       <FlatList
         data={userReports?.reports || []}
         renderItem={({ item }) => (
-          <View key={item._id} >
-          <ReportListItem report={item} onPress={handleReportPress} />
+          <View key={item._id}>
+            <ReportListItem report={item} onPress={handleReportPress} />
           </View>
         )}
         keyExtractor={(item) => item._id}

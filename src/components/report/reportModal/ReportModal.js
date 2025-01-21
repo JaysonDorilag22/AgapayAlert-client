@@ -222,7 +222,7 @@ useEffect(() => {
 
   return (
     <Modal visible={visible} animationType="slide">
-    <View style={tw`flex-1 bg-white rounded-xl p-2 border border-gray-300`}>
+    <View style={tw`flex-1 bg-white rounded-xl border border-gray-300`}>
       <TouchableOpacity style={tw`self-end`} onPress={handleClose}>
         <X color={styles.textPrimary.color} size={24} />
       </TouchableOpacity>

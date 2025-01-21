@@ -1,63 +1,49 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, Modal, Pressable } from 'react-native';
-import { SlidersHorizontal   } from 'lucide-react-native';
+import { View, TouchableOpacity, Text, ScrollView } from 'react-native';
 import tw from 'twrnc';
+import styles from "@/styles/styles";
 
 const TypeBadges = ({ selectedType, onSelectType }) => {
-  const [modalVisible, setModalVisible] = React.useState(false);
   const types = ["Missing", "Abducted", "Kidnapped", "Hit-and-Run"];
 
-  const handleSelect = (type) => {
-    onSelectType(type);
-    setModalVisible(false);
-  };
-
   return (
-    <>
-      <TouchableOpacity 
-        style={tw`h-[36px] px-3 rounded-lg justify-center items-center border border-gray-300 bg-white`}
-        onPress={() => setModalVisible(true)}
+    <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false}
+      style={tw`flex-grow-0`}
+      contentContainerStyle={tw`p-2`}
+    >
+      <TouchableOpacity
+        style={[
+          tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
+          !selectedType 
+            ? { backgroundColor: styles.backgroundColorPrimary.backgroundColor, borderColor: styles.backgroundColorPrimary.backgroundColor }
+            : tw`bg-white border-gray-300`
+        ]}
+        onPress={() => onSelectType(null)}
       >
-        <SlidersHorizontal   size={20} color={selectedType ? "#2563EB" : "#6B7280"} />
+        <Text style={tw`${!selectedType ? 'text-white font-medium' : 'text-gray-600'}`}>
+          All
+        </Text>
       </TouchableOpacity>
 
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <Pressable 
-          style={tw`flex-1 bg-black/50 justify-center items-center`}
-          onPress={() => setModalVisible(false)}
+      {types.map((type) => (
+        <TouchableOpacity
+          key={type}
+          style={[
+            tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
+            selectedType === type 
+              ? { backgroundColor: styles.backgroundColorPrimary.backgroundColor, borderColor: styles.backgroundColorPrimary.backgroundColor }
+              : tw`bg-white border-gray-300`
+          ]}
+          onPress={() => onSelectType(type)}
         >
-          <View style={tw`bg-white w-80 rounded-xl p-4`}>
-            <Text style={tw`text-lg font-bold mb-4`}>Filter by Type</Text>
-            
-            <TouchableOpacity
-              style={tw`py-3 px-4 rounded-lg ${!selectedType ? 'bg-blue-50' : ''}`}
-              onPress={() => handleSelect(null)}
-            >
-              <Text style={tw`${!selectedType ? 'text-blue-600 font-medium' : 'text-gray-700'}`}>
-                All Types
-              </Text>
-            </TouchableOpacity>
-
-            {types.map((type) => (
-              <TouchableOpacity
-                key={type}
-                style={tw`py-3 px-4 rounded-lg ${selectedType === type ? 'bg-blue-50' : ''}`}
-                onPress={() => handleSelect(type)}
-              >
-                <Text style={tw`${selectedType === type ? 'text-blue-600 font-medium' : 'text-gray-700'}`}>
-                  {type}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Pressable>
-      </Modal>
-    </>
+          <Text style={tw`${selectedType === type ? 'text-white font-medium' : 'text-gray-600'}`}>
+            {type}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 };
 

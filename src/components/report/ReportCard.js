@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { MapPin, Clock, User, Eye } from 'lucide-react-native';
 import { format } from 'date-fns';
 import tw from 'twrnc';
+import styles from '@styles/styles';
 
 const ReportCard = ({ report, onPress }) => {
   const formatDateTime = (date, time) => {
@@ -24,8 +25,8 @@ const ReportCard = ({ report, onPress }) => {
       
       <View style={tw`p-4`}>
         <View style={tw`flex-row items-center mb-2`}>
-          <View style={tw`bg-red-100 rounded-full px-3 py-1`}>
-            <Text style={tw`text-red-600 text-xs font-medium`}>{report.type}</Text>
+        <View style={[tw`rounded-full px-3 py-1`, styles.backgroundColorPrimary]}>
+            <Text style={tw`text-white text-xs font-medium`}>{report.type}</Text>
           </View>
         </View>
 
@@ -48,13 +49,13 @@ const ReportCard = ({ report, onPress }) => {
           <Text style={tw`text-sm text-gray-600`}>Age: {report.age}</Text>
         </View>
         <TouchableOpacity
-          style={tw`mt-4 bg-red-600 rounded-lg py-2 px-4 flex-row items-center justify-center`}
+          style={[tw`mt-4 rounded-lg py-2 px-4 flex-row justify-center`, styles.backgroundColorPrimary]}
           onPress={(e) => {
             e.stopPropagation(); 
           }}
         >
           <Eye size={18} color="white" style={tw`mr-2`} />
-          <Text style={tw`text-white font-medium`}>I Found This Person</Text>
+          <Text style={styles.buttonTextPrimary}>I Found This Person</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
