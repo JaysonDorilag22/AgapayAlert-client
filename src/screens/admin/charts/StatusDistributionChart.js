@@ -29,7 +29,7 @@ const StatusDistributionChart = ({ data }) => {
   };
 
   return (
-    <View style={tw`bg-white rounded-lg border border-gray-200 p-4`}>
+    <View style={tw`bg-white rounded-lg p-2`}>
       <Text style={tw`text-lg font-bold text-gray-800 mb-4`}>Status Distribution</Text>
       <BarChart
         data={chartData}

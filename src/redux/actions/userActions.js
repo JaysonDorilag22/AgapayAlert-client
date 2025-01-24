@@ -132,7 +132,7 @@ export const getUserList = (params = {}) => async (dispatch) => {
     return { success: true, data: data.data };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
-    dispatch({ type: GET_USER_LIST_FAIL, payload: message });
+    dispatch({ type: GET_USER_LIST_FAILURE, payload: message });
     return { success: false, error: message };
   }
 };

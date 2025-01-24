@@ -6,7 +6,7 @@ import tw from 'twrnc';
 import styles from '@/styles/styles';
 const NetworkError = ({ onRetry, message }) => {
   return (
-    <View style={tw`flex-1 justify-center items-center  bg-white`}>
+    <View style={tw`flex-1 justify-center items-center  bg-white mt-3 rounded-lg`}>
       <LottieView
         source={require('@assets/error.json')}
         autoPlay

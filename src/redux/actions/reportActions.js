@@ -88,7 +88,7 @@ export const getReports = ({ page = 1, limit = 10, type = null }) => async (disp
     });
 
     const url = `${serverConfig.baseURL}/report/getReports?${queryParams}`;
-
+      console.log('url', url);
     const { data } = await axios.get(url, {
       withCredentials: true
     });

@@ -61,16 +61,31 @@ const Dashboard = () => {
   const handleLoadMore = async (newPage, type = null) => {
     try {
       setPage(newPage);
+      
+      // Clear reports only when type changes
       if (type !== currentFilter) {
         setCurrentFilter(type);
         dispatch({ type: 'CLEAR_REPORTS' });
       }
       
-      await dispatch(getReports({ 
+      const params = {
         page: newPage,
-        limit: 10,
-        type: type || undefined
-      }));
+        limit: 10
+      };
+  
+      // Only add type if it's not "All"
+      if (type && type !== "All") {
+        params.type = type;
+      }
+  
+      if (searchQuery) {
+        await dispatch(searchReports({ 
+          ...params,
+          query: searchQuery
+        }));
+      } else {
+        await dispatch(getReports(params));
+      }
     } catch (error) {
       console.error('Error loading more reports:', error);
       setPage(page);

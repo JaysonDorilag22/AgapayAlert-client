@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import tw from 'twrnc';
 
  const MetricCard = ({ title, value, icon, subtitle }) => (
-  <View style={tw`bg-white p-4 rounded-lg border border-gray-200 w-[47%] mb-2`}>
+  <View style={tw`bg-white p-2 rounded-lg border border-gray-200 w-[47%] mb-2`}>
     <View style={tw`flex-row justify-between items-start mb-2`}>
       <Text style={tw`text-gray-600 text-sm font-medium`}>{title}</Text>
       <View style={tw`p-2 bg-blue-50 rounded-lg`}>{icon}</View>

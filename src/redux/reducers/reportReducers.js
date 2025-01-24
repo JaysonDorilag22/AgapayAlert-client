@@ -97,6 +97,7 @@ export const reportReducer = (state = initialState, action) => {
         ...state,
         loading: true,
         error: null,
+        reports: [],
       };
 
     case GET_REPORTS_SUCCESS:

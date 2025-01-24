@@ -109,7 +109,7 @@ const ReportDetails = ({ route }) => {
         />
         {/* Overlay gradient */}
         <View
-          style={tw`absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent`}
+          style={tw`absolute bottom-0 left-0 right-0 h-24 `}
         />
 
         {/* Type Badge */}

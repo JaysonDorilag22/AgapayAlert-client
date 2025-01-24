@@ -63,7 +63,7 @@ export default function ScanPlate({ onScanComplete }) {
         )}
       </View>
 
-      <View style={tw`flex-row justify-center space-x-4`}>
+      <View style={tw`flex-row justify-center`}>
         <TouchableOpacity
           style={tw`flex-row items-center px-4 py-2 bg-gray-100 rounded-lg`}
           onPress={pickImage}

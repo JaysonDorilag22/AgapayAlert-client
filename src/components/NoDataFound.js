@@ -6,7 +6,7 @@ import styles from '@/styles/styles';
 
 const NoDataFound = ({ message }) => {
   return (
-    <View style={tw`mt-12 justify-center items-center bg-white p-4`}>
+    <View style={tw`mt-12 justify-center items-center bg-white p-4 mt-3 rounded-lg`}>
       <LottieView
         source={require('@assets/nodatafound.json')}
         autoPlay

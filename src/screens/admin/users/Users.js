@@ -16,6 +16,9 @@ import { getUserList } from '@/redux/actions/userActions';
 import tw from 'twrnc';
 import showToast from '@/utils/toastUtils';
 import { useNavigation } from '@react-navigation/native';
+import NoDataFound from '@/components/NoDataFound';
+import styles from '@/styles/styles';
+import { UserSkeleton } from '@/components/skeletons';
 
 const USER_ROLES = [
   'POLICE_OFFICER',
@@ -32,6 +35,7 @@ export default function Users() {
   const [hasMore, setHasMore] = useState(true);
   const [activeFilter, setActiveFilter] = useState(null);
   const [searchText, setSearchText] = useState('');
+  const [error, setError] = useState(null);
   const { users, loading } = useSelector(state => state.user);
 
   useEffect(() => {
@@ -43,15 +47,19 @@ export default function Users() {
       const result = await dispatch(getUserList({
         page,
         limit: 10,
-        role: activeFilter?.toLowerCase(), // Convert to lowercase only when sending
+        role: activeFilter?.toLowerCase(),
         search: searchText
       }));
       
       if (result.success) {
         setHasMore(result.data.hasMore);
+        setError(null);
+      } else {
+        setError('Failed to load users');
       }
     } catch (error) {
       console.error('Error loading users:', error);
+      setError('Failed to load users');
       showToast('Failed to load users');
     }
   };
@@ -85,20 +93,17 @@ export default function Users() {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      style={tw`my-3`}
-      contentContainerStyle={tw`px-4`}
+      style={tw`flex-grow-0`}
+      contentContainerStyle={tw`p-2 mb-4`}
     >
       <TouchableOpacity
         style={[
-          tw`min-w-[90px] h-[40px] rounded-lg mr-2 justify-center items-center border mb-5`,
-          !activeFilter ? tw`bg-blue-600 border-blue-600` : tw`bg-white border-gray-300`
+          tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
+          !activeFilter ? styles.backgroundColorPrimary : tw`bg-white border-gray-300`
         ]}
         onPress={() => handleFilterPress(null)}
       >
-        <Text style={[
-          tw`text-[14px] font-medium`,
-          !activeFilter ? tw`text-white` : tw`text-gray-700`
-        ]}>
+        <Text style={tw`${!activeFilter ? 'text-white' : 'text-gray-700'} text-[14px] font-medium`}>
           All Roles
         </Text>
       </TouchableOpacity>
@@ -108,16 +113,13 @@ export default function Users() {
           key={role}
           style={[
             tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
-            activeFilter === role ? tw`bg-blue-600 border-blue-600` : tw`bg-white border-gray-300`
+            activeFilter === role ? styles.backgroundColorPrimary : tw`bg-white border-gray-300`
           ]}
           onPress={() => handleFilterPress(role)}
         >
           <Text 
             numberOfLines={1}
-            style={[
-              tw`text-[14px] font-medium px-3`,
-              activeFilter === role ? tw`text-white` : tw`text-gray-700`
-            ]}
+            style={tw`${activeFilter === role ? 'text-white' : 'text-gray-700'} text-[14px] font-medium px-3`}
           >
             {role.split('_').map(word =>
               word.charAt(0) + word.slice(1).toLowerCase()
@@ -131,9 +133,8 @@ export default function Users() {
   const renderUser = ({ item }) => (
     <TouchableOpacity 
       onPress={() => handleUserPress(item)}
-      style={tw`bg-white p-4 border-b border-gray-200`}
+      style={tw`flex-row items-center bg-white p-4 border-b border-gray-200`}
     >
-      <View style={tw`flex-row items-center`}>
         <Image
           source={{ 
             uri: item.avatar?.url || 'https://via.placeholder.com/100'
@@ -143,16 +144,13 @@ export default function Users() {
         
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center mb-1`}>
-            <View style={tw`bg-blue-100 rounded-full px-2 py-0.5 mr-2`}>
-              <Text style={tw`text-blue-600 text-xs font-medium`}>
+            <View style={[tw`rounded-full px-2 py-0.5 mr-2`, styles.backgroundColorPrimary + '20']}>
+              <Text style={[tw`text-xs font-medium`, { color: styles.colorPrimary}]}>
                 {item.roles[0]?.split('_').map(word => 
                   word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
                 ).join(' ')}
               </Text>
             </View>
-            <Text style={tw`text-gray-500 text-xs`}>
-              ID #{item._id?.slice(-6)}
-            </Text>
           </View>
   
           <Text style={tw`text-gray-900 font-medium`}>
@@ -167,13 +165,46 @@ export default function Users() {
           )}
         </View>
   
-        <ChevronRight size={20} color="#9CA3AF" />
-      </View>
+        <ChevronRight size={20} color={styles.colorPrimary} />
     </TouchableOpacity>
   );
 
+  if (loading && !users.length) {
+    return (
+      <View style={tw`flex-1 bg-white`}>
+        <View style={tw`p-4`}>
+          <View style={tw`flex-row items-center bg-white rounded-lg px-3 py-2 border border-gray-200`}>
+            <Search size={20} color="#6B7280" />
+            <TextInput
+              placeholder="Search users..."
+              style={tw`flex-1 ml-2 text-base text-gray-700`}
+              value={searchText}
+              onChangeText={setSearchText}
+            />
+          </View>
+        {renderFilterBadges()}
+
+        </View>
+        {[...Array(10)].map((_, index) => (
+          <UserSkeleton key={`skeleton-${index}`} />
+        ))}
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={tw`flex-1 bg-white`}>
+        <NoDataFound 
+          message={error}
+          onRetry={handleRefresh}
+        />
+      </View>
+    );
+  }
+
   return (
-    <View style={tw`flex-1 bg-gray-50`}>
+    <View style={tw`flex-1 bg-white`}>
       <View style={tw`p-4`}>
         <View style={tw`flex-row items-center bg-white rounded-lg px-3 py-2 border border-gray-200`}>
           <Search size={20} color="#6B7280" />
@@ -188,35 +219,35 @@ export default function Users() {
   
       {renderFilterBadges()}
   
-      {loading && !users.length ? (
-        <View style={tw`flex-1 justify-center items-center mt-5`}>
-          <ActivityIndicator size="large" color="#0056A7" />
-        </View>
-      ) : (
-        <FlatList
-          data={users}
-          renderItem={renderUser}
-          keyExtractor={item => item._id}
-          contentContainerStyle={users.length === 1 ? tw`pb-4` : null}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            <View style={tw`py-8`}>
-              <Text style={tw`text-gray-500 text-center`}>
-                {searchText ? 'No users found matching your search' : 'No users found'}
-              </Text>
-            </View>
-          }
-          ListFooterComponent={
-            loading && users.length > 0 ? (
-              <ActivityIndicator style={tw`py-4`} color="#0056A7" />
-            ) : null
-          }
-        />
-      )}
+      <FlatList
+        data={users}
+        renderItem={renderUser}
+        keyExtractor={item => item._id}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        contentContainerStyle={tw`pb-20`}
+        ListEmptyComponent={() => (
+          <NoDataFound 
+            message={
+              searchText 
+                ? `No users found matching "${searchText}"` 
+                : activeFilter
+                  ? `No ${activeFilter.split('_').map(word => 
+                      word.charAt(0) + word.slice(1).toLowerCase()
+                    ).join(' ')} users found`
+                  : "No users found"
+            }
+          />
+        )}
+        ListFooterComponent={
+          loading && users.length > 0 ? (
+            <ActivityIndicator style={tw`py-4`} color={styles.colorPrimary} />
+          ) : null
+        }
+      />
     </View>
   );
 }

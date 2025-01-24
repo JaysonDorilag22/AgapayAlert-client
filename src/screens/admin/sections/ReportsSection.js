@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Button,
+} from "react-native";
 import { DataTable } from "react-native-paper";
 import { RefreshCw } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
+import NoDataFound from "@/components/NoDataFound";
+import NetworkError from "@/components/NetworkError";
 import tw from "twrnc";
 import styles from "@/styles/styles";
 
@@ -15,6 +24,10 @@ const STATUS_COLORS = {
 };
 
 const TYPE_COLORS = {
+  Absent: {
+    backgroundColor: styles.colorPrimary,
+    color: "gray",
+  },
   Missing: {
     backgroundColor: styles.colorPrimary + "20",
     color: styles.colorPrimary,
@@ -33,7 +46,14 @@ const TYPE_COLORS = {
   },
 };
 
-const REPORT_TYPES = ["All", "Missing", "Abducted", "Kidnapped", "Hit-and-Run"];
+const REPORT_TYPES = [
+  "All",
+  "Absent",
+  "Missing",
+  "Abducted",
+  "Kidnapped",
+  "Hit-and-Run",
+];
 
 const ReportsSection = ({
   reports = [],
@@ -76,7 +96,8 @@ const ReportsSection = ({
     setSelectedType(type);
     setPage(0);
     try {
-      await onLoadMore?.(1, type !== "All" ? type : null);
+      // Only make one API call with the type
+      await onLoadMore?.(1, type === "All" ? null : type);
       setError(null);
     } catch (err) {
       setError("Failed to filter reports");
@@ -162,9 +183,15 @@ const ReportsSection = ({
     </DataTable.Row>
   );
 
-  const isDisabled = Boolean(loading || refreshing);
-  const validTotalPages = Math.max(1, totalPages);
+  // Fix: Check if loading is an object and get the correct value
+  const isLoading =
+    typeof loading === "object"
+      ? Object.values(loading).some((val) => val)
+      : loading;
 
+  // Update isDisabled to use fixed loading check
+  const isDisabled = Boolean(isLoading || refreshing);
+  const validTotalPages = Math.max(1, totalPages);
   const handleRefresh = async () => {
     try {
       setSelectedType("All");
@@ -176,15 +203,22 @@ const ReportsSection = ({
   };
 
   return (
-    <View style={tw`bg-white rounded-lg border border-gray-200 p-4 mt-4`}>
+    <View style={tw`bg-white rounded-lg border border-gray-200 p-3 mt-4`}>
       <View style={tw`flex-row justify-between items-center mb-3`}>
         <Text style={tw`text-lg font-bold text-gray-800`}>Recent Reports</Text>
         <TouchableOpacity
           onPress={handleRefresh}
           disabled={isDisabled}
-          style={tw`p-2`}
+          style={[
+            tw`px-4 py-2 rounded-lg flex-row items-center justify-center`,
+            styles.backgroundColorPrimary,
+            isDisabled && tw`opacity-50`,
+          ]}
         >
-          <RefreshCw size={20} color={isDisabled ? "#9CA3AF" : "#3B82F6"} />
+          <RefreshCw size={16} color="white" style={tw`mr-2`} />
+          <Text style={tw`text-white font-medium`}>
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -217,45 +251,46 @@ const ReportsSection = ({
         </View>
       </ScrollView>
 
-      {error && <Text style={tw`text-red-500 mb-2`}>{error}</Text>}
+      {error ? (
+        <NetworkError 
+          onRetry={handleRefresh}
+          message={error}
+        />
+      ) : loading && !reports.length ? (
+        Array(itemsPerPage)
+          .fill(0)
+          .map((_, index) => renderSkeletonRow(index))
+      ) : reports.length > 0 ? (
+        <DataTable>
+          <DataTable.Header style={tw`border-b border-gray-200`}>
+            <DataTable.Title>Photo</DataTable.Title>
+            <DataTable.Title>Type</DataTable.Title>
+            <DataTable.Title>Person</DataTable.Title>
+            <DataTable.Title>Status</DataTable.Title>
+          </DataTable.Header>
 
-      <DataTable>
-        <DataTable.Header style={tw`border-b border-gray-200`}>
-          <DataTable.Title>Photo</DataTable.Title>
-          <DataTable.Title>Type</DataTable.Title>
-          <DataTable.Title>Person</DataTable.Title>
-          <DataTable.Title>Status</DataTable.Title>
-        </DataTable.Header>
+          {reports.map((report, index) => renderRow(report, index))}
 
-        {loading && !reports.length ? (
-          Array(itemsPerPage)
-            .fill(0)
-            .map((_, index) => renderSkeletonRow(index))
-        ) : reports.length > 0 ? (
-          reports.map((report, index) => renderRow(report, index))
-        ) : (
-          <DataTable.Row>
-            <DataTable.Cell style={tw`text-center`} colSpan={4}>
-              <Text style={tw`text-gray-500`}>
-                {selectedType !== "All"
-                  ? `No ${selectedType} reports found`
-                  : "No reports found"}
-              </Text>
-            </DataTable.Cell>
-          </DataTable.Row>
-        )}
-
-        {reports.length > 0 && (
-          <DataTable.Pagination
-            page={page}
-            numberOfPages={validTotalPages}
-            onPageChange={handlePageChange}
-            label={`${page + 1} of ${validTotalPages}`}
-            showFastPaginationControls
-            numberOfItemsPerPage={itemsPerPage}
-          />
-        )}
-      </DataTable>
+          {reports.length > 0 && (
+            <DataTable.Pagination
+              page={page}
+              numberOfPages={validTotalPages}
+              onPageChange={handlePageChange}
+              label={`${page + 1} of ${validTotalPages}`}
+              showFastPaginationControls
+              numberOfItemsPerPage={itemsPerPage}
+            />
+          )}
+        </DataTable>
+      ) : (
+        <NoDataFound 
+          message={
+            selectedType !== "All"
+              ? `No ${selectedType} reports found`
+              : "No reports found"
+          }
+        />
+      )}
     </View>
   );
 };

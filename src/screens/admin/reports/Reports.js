@@ -71,33 +71,42 @@ const Reports = () => {
     setRefreshing(false);
   };
 
-  const handleLoadMore = async (newPage, type = null) => {
+  const handleLoadMore = useCallback(async (newPage, type = null) => {
     try {
       setPage(newPage);
+      
+      // Prevent duplicate API calls with same filter
+      if (type === currentFilter && newPage === page) {
+        return;
+      }
+  
+      // Clear reports only when filter changes
       if (type !== currentFilter) {
         setCurrentFilter(type);
         dispatch({ type: 'CLEAR_REPORTS' });
       }
-      
-      if (searchQuery) {
-        await dispatch(searchReports({ 
-          query: searchQuery,
-          page: newPage,
-          limit: 10,
-          type: type || undefined
-        }));
-      } else {
-        await dispatch(getReports({ 
-          page: newPage,
-          limit: 10,
-          type: type || undefined
-        }));
+  
+      const params = {
+        page: newPage,
+        limit: 10,
+      };
+  
+      // Only add type if it's not null and not "All" 
+      if (type && type !== 'All') {
+        params.type = type;
       }
+  
+      await dispatch(getReports(params));
     } catch (error) {
-      console.error('Error loading more reports:', error);
+      console.error('Error loading reports:', error);
       setPage(page);
     }
-  };
+  }, [currentFilter, page, dispatch]);
+
+  const debouncedLoadMore = useCallback(
+    debounce(handleLoadMore, 300),
+    [handleLoadMore]
+  );
 
   return (
     <ScrollView 
@@ -124,7 +133,7 @@ const Reports = () => {
           loading={searchQuery ? searchLoading : loading}
           refreshing={refreshing}
           onRefresh={handleRefresh}
-          onLoadMore={handleLoadMore}
+          onLoadMore={debouncedLoadMore}
           totalPages={searchQuery ? searchResults.totalPages : totalPages}
           currentPage={page}
           itemsPerPage={10}
