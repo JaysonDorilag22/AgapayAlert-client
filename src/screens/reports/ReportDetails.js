@@ -52,6 +52,7 @@ const ReportDetails = ({ route }) => {
 
   useEffect(() => {
     dispatch(getReportDetails(reportId));
+    console.log("Report ID: ", reportId);
   }, [dispatch, reportId]);
 
   if (detailsLoading) {
