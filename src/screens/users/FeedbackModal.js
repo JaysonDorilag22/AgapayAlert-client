@@ -166,6 +166,10 @@ export default function FeedbackModal({ visible, onClose }) {
                   </TouchableOpacity>
                 ))}
               </View>
+              {/* Description Text */}
+              <Text style={tw`text-center mt-2 text-gray-600`}>
+                {rating > 0 ? emojiRatings[rating - 1].description : ""}
+              </Text>
             </View>
 
             {/* Comment Input */}
