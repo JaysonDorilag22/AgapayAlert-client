@@ -74,7 +74,7 @@ const ReportCard = ({ report, onPress }) => {
 
         <View style={tw`flex-row items-center mb-2`}>
           <MapPin size={16} color="#6B7280" style={tw`mr-1`} />
-          <Text style={tw`text-sm text-gray-600`}>
+          <Text style={tw`text-sm text-gray-600`}> Last location: 
             {report?.lastKnownLocation || 'Location not specified'}
           </Text>
         </View>

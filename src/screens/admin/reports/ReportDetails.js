@@ -156,10 +156,6 @@ const ReportDetails = ({ route }) => {
     (state) => state.broadcast || {}
   );
 
-
-  console.log('Current Report:', currentReport);
-  console.log('User:', user);
-
   // Load report details
   useEffect(() => {
     dispatch(getReportDetails(reportId));

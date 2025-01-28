@@ -1,5 +1,5 @@
 // React and React Native imports
-import React, { useState, useCallback, useEffect} from 'react';
+import React, { useState, useEffect} from 'react';
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import {  OneSignal } from 'react-native-onesignal';
 import { useNavigation } from "@react-navigation/native";
@@ -123,7 +123,7 @@ export default function Login() {
             </Text>
             <Text
               style={[
-                tw`text-sm font-lg mt-2`,
+                tw`text-sm  mt-2`,
                 { color: styles.textPrimary.color },
               ]}
             >

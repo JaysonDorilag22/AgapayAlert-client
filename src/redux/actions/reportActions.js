@@ -76,19 +76,20 @@ export const createReport = (reportData) => async (dispatch) => {
 };
 
 // In reportActions.js
-export const getReports = ({ page = 1, limit = 10, type = null }) => async (dispatch) => {
+export const getReports = (params = {}) => async (dispatch) => {
   try {
     dispatch({ type: GET_REPORTS_REQUEST });
 
-    // Build query parameters properly
     const queryParams = new URLSearchParams({
-      page,
-      limit,
-      ...(type && { type }) // Only add type if it exists
-    });
+      page: params.page || 1,
+      limit: params.limit || 10,
+      ...(params.type && { type: params.type }),
+      ...(params.query && { query: params.query }) // Add search query support
+    }).toString();
 
     const url = `${serverConfig.baseURL}/report/getReports?${queryParams}`;
-      console.log('url', url);
+    console.log('Fetching reports:', url);
+
     const { data } = await axios.get(url, {
       withCredentials: true
     });
@@ -100,17 +101,19 @@ export const getReports = ({ page = 1, limit = 10, type = null }) => async (disp
         currentPage: parseInt(data.data.currentPage),
         totalPages: parseInt(data.data.totalPages),
         totalReports: parseInt(data.data.totalReports),
-        hasMore: data.data.hasMore
+        hasMore: data.data.hasMore,
+        isNewSearch: params.page === 1
       }
     });
 
     return { success: true, data: data.data };
   } catch (error) {
+    const message = error.response?.data?.msg || error.message;
     dispatch({
       type: GET_REPORTS_FAIL,
-      payload: error.response?.data?.msg || error.message
+      payload: message
     });
-    return { success: false, error: error.response?.data?.msg || error.message };
+    return { success: false, error: message };
   }
 };
 
@@ -419,25 +422,30 @@ export const getReportDetails = (reportId) => async (dispatch) => {
 };
 
 // Search Reports
-export const searchReports = (searchParams = {}) => async (dispatch) => {
+export const searchReports = (params = {}) => async (dispatch) => {
   try {
     dispatch({ type: SEARCH_REPORTS_REQUEST });
 
-    // Build query parameters
+    // Debug logs
+    console.log('Search params:', params);
+
     const queryParams = new URLSearchParams({
-      page: searchParams.page || 1,
-      limit: searchParams.limit || 10,
-      ...(searchParams.query && { query: searchParams.query }),
-      ...(searchParams.status && { status: searchParams.status }),
-      ...(searchParams.type && { type: searchParams.type }),
-      ...(searchParams.startDate && { startDate: searchParams.startDate }),
-      ...(searchParams.endDate && { endDate: searchParams.endDate })
+      page: params.page || 1,
+      limit: params.limit || 10,
+      ...(params.query && { query: params.query }),
+      ...(params.type && { type: params.type })
     });
+
+    // Debug query string
+    console.log('Query string:', queryParams.toString());
 
     const { data } = await axios.get(
       `${serverConfig.baseURL}/report/search?${queryParams}`,
       { withCredentials: true }
     );
+
+    // Debug response
+    console.log('Search response:', data);
 
     dispatch({
       type: SEARCH_REPORTS_SUCCESS,
@@ -447,12 +455,13 @@ export const searchReports = (searchParams = {}) => async (dispatch) => {
         totalPages: data.data.totalPages,
         totalReports: data.data.totalReports,
         hasMore: data.data.hasMore,
-        isNewSearch: searchParams.page === 1
+        isNewSearch: params.page === 1
       }
     });
 
     return { success: true, data: data.data };
   } catch (error) {
+    console.error('Search error:', error);
     const message = error.response?.data?.msg || error.message;
     dispatch({
       type: SEARCH_REPORTS_FAIL,

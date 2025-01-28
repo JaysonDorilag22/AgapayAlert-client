@@ -12,7 +12,6 @@ import {
   getMonthlyTrend, 
   getLocationHotspots 
 } from '../../redux/actions/dashboardActions';
-import { getReports } from '../../redux/actions/reportActions';
 import { OverviewSection } from './sections';
 
 const Dashboard = () => {
@@ -44,7 +43,6 @@ const Dashboard = () => {
         dispatch(getStatusDistribution()),
         dispatch(getMonthlyTrend()),
         dispatch(getLocationHotspots()),
-        dispatch(getReports({ page: 1, limit: 10 }))
       ]);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -58,39 +56,6 @@ const Dashboard = () => {
     setRefreshing(false);
   };
 
-  const handleLoadMore = async (newPage, type = null) => {
-    try {
-      setPage(newPage);
-      
-      // Clear reports only when type changes
-      if (type !== currentFilter) {
-        setCurrentFilter(type);
-        dispatch({ type: 'CLEAR_REPORTS' });
-      }
-      
-      const params = {
-        page: newPage,
-        limit: 10
-      };
-  
-      // Only add type if it's not "All"
-      if (type && type !== "All") {
-        params.type = type;
-      }
-  
-      if (searchQuery) {
-        await dispatch(searchReports({ 
-          ...params,
-          query: searchQuery
-        }));
-      } else {
-        await dispatch(getReports(params));
-      }
-    } catch (error) {
-      console.error('Error loading more reports:', error);
-      setPage(page);
-    }
-  };
 
   const sections = useMemo(() => [
     {
@@ -128,21 +93,6 @@ const Dashboard = () => {
       }],
       renderItem: ({ item }) => <ChartsSection {...item} />
     },
-    {
-      title: 'Reports',
-      data: [{
-        reports,
-        loading,
-        refreshing,
-        onRefresh: handleRefresh,
-        onLoadMore: handleLoadMore,
-        totalPages,
-        currentPage: page,
-        itemsPerPage: 10,
-        totalReports
-      }],
-      renderItem: ({ item }) => <ReportsSection {...item} />
-    }
   ], [basicAnalytics, typeDistribution, statusDistribution, monthlyTrend, 
       locationHotspots, loading, reports, refreshing, page, totalPages, totalReports]);
 

@@ -30,6 +30,7 @@ export default function ReportFeed() {
     loadReports();
   }, []);
 
+
   const loadReports = async (
     city = selectedCity,
     type = selectedType,
@@ -80,7 +81,7 @@ export default function ReportFeed() {
             onSelectType={handleTypeSelect}
           />
         </View>
-        <View style={tw`px-2`}>
+        <View style={tw`px-2 0`}>
           {[...Array(5)].map((_, index) => (
             <ReportCardSkeleton key={index} />
           ))}

@@ -7,6 +7,7 @@ import { dashboardReducer } from './reducers/dashBoardReducers';
 import { broadcastReducer } from './reducers/broadcastReducers';
 import { notificationReducer } from './reducers/notificationReducers';
 import { alprReducer } from './reducers/alprReducers';
+import { feedbackReducer } from './reducers/feedbackReducers';
 
 const store = configureStore({
   reducer: {
@@ -17,7 +18,8 @@ const store = configureStore({
     dashboard: dashboardReducer,
     broadcast: broadcastReducer,
     notification: notificationReducer,
-    alpr: alprReducer
+    alpr: alprReducer,
+    feedback: feedbackReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

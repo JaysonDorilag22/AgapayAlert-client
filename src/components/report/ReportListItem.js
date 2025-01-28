@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { ChevronRight } from 'lucide-react-native';
-import tw from 'twrnc';
-import styles from '@/styles/styles';
+import React from "react";
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import { ChevronRight } from "lucide-react-native";
+import tw from "twrnc";
+import styles from "@/styles/styles";
+import { format } from "date-fns";
 
 const ReportListItem = ({ report, onPress }) => {
   const getStatusColor = (status) => {
@@ -21,20 +22,27 @@ const ReportListItem = ({ report, onPress }) => {
   };
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={() => onPress(report)}
       style={tw`flex-row items-center bg-white p-4 border-b border-gray-200`}
     >
-      <Image 
-        source={{ uri: report.personInvolved.mostRecentPhoto.url }} 
-        style={tw`w-12 h-12 rounded-lg mr-3`}
+      <Image
+        source={{ uri: report.personInvolved.mostRecentPhoto.url }}
+        style={tw`w-12 h-18 rounded-lg mr-3`}
         resizeMode="cover"
       />
-      
+
       <View style={tw`flex-1`}>
         <View style={tw`flex-row items-center mb-1`}>
-          <View style={[tw`rounded-full px-2 py-0.5 mr-2`, styles.backgroundColorPrimary]}>
-            <Text style={tw`text-white text-xs font-medium`}>{report.type}</Text>
+          <View
+            style={[
+              tw`rounded-full px-2 py-0.5 mr-2`,
+              styles.backgroundColorPrimary,
+            ]}
+          >
+            <Text style={tw`text-white text-xs font-medium`}>
+              {report.type}
+            </Text>
           </View>
           <View style={tw`${getStatusColor(report.status)}, rounded-full`}>
             <Text style={tw`px-2 py-0.5 text-xs font-medium`}>
@@ -42,16 +50,20 @@ const ReportListItem = ({ report, onPress }) => {
             </Text>
           </View>
         </View>
-        
+
+        <Text style={tw`text-xs text-gray-500 mb-1`}>
+          {format(new Date(report.createdAt), "MMM dd, yyyy 'at' h:mm a")}
+        </Text>
+
         <Text style={tw`text-gray-900 font-medium mb-1`}>
           {report.personInvolved.firstName} {report.personInvolved.lastName}
         </Text>
-        
+
         <Text style={tw`text-gray-500 text-xs`}>
           {report.location.address.city}
         </Text>
       </View>
-      
+
       <ChevronRight size={20} color="#9CA3AF" />
     </TouchableOpacity>
   );

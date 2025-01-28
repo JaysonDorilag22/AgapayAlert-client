@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import {
   X,
@@ -15,78 +16,78 @@ import {
   HelpCircle,
   MoreHorizontal,
 } from "lucide-react-native";
-import { Picker } from "@react-native-picker/picker";
 import tw from "twrnc";
 import styles from "@/styles/styles";
-
-const customStyles = {
-  selectedBorder: "#041562",
-  defaultBorder: "#D1D5DB",
-};
+import showToast from "@/utils/toastUtils";
 
 const categoryOptions = [
   {
     id: "app",
     label: "App",
-    icon: (selected) => (
-      <Smartphone size={20} color={selected ? "#ffffff" : "#041562"} />
+    icon: (isSelected) => (
+      <Smartphone size={20} color={isSelected ? "#ffffff" : "#041562"} />
     ),
   },
   {
     id: "report",
     label: "Report",
-    icon: (selected) => (
-      <AlertTriangle size={20} color={selected ? "#ffffff" : "#041562"} />
+    icon: (isSelected) => (
+      <AlertTriangle size={20} color={isSelected ? "#ffffff" : "#041562"} />
     ),
   },
   {
     id: "police",
     label: "Police",
-    icon: (selected) => (
-      <Shield size={20} color={selected ? "#ffffff" : "#041562"} />
+    icon: (isSelected) => (
+      <Shield size={20} color={isSelected ? "#ffffff" : "#041562"} />
     ),
   },
   {
     id: "support",
     label: "Support",
-    icon: (selected) => (
-      <HelpCircle size={20} color={selected ? "#ffffff" : "#041562"} />
+    icon: (isSelected) => (
+      <HelpCircle size={20} color={isSelected ? "#ffffff" : "#041562"} />
     ),
   },
   {
     id: "other",
     label: "Other",
-    icon: (selected) => (
-      <MoreHorizontal size={20} color={selected ? "#ffffff" : "#041562"} />
+    icon: (isSelected) => (
+      <MoreHorizontal size={20} color={isSelected ? "#ffffff" : "#041562"} />
     ),
   },
 ];
 
 const emojiRatings = [
-  { emoji: "😡", description: "Very Dissatisfied" },
-  { emoji: "😕", description: "Dissatisfied" },
-  { emoji: "😐", description: "Neutral" },
-  { emoji: "🙂", description: "Satisfied" },
-  { emoji: "😄", description: "Very Satisfied" },
+  { emoji: "😡", description: "Very Dissatisfied", value: 1 },
+  { emoji: "😕", description: "Dissatisfied", value: 2 },
+  { emoji: "😐", description: "Neutral", value: 3 },
+  { emoji: "🙂", description: "Satisfied", value: 4 },
+  { emoji: "😄", description: "Very Satisfied", value: 5 },
 ];
 
-export default function FeedbackModal({ visible, onClose }) {
+export default function FeedbackModal({ visible, onClose, onSubmit, loading }) {
   const [rating, setRating] = useState(0);
   const [category, setCategory] = useState("");
   const [comment, setComment] = useState("");
 
-  const handleSubmit = () => {
-    if (rating === 0 || !category || !comment.trim()) {
-      alert("Please fill all fields");
-      return;
+  const handleSubmit = async () => {
+    try {
+      if (rating === 0 || !category || !comment.trim()) {
+        showToast("Please fill all fields");
+        return;
+      }
+
+      await onSubmit({
+        rating: rating, // Already a number from emojiRatings
+        category,
+        comment: comment.trim(),
+      });
+
+      // Form will be reset after successful submission
+    } catch (error) {
+      showToast(error.message || "Failed to submit feedback");
     }
-    // TODO: Submit feedback to backend
-    console.log({ rating, category, comment });
-    onClose();
-    // Reset form
-    setRating(0);
-    setCategory("");
-    setComment("");
   };
 
   return (
@@ -106,7 +107,7 @@ export default function FeedbackModal({ visible, onClose }) {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Category Tabs */}
+            {/* Category Selection */}
             <View style={tw`mb-6`}>
               <Text style={tw`text-lg mb-3`}>Category</Text>
               <View style={tw`flex-row flex-wrap gap-2`}>
@@ -128,9 +129,7 @@ export default function FeedbackModal({ visible, onClose }) {
                     <Text
                       style={[
                         tw`font-medium`,
-                        {
-                          color: category === cat.label ? "#ffffff" : "#374151",
-                        },
+                        { color: category === cat.label ? "#ffffff" : "#374151" },
                       ]}
                     >
                       {cat.label}
@@ -140,24 +139,23 @@ export default function FeedbackModal({ visible, onClose }) {
               </View>
             </View>
 
+            {/* Rating Selection */}
             <View style={tw`mb-6`}>
               <Text style={tw`text-lg mb-3`}>Rating</Text>
-              <View style={tw`flex-row justify-center`}>
-                {emojiRatings.map((item, index) => (
+              <View style={tw`flex-row justify-around`}>
+                {emojiRatings.map((item) => (
                   <TouchableOpacity
-                    key={index}
-                    onPress={() => setRating(index + 1)}
-                    style={tw`mx-2`}
+                    key={item.value}
+                    onPress={() => setRating(item.value)}
+                    style={tw`items-center`}
                   >
                     <Text
                       style={[
                         tw`text-2xl p-2 rounded-md`,
                         {
-                          borderWidth: rating === index + 1 ? 2 : 1,
+                          borderWidth: rating === item.value ? 2 : 1,
                           borderColor:
-                            rating === index + 1
-                              ? customStyles.selectedBorder
-                              : customStyles.defaultBorder,
+                            rating === item.value ? "#041562" : "#D1D5DB",
                         },
                       ]}
                     >
@@ -166,19 +164,21 @@ export default function FeedbackModal({ visible, onClose }) {
                   </TouchableOpacity>
                 ))}
               </View>
-              {/* Description Text */}
-              <Text style={tw`text-center mt-2 text-gray-600`}>
-                {rating > 0 ? emojiRatings[rating - 1].description : ""}
-              </Text>
+              {rating > 0 && (
+                <Text style={tw`text-center mt-3 text-gray-600`}>
+                  {emojiRatings.find((item) => item.value === rating)?.description}
+                </Text>
+              )}
             </View>
 
             {/* Comment Input */}
             <View style={tw`mb-6`}>
               <Text style={tw`text-lg mb-2`}>Additional Comment</Text>
               <TextInput
-                style={styles.input}
+                style={tw`border border-gray-300 rounded-lg p-4 text-base`}
                 multiline
                 numberOfLines={4}
+                placeholder="Tell us your experience..."
                 value={comment}
                 onChangeText={setComment}
               />
@@ -186,10 +186,15 @@ export default function FeedbackModal({ visible, onClose }) {
 
             {/* Submit Button */}
             <TouchableOpacity
-              style={[styles.buttonPrimary, tw`mb-4`]}
+              style={[styles.buttonPrimary, loading && tw`opacity-50`]}
               onPress={handleSubmit}
+              disabled={loading}
             >
-              <Text style={styles.buttonTextPrimary}>Submit Feedback</Text>
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.buttonTextPrimary}>Submit Feedback</Text>
+              )}
             </TouchableOpacity>
           </ScrollView>
         </View>

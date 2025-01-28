@@ -25,27 +25,34 @@ export const getUserNotifications = (params = {}) => async (dispatch) => {
     const queryParams = new URLSearchParams({
       page: params.page || 1,
       limit: params.limit || 10,
-      ...(params.isRead !== undefined && { isRead: params.isRead }),
       ...(params.type && { type: params.type })
-    });
+    }).toString();
 
     const { data } = await axios.get(
-      `${serverConfig.baseURL}/notifications/?${queryParams}`,
+      `${serverConfig.baseURL}/notifications?${queryParams}`,
       { withCredentials: true }
     );
 
     dispatch({
       type: GET_NOTIFICATIONS_SUCCESS,
-      payload: data.data
+      payload: {
+        notifications: data.data.notifications,
+        currentPage: data.data.currentPage,
+        totalPages: data.data.totalPages,
+        total: data.data.totalNotifications,
+        hasMore: data.data.hasMore,
+        isNewSearch: params.page === 1
+      }
     });
 
     return { success: true, data: data.data };
   } catch (error) {
+    const message = error.response?.data?.msg || error.message;
     dispatch({
       type: GET_NOTIFICATIONS_FAIL,
-      payload: error.response?.data?.msg || error.message
+      payload: message
     });
-    return { success: false, error: error.message };
+    return { success: false, error: message };
   }
 };
 

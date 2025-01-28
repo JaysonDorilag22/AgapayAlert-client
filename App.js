@@ -17,6 +17,7 @@ import showToast from '@/utils/toastUtils';
 import { AlertDetails } from '@/screens/alerts';
 
 
+
 OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
 

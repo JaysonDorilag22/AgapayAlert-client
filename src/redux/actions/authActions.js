@@ -28,6 +28,10 @@ import {
   CLEAR_AUTH_ERROR,
 } from "../actiontypes/authTypes";
 import serverConfig from "../../config/serverConfig";
+import { socket, initializeSocket, disconnectSocket } from '@/services/socketService';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+axios.defaults.withCredentials = true;
 
 // Register user
 export const register = (formData) => async (dispatch) => {
@@ -65,30 +69,30 @@ export const verifyAccount = (verificationData) => async (dispatch) => {
   }
 };
 
-// Login user
 export const login = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
-    const { data } = await axios.post(`${serverConfig.baseURL}/auth/login`, {
-      email: credentials.email,
-      password: credentials.password,
-      deviceToken: credentials.deviceToken
-    });
+    const response = await axios.post(
+      `${serverConfig.baseURL}/auth/login`,
+      credentials
+    );
 
-    dispatch({ 
+    const cookieHeader = response.headers['set-cookie']?.[0];
+    await initializeSocket(cookieHeader);
+
+    dispatch({
       type: LOGIN_SUCCESS,
-      payload: data 
+      payload: response.data
     });
 
-    return { success: true, data };
-
+    return { success: true, data: response.data };
   } catch (error) {
-    const errorMessage = error.response?.data?.msg || error.message;
+    console.error('Login error:', error);
     dispatch({ 
       type: LOGIN_FAILURE, 
-      payload: errorMessage 
+      payload: error.response?.data?.msg || error.message 
     });
-    return { success: false, error: errorMessage };
+    return { success: false, error: error.message };
   }
 };
 
@@ -97,6 +101,16 @@ export const logout = () => async (dispatch) => {
   dispatch({ type: LOGOUT_REQUEST });
   try {
     await axios.post(`${serverConfig.baseURL}/auth/logout`);
+
+    // // Clean up socket connection
+    // if (socket) {
+    //   socket.disconnect();
+    //   socket = null;
+    // }
+    
+    // // Clear token
+    // await AsyncStorage.removeItem('token');
+
     dispatch({ type: LOGOUT_SUCCESS });
     return { success: true };
   } catch (error) {

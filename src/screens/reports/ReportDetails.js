@@ -1,20 +1,27 @@
 import React, { useEffect } from "react";
-import { View, Text, ScrollView, Image, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import {
   MapPin,
   Clock,
   User,
-  Phone,
-  Mail,
   Calendar,
-  UserCircle2,
+  AlertTriangle,
+  Share2,
 } from "lucide-react-native";
 import tw from "twrnc";
 import { getReportDetails } from "@/redux/actions/reportActions";
 import { format, isValid, parseISO } from "date-fns";
 import NetworkError from "@/components/NetworkError";
 import styles from "@/styles/styles";
+import Seperator from "@/components/Seperator";
 const ReportDetails = ({ route }) => {
   const { reportId } = route.params;
   const dispatch = useDispatch();
@@ -55,6 +62,8 @@ const ReportDetails = ({ route }) => {
     console.log("Report ID: ", reportId);
   }, [dispatch, reportId]);
 
+
+
   if (detailsLoading) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
@@ -84,38 +93,19 @@ const ReportDetails = ({ route }) => {
     </View>
   );
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Pending":
-        return "bg-yellow-500 text-yellow-800 "; 
-      case "Assigned":
-        return "bg-blue-500 text-blue-800";
-      case "Under Investigation":
-        return "bg-purple-500 text-purple-800";
-      case "Resolved":
-        return "bg-green-500 text-green-800";
-      default:
-        return "bg-gray-500 text-gray-800";
-    }
-  };
-
   return (
     <ScrollView style={tw`flex-1 bg-white`}>
       {/* Header Image */}
       <View style={tw`h-72 justify-center items-center`}>
         <Image
           source={{ uri: currentReport?.personInvolved?.mostRecentPhoto?.url }}
-          style={tw`w-full h-full p-2`}
+          style={tw`w-full h-full`}
           resizeMode="cover"
         />
-        {/* Overlay gradient */}
-        <View
-          style={tw`absolute bottom-0 left-0 right-0 h-24 `}
-        />
-
-        {/* Type Badge */}
         <View style={tw`absolute top-4 left-4`}>
-          <View style={[tw`px-3 py-1 rounded-full`, styles.backgroundColorPrimary]}>
+          <View
+            style={[tw`px-3 py-1 rounded-full`, styles.backgroundColorPrimary]}
+          >
             <Text style={tw`text-white text-xs font-medium`}>
               {currentReport?.type}
             </Text>
@@ -125,21 +115,14 @@ const ReportDetails = ({ route }) => {
 
       <View style={tw`px-4 py-6 bg-white`}>
         {/* Basic Info */}
-        <View style={tw`mb-6`}>
+        <View>
           <Text style={tw`text-2xl font-bold text-gray-800 mb-2`}>
             {currentReport?.personInvolved?.firstName}{" "}
             {currentReport?.personInvolved?.lastName}
           </Text>
-
-          <View style={tw`flex-row items-center mb-4`}>
-            <View style={tw`${getStatusColor(currentReport?.status)}, rounded-full`}>
-              <Text style={tw`px-3 py-1 text-xs font-medium text-white`}>
-                Status: {currentReport?.status}
-              </Text>
-            </View>
-          </View>
         </View>
 
+        <Seperator />
         {/* Personal Details */}
         <View style={tw`mb-6`}>
           <Text style={tw`text-lg font-semibold mb-4 text-gray-800`}>
@@ -147,7 +130,7 @@ const ReportDetails = ({ route }) => {
           </Text>
           <View style={tw`space-y-4`}>
             <DetailRow
-              icon={<UserCircle2 size={20} color="#6B7280" />}
+              icon={<User size={20} color="#6B7280" />}
               label="Age"
               value={currentReport?.personInvolved?.age}
             />
@@ -158,8 +141,6 @@ const ReportDetails = ({ route }) => {
             />
           </View>
         </View>
-
-        <View style={tw`h-[1px] bg-gray-200 my-6`} />
 
         {/* Last Seen */}
         <View style={tw`mb-6`}>
@@ -178,88 +159,47 @@ const ReportDetails = ({ route }) => {
             <DetailRow
               icon={<MapPin size={20} color="#6B7280" />}
               label="Location"
-              value={currentReport?.personInvolved?.lastKnownLocation}
+              value={`${currentReport?.personInvolved?.lastKnownLocation}, ${currentReport?.location?.address?.city}`}
             />
           </View>
         </View>
+        <Seperator />
 
-        <View style={tw`h-[1px] bg-gray-200 my-6`} />
-
-        {/* Location Details */}
-        <View style={tw`mb-6`}>
-          <Text style={tw`text-lg font-semibold mb-4 text-gray-800`}>
-            Location Details
+        {/* Help Instructions */}
+        <View style={tw`mt-6 p-4 bg-blue-50 rounded-lg`}>
+          <View style={tw`flex-row items-start mb-2`}>
+            <AlertTriangle size={20} color="#1D4ED8" style={tw`mt-1 mr-2`} />
+            <Text style={tw`text-blue-800 font-medium flex-1`}>
+              Have you seen this person?
+            </Text>
+          </View>
+          <Text style={tw`text-blue-600 text-sm mb-4`}>
+            If you have any information about this person:
           </Text>
-          <View style={tw`space-y-4`}>
-            <DetailRow
-              icon={<MapPin size={20} color="#6B7280" />}
-              label="Street"
-              value={currentReport?.location?.address?.streetAddress}
-            />
-            <DetailRow
-              icon={<MapPin size={20} color="#6B7280" />}
-              label="Barangay"
-              value={currentReport?.location?.address?.barangay}
-            />
-            <DetailRow
-              icon={<MapPin size={20} color="#6B7280" />}
-              label="City"
-              value={currentReport?.location?.address?.city}
-            />
+          <View style={tw`space-y-2`}>
+            <Text style={tw`text-blue-600 text-sm`}>
+              • Go to the nearest police station
+            </Text>
+            <Text style={tw`text-blue-600 text-sm`}>
+              • Report through AgapayAlert app
+            </Text>
+            <Text style={tw`text-blue-600 text-sm`}>
+              • Contact local authorities immediately
+            </Text>
           </View>
         </View>
 
-        <View style={tw`h-[1px] bg-gray-200 my-6`} />
-
-        {/* Reporter Info */}
-        <View style={tw`mb-6`}>
-          <Text style={tw`text-lg font-semibold mb-4 text-gray-800`}>
-            Reporter Information
-          </Text>
-          <View style={tw`space-y-4`}>
-            <DetailRow
-              icon={<User size={20} color="#6B7280" />}
-              label="Name"
-              value={`${currentReport?.reporter?.firstName} ${currentReport?.reporter?.lastName}`}
-            />
-            <DetailRow
-              icon={<Phone size={20} color="#6B7280" />}
-              label="Contact"
-              value={currentReport?.reporter?.number}
-            />
-            <DetailRow
-              icon={<Mail size={20} color="#6B7280" />}
-              label="Email"
-              value={currentReport?.reporter?.email}
-            />
-          </View>
+        {/* Action Buttons */}
+        <View style={tw`flex-row mt-6 space-x-4`}>
+          <TouchableOpacity
+            style={[
+              tw`flex-1 flex-row items-center justify-center py-3 rounded-lg`,
+              styles.backgroundColorPrimary,
+            ]}
+          >
+            <Text style={tw`text-white font-medium`}>I found this person</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Police Station - If assigned */}
-        {currentReport?.assignedPoliceStation && (
-          <>
-            <View style={tw`h-[1px] bg-gray-200 my-6`} />
-            <View style={tw`mb-6`}>
-              <Text style={tw`text-lg font-semibold mb-4 text-gray-800`}>
-                Assigned Police Station
-              </Text>
-              <View style={tw`space-y-4`}>
-                <DetailRow
-                  icon={<MapPin size={20} color="#6B7280" />}
-                  label="Station"
-                  value={currentReport?.assignedPoliceStation?.name}
-                />
-                <DetailRow
-                  icon={<MapPin size={20} color="#6B7280" />}
-                  label="Address"
-                  value={
-                    currentReport?.assignedPoliceStation?.address?.streetAddress
-                  }
-                />
-              </View>
-            </View>
-          </>
-        )}
       </View>
     </ScrollView>
   );
