@@ -1,12 +1,22 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getReports } from '@/redux/actions/reportActions';
+import { 
+  initializeSocket, 
+  joinRoom, 
+  leaveRoom, 
+  subscribeToNewReports,
+  subscribeToReportUpdates,
+  unsubscribeFromReports 
+} from '@/services/socketService';
 import ReportsSection from '../sections/ReportsSection';
 
 export default function Reports() {
   const dispatch = useDispatch();
   const searchTimeout = useRef(null);
+  const socketRef = useRef(null);
   const [selectedType, setSelectedType] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
@@ -15,6 +25,62 @@ export default function Reports() {
   const { reports = [], loading = false, pagination = {} } = useSelector(
     (state) => state.report
   );
+  
+  const { user } = useSelector(state => state.auth);
+
+  // Socket setup
+  useEffect(() => {
+    let mounted = true;
+
+    const setupSocket = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const socket = await initializeSocket(token);
+        
+        if (socket && mounted) {
+          socketRef.current = socket;
+
+          // Join role-specific rooms
+          if (user?.policeStation) {
+            joinRoom(`policeStation_${user.policeStation}`);
+          }
+          if (user?.address?.city) {
+            joinRoom(`city_${user.address.city}`);
+          }
+
+          // Subscribe to new reports
+          subscribeToNewReports((data) => {
+            console.log('New report received:', data);
+            if (mounted) loadReports(1, selectedType, searchQuery);
+          });
+
+          // Subscribe to report updates
+          subscribeToReportUpdates((data) => {
+            console.log('Report updated:', data);
+            if (mounted) loadReports(currentPage, selectedType, searchQuery);
+          });
+        }
+      } catch (error) {
+        console.error('Socket setup error:', error);
+      }
+    };
+
+    setupSocket();
+
+    // Cleanup on unmount
+    return () => {
+      mounted = false;
+      if (socketRef.current) {
+        if (user?.policeStation) {
+          leaveRoom(`policeStation_${user.policeStation}`);
+        }
+        if (user?.address?.city) {
+          leaveRoom(`city_${user.address.city}`);
+        }
+        unsubscribeFromReports();
+      }
+    };
+  }, [user, selectedType, searchQuery, currentPage]);
 
   const loadReports = useCallback(async (page, type, query = "") => {
     try {
@@ -73,7 +139,7 @@ export default function Reports() {
   // Initial load
   useEffect(() => {
     loadReports(1, selectedType);
-  }, []); // Only on mount
+  }, []); 
 
   return (
     <View style={{ flex: 1 }}>

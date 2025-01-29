@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -14,9 +14,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { format, parseISO } from "date-fns";
 import { debounce } from "lodash";
 import { Search } from "lucide-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import NoDataFound from "@/components/NoDataFound";
 import { ReportListItemSkeleton } from "@/components/skeletons";
 import { searchReports } from "@/redux/actions/reportActions";
+import { 
+  initializeSocket, 
+  joinRoom, 
+  leaveRoom, 
+  subscribeToNewReports,
+  subscribeToReportUpdates,
+  unsubscribeFromReports 
+} from '@/services/socketService';
 import tw from "twrnc";
 import styles from "@/styles/styles";
 
@@ -25,15 +34,81 @@ const REPORT_TYPES = ["All", "Absent", "Missing", "Abducted", "Kidnapped", "Hit-
 const ReportsSection = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const socketRef = useRef(null);
 
   // Redux state
   const { reports = [], loading = false, totalPages = 0, currentPage = 1 } = 
     useSelector((state) => state.report?.searchResults || {});
+  const { user } = useSelector(state => state.auth);
 
   // Local state
   const [refreshing, setRefreshing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedType, setSelectedType] = useState("All");
+
+  // Socket setup
+  useEffect(() => {
+    let mounted = true;
+
+    const setupSocket = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const socket = await initializeSocket(token);
+        
+        if (socket && mounted) {
+          socketRef.current = socket;
+
+          if (user?.policeStation) {
+            joinRoom(`policeStation_${user.policeStation}`);
+          }
+          if (user?.address?.city) {
+            joinRoom(`city_${user.address.city}`);
+          }
+
+          // Subscribe to new reports
+          subscribeToNewReports((data) => {
+            console.log('New report received:', data);
+            if (mounted) {
+              dispatch(searchReports({
+                page: 1,
+                query: inputValue.trim(),
+                ...(selectedType !== "All" && { type: selectedType })
+              }));
+            }
+          });
+
+          // Subscribe to report updates
+          subscribeToReportUpdates((data) => {
+            console.log('Report updated:', data);
+            if (mounted) {
+              dispatch(searchReports({
+                page: currentPage,
+                query: inputValue.trim(),
+                ...(selectedType !== "All" && { type: selectedType })
+              }));
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Socket setup error:', error);
+      }
+    };
+
+    setupSocket();
+
+    return () => {
+      mounted = false;
+      if (socketRef.current) {
+        if (user?.policeStation) {
+          leaveRoom(`policeStation_${user.policeStation}`);
+        }
+        if (user?.address?.city) {
+          leaveRoom(`city_${user.address.city}`);
+        }
+        unsubscribeFromReports();
+      }
+    };
+  }, [user]);
 
   // Initial load
   useEffect(() => {
@@ -93,8 +168,9 @@ const ReportsSection = () => {
   }, [dispatch, loading, currentPage, totalPages, inputValue, selectedType]);
 
   // Render report item
-  const renderReport = ({ item: report }) => (
+  const renderReport = ({ item: report, index }) => (
     <TouchableOpacity
+      key={`${report._id}-${index}`}
       onPress={() => navigation.navigate("ReportDetails", { reportId: report._id })}
       style={tw`flex-row items-center p-4 border-b border-gray-200`}
     >
@@ -120,10 +196,10 @@ const ReportsSection = () => {
   );
 
   return (
-    <View style={tw`flex-1 bg-white rounded-lg border border-gray-200`}>
+    <View style={tw`flex-1 bg-white rounded-lg border border-gray-200 mt-3`}>
       {/* Search Bar */}
-      <View style={tw`px-4 py-3 bg-gray-50 border-b border-gray-200`}>
-        <View style={tw`flex-row items-center bg-white p-2 rounded-lg mb-3 border border-gray-200`}>
+      <View style={tw`px-4 py-3 bg-white rounded-lg`}>
+        <View style={tw`flex-row items-center bg-white p-2 rounded-lg mb-2 border border-gray-200`}>
           <Search size={20} color="#6B7280" />
           <TextInput
             style={tw`flex-1 ml-2`}
@@ -139,7 +215,7 @@ const ReportsSection = () => {
       </View>
 
       {/* Type Filters */}
-      <View style={tw`px-4 pb-3 bg-gray-50`}>
+      <View style={tw`px-4 pb-3`}>
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -165,7 +241,7 @@ const ReportsSection = () => {
       <FlatList
         data={reports}
         renderItem={renderReport}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
         refreshControl={
@@ -177,7 +253,7 @@ const ReportsSection = () => {
           loading ? (
             <View style={tw`p-4`}>
               {[...Array(3)].map((_, i) => (
-                <ReportListItemSkeleton key={i} />
+                <ReportListItemSkeleton key={`skeleton-${i}`} />
               ))}
             </View>
           ) : (

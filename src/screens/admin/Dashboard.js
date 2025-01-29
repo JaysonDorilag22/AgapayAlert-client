@@ -1,7 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { SectionList, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { SectionList, RefreshControl, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import tw from 'twrnc';
+import { 
+  initializeSocket, 
+  joinRoom, 
+  leaveRoom, 
+  subscribeToNewReports, 
+  unsubscribeFromReports 
+} from '@/services/socketService';
 import ChartsSection from './sections/ChartsSection';
 import DistributionSection from './sections/DistributionSection';
 import ReportsSection from './sections/ReportsSection';
@@ -16,10 +24,12 @@ import { OverviewSection } from './sections';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const socketRef = useRef(null);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [currentFilter, setCurrentFilter] = useState(null);
 
+  const { user } = useSelector(state => state.auth);
   const { 
     basicAnalytics, 
     typeDistribution, 
@@ -31,6 +41,55 @@ const Dashboard = () => {
   
   const { reports, totalPages, totalReports } = useSelector(state => state.report);
 
+  // Socket setup
+  useEffect(() => {
+    let mounted = true;
+
+    const setupSocket = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const socket = await initializeSocket(token);
+        
+        if (socket && mounted) {
+          socketRef.current = socket;
+
+          // Join role-specific rooms
+          if (user?.policeStation) {
+            joinRoom(`policeStation_${user.policeStation}`);
+          }
+          if (user?.address?.city) {
+            joinRoom(`city_${user.address.city}`);
+          }
+
+          // Subscribe to new reports
+          subscribeToNewReports((data) => {
+            console.log('New report received:', data);
+            if (mounted) loadData();
+          });
+        }
+      } catch (error) {
+        console.error('Socket setup error:', error);
+      }
+    };
+
+    setupSocket();
+
+    // Cleanup on unmount
+    return () => {
+      mounted = false;
+      if (socketRef.current) {
+        if (user?.policeStation) {
+          leaveRoom(`policeStation_${user.policeStation}`);
+        }
+        if (user?.address?.city) {
+          leaveRoom(`city_${user.address.city}`);
+        }
+        unsubscribeFromReports();
+      }
+    };
+  }, [user]);
+
+  // Initial load
   useEffect(() => {
     loadData();
   }, []);
@@ -56,7 +115,7 @@ const Dashboard = () => {
     setRefreshing(false);
   };
 
-
+  // Keep your existing sections code unchanged
   const sections = useMemo(() => [
     {
       title: 'Analytics',
@@ -97,15 +156,17 @@ const Dashboard = () => {
       locationHotspots, loading, reports, refreshing, page, totalPages, totalReports]);
 
   return (
-    <SectionList
-      sections={sections}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-      }
-      stickySectionHeadersEnabled={false}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={tw`p-4 pb-20`}
-    />
+    <View> 
+      <SectionList
+        sections={sections}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+        stickySectionHeadersEnabled={false}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`p-4 pb-20`}
+      />
+    </View>
   );
 };
 
