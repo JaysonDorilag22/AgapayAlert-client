@@ -13,12 +13,12 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { format, parseISO } from "date-fns";
 import { debounce } from "lodash";
+import { Search } from "lucide-react-native";
 import NoDataFound from "@/components/NoDataFound";
 import { ReportListItemSkeleton } from "@/components/skeletons";
 import { searchReports } from "@/redux/actions/reportActions";
 import tw from "twrnc";
 import styles from "@/styles/styles";
-import { Search } from "lucide-react-native";
 
 const REPORT_TYPES = ["All", "Absent", "Missing", "Abducted", "Kidnapped", "Hit-and-Run"];
 
@@ -26,94 +26,73 @@ const ReportsSection = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  // Get initial reports
-  useEffect(() => {
-    dispatch(searchReports({ page: 1 }));
-  }, [dispatch]);
+  // Redux state
+  const { reports = [], loading = false, totalPages = 0, currentPage = 1 } = 
+    useSelector((state) => state.report?.searchResults || {});
 
-  // Get reports from Redux store
-  const reportSearch = useSelector((state) => state.report?.searchResults);
-  const reports = reportSearch?.reports || [];
-  const loading = reportSearch?.loading || false;
-  const totalPages = reportSearch?.totalPages || 0;
-  const currentPage = reportSearch?.currentPage || 1;
-
+  // Local state
   const [refreshing, setRefreshing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedType, setSelectedType] = useState("All");
 
+  // Initial load
+  useEffect(() => {
+    dispatch(searchReports({ page: 1 }));
+  }, [dispatch]);
+
+  // Debounced search function
   const debouncedSearch = useCallback(
     debounce((text, type) => {
-      console.log('Searching with:', { text, type }); // Debug log
-      
-      // Don't search if text is empty after trim
-      if (!text.trim()) {
-        dispatch(searchReports({ page: 1 }));
-        return;
-      }
-  
-      // Split name into parts for better searching
-      const searchTerms = text.split(' ').filter(term => term.length > 0);
-      
-      console.log('Search terms:', searchTerms); // Debug log
-  
-      dispatch(
-        searchReports({
-          query: searchTerms.join(' '), // Join terms with single space
-          type: type !== "All" ? type : undefined,
-          page: 1,
-        })
-      );
-    }, 500), // Increased debounce time slightly
+      const searchParams = {
+        page: 1,
+        ...(text.trim() && { query: text.trim() }),
+        ...(type !== "All" && { type })
+      };
+      dispatch(searchReports(searchParams));
+    }, 500),
     [dispatch]
   );
 
+  // Search handler
   const handleSearch = useCallback((text) => {
     setInputValue(text);
-    
-    // Clean search text - only remove extra spaces, keep single spaces between words
-    const cleanedText = text.replace(/\s+/g, ' ').trim();
-    console.log('Cleaned text:', cleanedText); // Debug log
-    
-    debouncedSearch(cleanedText, selectedType);
+    debouncedSearch(text, selectedType);
   }, [debouncedSearch, selectedType]);
 
+  // Type filter handler
   const handleTypeSelect = useCallback((type) => {
     if (type === selectedType) return;
     setSelectedType(type);
-    dispatch(
-      searchReports({
-        query: inputValue,
-        type: type !== "All" ? type : undefined,
-        page: 1,
-      })
-    );
+    dispatch(searchReports({
+      page: 1,
+      query: inputValue.trim(),
+      ...(type !== "All" && { type })
+    }));
   }, [dispatch, selectedType, inputValue]);
 
+  // Refresh handler
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await dispatch(
-      searchReports({
-        query: inputValue,
-        type: selectedType !== "All" ? selectedType : undefined,
-        page: 1,
-      })
-    );
+    await dispatch(searchReports({
+      page: 1,
+      query: inputValue.trim(),
+      ...(selectedType !== "All" && { type: selectedType })
+    }));
     setRefreshing(false);
   }, [dispatch, inputValue, selectedType]);
 
+  // Load more handler
   const handleLoadMore = useCallback(() => {
     if (!loading && currentPage < totalPages) {
-      dispatch(
-        searchReports({
-          query: inputValue,
-          type: selectedType !== "All" ? selectedType : undefined,
-          page: currentPage + 1,
-        })
-      );
+      dispatch(searchReports({
+        page: currentPage + 1,
+        query: inputValue.trim(),
+        ...(selectedType !== "All" && { type: selectedType })
+      }));
     }
   }, [dispatch, loading, currentPage, totalPages, inputValue, selectedType]);
 
+  // Render report item
   const renderReport = ({ item: report }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate("ReportDetails", { reportId: report._id })}
@@ -142,6 +121,7 @@ const ReportsSection = () => {
 
   return (
     <View style={tw`flex-1 bg-white rounded-lg border border-gray-200`}>
+      {/* Search Bar */}
       <View style={tw`px-4 py-3 bg-gray-50 border-b border-gray-200`}>
         <View style={tw`flex-row items-center bg-white p-2 rounded-lg mb-3 border border-gray-200`}>
           <Search size={20} color="#6B7280" />
@@ -152,18 +132,19 @@ const ReportsSection = () => {
             onChangeText={handleSearch}
             returnKeyType="search"
             autoCorrect={false}
-            blurOnSubmit={false}
-            enablesReturnKeyAutomatically
             autoCapitalize="none"
+            keyboardType="default"
           />
         </View>
       </View>
 
+      {/* Type Filters */}
       <View style={tw`px-4 pb-3 bg-gray-50`}>
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
           data={REPORT_TYPES}
+          keyExtractor={(item) => item}
           renderItem={({ item: type }) => (
             <TouchableOpacity
               onPress={() => handleTypeSelect(type)}
@@ -177,10 +158,10 @@ const ReportsSection = () => {
               </Text>
             </TouchableOpacity>
           )}
-          keyExtractor={(item) => item}
         />
       </View>
 
+      {/* Reports List */}
       <FlatList
         data={reports}
         renderItem={renderReport}
