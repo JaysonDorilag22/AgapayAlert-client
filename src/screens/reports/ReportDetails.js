@@ -190,7 +190,7 @@ const ReportDetails = ({ route }) => {
         </View>
 
         {/* Action Buttons */}
-        <View style={tw`flex-row mt-6 space-x-4`}>
+        <View style={tw`flex-row mt-6`}>
           <TouchableOpacity
             style={[
               tw`flex-1 flex-row items-center justify-center py-3 rounded-lg`,

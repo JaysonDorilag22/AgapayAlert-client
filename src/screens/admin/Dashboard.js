@@ -156,7 +156,7 @@ const Dashboard = () => {
       locationHotspots, loading, reports, refreshing, page, totalPages, totalReports]);
 
   return (
-    <View> 
+    <View style={tw`bg-white`}> 
       <SectionList
         sections={sections}
         refreshControl={

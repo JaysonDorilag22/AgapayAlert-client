@@ -284,7 +284,7 @@ export default function Register() {
             )}
             <TextInput
               style={styles.input}
-              placeholder={t("email")}
+              placeholder={t("Email")}
               onChangeText={handleChange("email")}
               onBlur={handleBlur("email")}
               value={values.email}

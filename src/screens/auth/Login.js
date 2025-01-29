@@ -133,7 +133,7 @@ export default function Login() {
           <View style={tw`w-full`}>
             <TextInput
               style={[styles.input, tw`w-full`]}
-              placeholder={t("email")}
+              placeholder={t("Email")}
               onChangeText={handleChange("email")}
               onBlur={handleBlur("email")}
               value={values.email}

@@ -1,5 +1,16 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Search, 
+  Building2, 
+  MapPin, 
+  Bell, 
+  Radio, 
+  FileSearch, 
+  CircleUser 
+} from 'lucide-react-native';
 import AdminDashboard from '@/screens/admin/Dashboard';
 import CustomAdminDrawer from '@/components/admin/CustomAdminDrawer';
 import tw from 'twrnc';
@@ -14,7 +25,6 @@ import Alpr from '@/screens/admin/alpr/Alpr';
 import AlertDetails from '@/screens/alerts/AlertDetails';
 import Users from '@/screens/admin/users/Users';
 
-
 const Drawer = createDrawerNavigator();
 
 const AdminNavigator = () => {
@@ -23,8 +33,8 @@ const AdminNavigator = () => {
       drawerContent={(props) => <CustomAdminDrawer {...props} />}
       screenOptions={{
         headerShown: true,
-        headerStyle: { backgroundColor: '#041562' },
-        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: '#ffff' },
+        headerTintColor: '#041562',
         drawerStyle: tw`bg-white p-2`,
         drawerActiveTintColor: "#11468F",
       }}
@@ -32,37 +42,72 @@ const AdminNavigator = () => {
       <Drawer.Screen 
         name="AdminDashboard" 
         component={AdminDashboard}
-        options={{ title: 'Dashboard' }}
+        options={{ 
+          title: 'Dashboard',
+          drawerIcon: ({ focused, size }) => (
+            <LayoutDashboard size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
       <Drawer.Screen 
         name="AdminReports" 
         component={Reports}
-        options={{ title: 'Reports' }}
+        options={{ 
+          title: 'Reports',
+          drawerIcon: ({ focused, size }) => (
+            <FileText size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
       <Drawer.Screen 
         name="AdminFinder" 
         component={Finder}
-        options={{ title: 'Finder' }}
+        options={{ 
+          title: 'Finder',
+          drawerIcon: ({ focused, size }) => (
+            <Search size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
       <Drawer.Screen 
         name="AdminPoliceStations" 
         component={PoliceStation}
-        options={{ title: 'Police Stations' }}
+        options={{ 
+          title: 'Police Stations',
+          drawerIcon: ({ focused, size }) => (
+            <Building2 size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
       <Drawer.Screen 
         name="AdminCities" 
         component={City}
-        options={{ title: 'Cities' }}
+        options={{ 
+          title: 'Cities',
+          drawerIcon: ({ focused, size }) => (
+            <MapPin size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
       <Drawer.Screen 
         name="AdminAlerts" 
         component={Alert}
-        options={{ title: 'Alerts' }}
+        options={{ 
+          title: 'Alerts',
+          drawerIcon: ({ focused, size }) => (
+            <Bell size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
       <Drawer.Screen 
         name="AdminBroadcasts" 
         component={Broadcast}
-        options={{ title: 'Broadcasts' }}
+        options={{ 
+          title: 'Broadcasts',
+          drawerIcon: ({ focused, size }) => (
+            <Radio size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
       <Drawer.Screen 
         name="ReportDetails" 
@@ -75,13 +120,22 @@ const AdminNavigator = () => {
       <Drawer.Screen 
         name="AdminAlpr" 
         component={Alpr}
-        options={{ title: 'ALPR' }}
+        options={{ 
+          title: 'ALPR',
+          drawerIcon: ({ focused, size }) => (
+            <FileSearch size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
-      {/* // users */}
       <Drawer.Screen 
         name="AdminUsers" 
         component={Users}
-        options={{ title: 'Users' }}
+        options={{ 
+          title: 'Users',
+          drawerIcon: ({ focused, size }) => (
+            <CircleUser size={24} color={focused ? "#11468F" : "#666"} />
+          ),
+        }}
       />
     </Drawer.Navigator>
   );

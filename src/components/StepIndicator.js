@@ -12,7 +12,7 @@ const StepIndicator = ({ currentStep, totalSteps }) => (
           key={index}
           style={tw`h-2 w-2 rounded-full mx-1 ${
             index + 1 === currentStep
-              ? "bg-red-600"
+              ? "bg-blue-200"
               : index + 1 < currentStep
               ? "bg-blue-500"
               : "bg-gray-300"
