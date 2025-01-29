@@ -483,7 +483,7 @@ const ReportDetails = ({ route }) => {
               resizeMode="cover"
             />
           )}
-          <View style={tw`space-y-3`}>
+          <View >
             {[
               {
                 icon: <User size={20} />,
@@ -534,7 +534,7 @@ const ReportDetails = ({ route }) => {
         </SectionCard>
 
         <SectionCard title="Location Details">
-          <View style={tw`space-y-3`}>
+          <View>
             {[
               {
                 icon: <MapPinned size={20} />,

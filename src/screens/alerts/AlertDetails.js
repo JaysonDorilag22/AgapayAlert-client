@@ -56,7 +56,7 @@ const AlertDetails = ({ route }) => {
     return (
       <View style={tw`bg-white rounded-lg shadow-sm p-4 mb-4`}>
         <Text style={tw`text-lg font-semibold mb-4`}>Report Details</Text>
-        <View style={tw`space-y-3`}>
+        <View>
           <DetailRow 
             icon={<Clock size={20} color="#6B7280" />}
             label="Report Type"
@@ -107,7 +107,7 @@ const AlertDetails = ({ route }) => {
     return (
       <View style={tw`bg-white rounded-lg shadow-sm p-4 mb-4`}>
         <Text style={tw`text-lg font-semibold mb-4`}>Finder Report</Text>
-        <View style={tw`space-y-3`}>
+        <View>
           <DetailRow 
             icon={<User size={20} color="#6B7280" />}
             label="Finder"
@@ -145,7 +145,7 @@ const AlertDetails = ({ route }) => {
     return (
       <View style={tw`bg-white rounded-lg shadow-sm p-4 mb-4`}>
         <Text style={tw`text-lg font-semibold mb-4`}>Broadcast Information</Text>
-        <View style={tw`space-y-3`}>
+        <View>
           <DetailRow 
             icon={<User size={20} color="#6B7280" />}
             label="Broadcast Type"
