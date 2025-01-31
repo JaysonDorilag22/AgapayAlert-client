@@ -50,13 +50,11 @@ export default function Reports() {
 
           // Subscribe to new reports
           subscribeToNewReports((data) => {
-            console.log('New report received:', data);
             if (mounted) loadReports(1, selectedType, searchQuery);
           });
 
           // Subscribe to report updates
           subscribeToReportUpdates((data) => {
-            console.log('Report updated:', data);
             if (mounted) loadReports(currentPage, selectedType, searchQuery);
           });
         }

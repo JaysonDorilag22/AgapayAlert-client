@@ -16,13 +16,11 @@ const extractTokenFromCookie = (cookieString) => {
 export const initializeSocket = async (cookieHeader) => {
   try {
     if (socket?.connected) {
-      console.log('Socket already connected');
       return socket;
     }
 
     const token = extractTokenFromCookie(cookieHeader);
     if (!token) {
-      console.log('No auth token found in cookie');
       return null;
     }
 
@@ -48,7 +46,6 @@ export const initializeSocket = async (cookieHeader) => {
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
       if (reason === 'io server disconnect') {
         socket.connect();
       }

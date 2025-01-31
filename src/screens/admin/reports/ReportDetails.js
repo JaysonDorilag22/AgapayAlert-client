@@ -203,55 +203,25 @@ const ReportDetails = ({ route }) => {
 
   const handleUpdateStatus = async (updateData) => {
     try {
-
-      console.log('Debug IDs:', {
-        reportId,
-        userId: user?._id,
-        officerId: currentReport?.assignedOfficer?._id,
-        updateData
-      });
-      // Ensure user is authenticated
-      if (!user || !user._id) {
-        showToast("Authentication required");
+      // Ensure payload has required data
+      if (!updateData.status && !updateData.followUp) {
+        showToast("Status or follow-up note is required");
         return;
       }
   
-      // Ensure we have assigned officer
-      if (!currentReport?.assignedOfficer?._id) {
-        showToast("No officer assigned");
-        return;
-      }
+      // Send update request
+      const result = await dispatch(updateUserReport(reportId, updateData));
   
-      // Compare IDs as strings
-      const userId = String(user._id);
-      const officerId = String(currentReport.assignedOfficer._id);
-  
-      if (userId !== officerId) {
-        showToast("Only assigned officers can update status");
-        return;
-      }
-  
-      // Format payload for backend
-      const payload = {
-        status: updateData.status,
-        followUp: updateData.followUp || ''
-      };
-  
-      // Log payload before dispatch
-      console.log('Sending payload:', payload);
-  
-      const result = await dispatch(updateUserReport(reportId, payload));
-      
       if (result.success) {
-        showToast("Status updated successfully");
-        dispatch(getReportDetails(reportId));
+        showToast(updateData.status ? "Status updated successfully" : "Follow-up added successfully");
         setShowStatusModal(false);
+        await dispatch(getReportDetails(reportId)); // Refresh data
       } else {
-        showToast(result.error || "Failed to update status");
+        showToast(result.error || "Update failed");
       }
     } catch (error) {
-      console.error("Status Update Error:", error);
-      showToast("Error updating status");
+      console.error("Update error:", error);
+      showToast("Error updating report");
     }
   };
 
@@ -351,7 +321,7 @@ const ReportDetails = ({ route }) => {
             </Text>
             <View style={tw`bg-gray-50 p-3 rounded-lg`}>
               {currentReport.broadcastHistory.slice(-1)[0].deliveryStats && (
-                <View style={tw`space-y-2`}>
+                <View>
                   {["push", "sms", "facebook"].map((type) => (
                     <Text key={type} style={tw`text-gray-600`}>
                       {`${type.charAt(0).toUpperCase() + type.slice(1)}: ${
@@ -379,7 +349,7 @@ const ReportDetails = ({ route }) => {
     () => (
       <SectionCard title="Follow-up History">
         {currentReport?.followUp?.length > 0 ? (
-          <View style={tw`space-y-4`}>
+          <View>
             {currentReport.followUp.map((item, index) => (
               <View key={index} style={tw`bg-gray-50 p-3 rounded-lg`}>
                 <Text style={tw`text-gray-600 mb-1`}>{item.note}</Text>

@@ -63,7 +63,6 @@ const Dashboard = () => {
 
           // Subscribe to new reports
           subscribeToNewReports((data) => {
-            console.log('New report received:', data);
             if (mounted) loadData();
           });
         }

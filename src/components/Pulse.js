@@ -1,7 +1,7 @@
-import { MapPin } from 'lucide-react-native';
-import React, { useEffect } from 'react';
-import { View, Animated } from 'react-native';
-import tw from 'twrnc';
+import { MapPin } from "lucide-react-native";
+import React, { useEffect } from "react";
+import { View, Animated } from "react-native";
+import tw from "twrnc";
 
 const PulsingCircle = () => {
   const pulseAnim = new Animated.Value(1);

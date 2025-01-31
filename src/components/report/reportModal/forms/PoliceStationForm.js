@@ -15,6 +15,7 @@ import PropTypes from "prop-types";
 import { searchPoliceStations } from "@/redux/actions/policeStationActions";
 import PulsingCircle from "@/components/Pulse";
 import LottieView from "lottie-react-native";
+import StationMap from "@/components/StationMap";
 
 const PoliceStationForm = ({
   onNext,
@@ -36,7 +37,8 @@ const PoliceStationForm = ({
   );
   const [isAutoAssign, setIsAutoAssign] = useState(true);
   const [selectedStation, setSelectedStation] = useState(null);
-
+  const [showMap, setShowMap] = useState(false);
+  
   useEffect(() => {
     if (!isAutoAssign && initialData?.location?.address) {
       const { streetAddress, barangay, city, zipCode } =
@@ -62,10 +64,8 @@ const PoliceStationForm = ({
       <Text style={tw`text-sm mb-3 text-gray-600 text-center`}>
         Choose how you want to assign a police station
       </Text>
-
-      <View
-        style={tw`flex-row items-center justify-between mb-6 bg-gray-50 p-4 rounded-lg`}
-      >
+  
+      <View style={tw`flex-row items-center justify-between mb-6 bg-gray-50 p-4 rounded-lg`}>
         <View>
           <Text style={tw`font-bold text-gray-800`}>Automatic Assignment</Text>
           <Text style={tw`text-sm text-gray-600`}>
@@ -79,13 +79,13 @@ const PoliceStationForm = ({
           thumbColor={isAutoAssign ? "#11468F" : "#f4f3f4"}
         />
       </View>
-
+  
       {!isAutoAssign ? (
         <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
           <Text style={tw`text-sm font-bold mb-4 text-gray-700`}>
             Nearby Police Stations {"Found: ("} {policeStations?.length} {")"}
           </Text>
-
+  
           {loading ? (
             <View style={tw`flex-1 items-center justify-center mt-30`}>
               <LottieView
@@ -114,15 +114,11 @@ const PoliceStationForm = ({
               >
                 <MapPin
                   size={24}
-                  color={
-                    selectedStation?._id === station._id ? "#2563EB" : "#6B7280"
-                  }
+                  color={selectedStation?._id === station._id ? "#2563EB" : "#6B7280"}
                   style={tw`mr-3`}
                 />
                 <View style={tw`flex-1`}>
-                  <Text style={tw`font-bold text-gray-800`}>
-                    {station.name}
-                  </Text>
+                  <Text style={tw`font-bold text-gray-800`}>{station.name}</Text>
                   <Text style={tw`text-sm text-gray-600`}>
                     {`${station.address.streetAddress}, ${station.address.barangay}`}
                   </Text>
@@ -133,6 +129,15 @@ const PoliceStationForm = ({
                       ? `~${station.estimatedRoadDistance} km`
                       : "Calculating..."}
                   </Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedStation(station);
+                      setShowMap(true);
+                    }}
+                    style={tw`mt-2 bg-blue-50 px-3 py-1 rounded-full`}
+                  >
+                    <Text style={tw`text-blue-600 text-sm`}>View Map</Text>
+                  </TouchableOpacity>
                 </View>
               </TouchableOpacity>
             ))
@@ -149,12 +154,29 @@ const PoliceStationForm = ({
             Automatic Assignment
           </Text>
           <Text style={tw`text-sm text-gray-600 text-center mt-2 mx-8`}>
-            The system will automatically assign the nearest police station to
-            handle your case
+            The system will automatically assign the nearest police station to handle your case
           </Text>
         </View>
       )}
-
+  
+      {showMap && selectedStation && (
+        <View style={tw`mt-4`}>
+          <StationMap
+            reportLocation={{
+              lat: initialData?.location?.coordinates?.[1] || 14.5176,
+              lng: initialData?.location?.coordinates?.[0] || 121.0509,
+            }}
+            stationLocation={{
+              lat: selectedStation?.location?.coordinates?.[1],
+              lng: selectedStation?.location?.coordinates?.[0],
+            }}
+            distance={selectedStation?.estimatedRoadDistance}
+            height={200}
+            onClose={() => setShowMap(false)}
+          />
+        </View>
+      )}
+  
       <View style={tw`flex-row mt-4`}>
         <TouchableOpacity
           style={[styles.buttonSecondary, tw`flex-1 mr-2`]}
@@ -170,7 +192,6 @@ const PoliceStationForm = ({
               assignedPoliceStation: isAutoAssign ? null : selectedStation,
             })
           }
-          disabled={!isAutoAssign && !selectedStation}
         >
           <Text style={styles.buttonTextPrimary}>Next</Text>
         </TouchableOpacity>

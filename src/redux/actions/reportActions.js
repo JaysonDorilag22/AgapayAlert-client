@@ -88,7 +88,6 @@ export const getReports = (params = {}) => async (dispatch) => {
     }).toString();
 
     const url = `${serverConfig.baseURL}/report/getReports?${queryParams}`;
-    console.log('Fetching reports:', url);
 
     const { data } = await axios.get(url, {
       withCredentials: true
@@ -117,13 +116,13 @@ export const getReports = (params = {}) => async (dispatch) => {
   }
 };
 
-// Update Report
+// Update Report of user
 export const updateReport = (reportId, updateData) => async (dispatch) => {
   try {
     dispatch({ type: UPDATE_REPORT_REQUEST });
 
     const config = {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { 'Content-Type': 'multipart/form-data' },
       withCredentials: true,
     };
 
@@ -135,15 +134,16 @@ export const updateReport = (reportId, updateData) => async (dispatch) => {
 
     dispatch({
       type: UPDATE_REPORT_SUCCESS,
-      payload: data,
+      payload: data
     });
 
     return { success: true, data };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
+    console.error('Error updating report:', message);
     dispatch({
       type: UPDATE_REPORT_FAIL,
-      payload: message,
+      payload: message
     });
     return { success: false, error: message };
   }
@@ -202,36 +202,58 @@ export const assignPoliceStation = (assignmentData) => async (dispatch) => {
   }
 };
 
-// Update User Report (for Pending Reports or Consent Updates)
+
 export const updateUserReport = (reportId, updateData) => async (dispatch) => {
   try {
     dispatch({ type: UPDATE_STATUS_REQUEST });
-    console.log('updateData', updateData, reportId);
-    const { data } = await axios.put(
+    
+    // Add updatedBy field from user ID
+    const response = await axios.put(
       `${serverConfig.baseURL}/report/update-status/${reportId}`,
-      updateData,
+      {
+        status: updateData.status,
+        followUp: updateData.followUp
+      },
       { 
-        headers: {
+        headers: { 
           "Content-Type": "application/json"
         },
         withCredentials: true 
       }
     );
 
-    dispatch({
-      type: UPDATE_STATUS_SUCCESS,
-      payload: data.data // Access the data property from response
-    });
+    // Ensure we're handling the response correctly
+    const { data } = response;
 
-    return { success: true, data: data.data };
+    if (data.success) {
+      dispatch({
+        type: UPDATE_STATUS_SUCCESS,
+        payload: {
+          report: data.data // The updated report object
+        }
+      });
+
+      return { 
+        success: true, 
+        data: data.data
+      };
+    } else {
+      throw new Error(data.msg || 'Update failed');
+    }
+
   } catch (error) {
+    console.error('Update error:', error);
     const message = error.response?.data?.msg || error.message;
+    
     dispatch({
       type: UPDATE_STATUS_FAIL,
       payload: message
     });
-    console.error('Error updating report:', message);
-    return { success: false, error: message };
+
+    return { 
+      success: false, 
+      error: message 
+    };
   }
 };
 
@@ -427,7 +449,6 @@ export const searchReports = (params = {}) => async (dispatch) => {
     dispatch({ type: SEARCH_REPORTS_REQUEST });
 
     // Debug logs
-    console.log('Search params:', params);
 
     const queryParams = new URLSearchParams({
       page: params.page || 1,
@@ -437,7 +458,6 @@ export const searchReports = (params = {}) => async (dispatch) => {
     });
 
     // Debug query string
-    console.log('Query string:', queryParams.toString());
 
     const { data } = await axios.get(
       `${serverConfig.baseURL}/report/search?${queryParams}`,
@@ -445,7 +465,6 @@ export const searchReports = (params = {}) => async (dispatch) => {
     );
 
     // Debug response
-    console.log('Search response:', data);
 
     dispatch({
       type: SEARCH_REPORTS_SUCCESS,

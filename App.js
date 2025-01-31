@@ -10,6 +10,7 @@ import { Login, Register, Verification, Verified, ForgotPassword, ResetPassword 
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import { LanguageContext } from './src/context/LanguageContext';
 import { ReportDetails } from '@/screens/reports';
+import MyReportDetail from '@/screens/reports/MyReportDetail';
 import Splash from '@/components/Splash';
 const Stack = createStackNavigator();
 import AdminNavigator from './src/navigation/AdminNavigator';
@@ -85,6 +86,16 @@ export default function App() {
               options={{ 
                 headerShown: true,
                 headerTitle: 'Report Details',
+                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: '#041562'}
+              }}
+            />
+            <Stack.Screen 
+              name="MyReportDetail" 
+              component={MyReportDetail}
+              options={{ 
+                headerShown: true,
+                headerTitle: 'My Report Details',
                 headerTintColor: '#fff',
                 headerStyle: { backgroundColor: '#041562'}
               }}

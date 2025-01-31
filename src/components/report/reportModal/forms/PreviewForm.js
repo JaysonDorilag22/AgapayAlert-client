@@ -60,7 +60,6 @@ const PreviewForm = ({
           formData.append("type", initialData.type);
           formData.append("broadcastConsent", String(hasConsent));
 
-
           // Person details
           const person = initialData.personInvolved;
           Object.entries(person).forEach(([key, value]) => {
@@ -71,9 +70,17 @@ const PreviewForm = ({
                 name: value.name || "photo.jpg",
               });
             } else if (key === "dateOfBirth" || key === "lastSeenDate") {
-              formData.append(`personInvolved[${key}]`, value.toISOString());
+              // Format date as ISO string
+              const dateValue =
+                value instanceof Date ? value.toISOString() : value;
+              formData.append(`personInvolved[${key}]`, dateValue);
             } else if (key === "lastSeenTime") {
-              formData.append("personInvolved[lastSeentime]", value);
+              // Format time in 24-hour format
+              const timeValue =
+                value instanceof Date
+                  ? value.toLocaleTimeString("en-US", { hour12: false })
+                  : value;
+              formData.append("personInvolved[lastSeentime]", timeValue);
             } else {
               formData.append(`personInvolved[${key}]`, value);
             }
@@ -110,7 +117,6 @@ const PreviewForm = ({
               name: image.fileName || `additional_${index}.jpg`,
             });
           });
-
 
           const result = await dispatch(createReport(formData));
 

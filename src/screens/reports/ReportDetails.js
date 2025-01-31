@@ -59,7 +59,6 @@ const ReportDetails = ({ route }) => {
 
   useEffect(() => {
     dispatch(getReportDetails(reportId));
-    console.log("Report ID: ", reportId);
   }, [dispatch, reportId]);
 
 
@@ -128,7 +127,7 @@ const ReportDetails = ({ route }) => {
           <Text style={tw`text-lg font-semibold mb-4 text-gray-800`}>
             Personal Details
           </Text>
-          <View style={tw`space-y-4`}>
+          <View>
             <DetailRow
               icon={<User size={20} color="#6B7280" />}
               label="Age"
@@ -147,7 +146,7 @@ const ReportDetails = ({ route }) => {
           <Text style={tw`text-lg font-semibold mb-4 text-gray-800`}>
             Last Seen Information
           </Text>
-          <View style={tw`space-y-4`}>
+          <View>
             <DetailRow
               icon={<Clock size={20} color="#6B7280" />}
               label="Date & Time"
@@ -176,7 +175,7 @@ const ReportDetails = ({ route }) => {
           <Text style={tw`text-blue-600 text-sm mb-4`}>
             If you have any information about this person:
           </Text>
-          <View style={tw`space-y-2`}>
+          <View>
             <Text style={tw`text-blue-600 text-sm`}>
               • Go to the nearest police station
             </Text>

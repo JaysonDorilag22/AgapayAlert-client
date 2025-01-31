@@ -87,12 +87,23 @@ export const login = (credentials) => async (dispatch) => {
 
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('Login error:', error);
+    // Only log if not a validation error
+    if (!error.response || error.response.status !== 400) {
+      console.error('Login error:', error);
+    }
+    
+    // Get error message from response
+    const errorMessage = error.response?.data?.msg || 'Failed to login';
+    
     dispatch({ 
       type: LOGIN_FAILURE, 
-      payload: error.response?.data?.msg || error.message 
+      payload: errorMessage
     });
-    return { success: false, error: error.message };
+
+    return { 
+      success: false, 
+      error: errorMessage
+    };
   }
 };
 

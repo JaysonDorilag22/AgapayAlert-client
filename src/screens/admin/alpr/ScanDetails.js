@@ -22,7 +22,7 @@ export default function ScanDetails({ scan, onClose, onLinkPress }) {
             style={tw`w-full h-48 rounded-lg mb-4`}
           />
 
-          <View style={tw`space-y-2`}>
+          <View>
             <Text style={tw`text-lg font-bold`}>
               Plate: {scan.plateNumber}
             </Text>

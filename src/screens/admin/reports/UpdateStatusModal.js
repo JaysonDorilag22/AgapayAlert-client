@@ -1,32 +1,49 @@
+// src/screens/admin/reports/UpdateStatusModal.js
+
 import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import tw from 'twrnc';
+import styles from '@/styles/styles';
 
-const STATUSES = ["Pending", "Assigned", "Under Investigation", "Resolved"];
+const STATUSES = ["Pending", "Assigned", "Under Investigation", "Resolved", "Archived"];
 
 const UpdateStatusModal = ({ visible, onClose, onSubmit, currentStatus }) => {
   const [status, setStatus] = useState(currentStatus);
   const [followUp, setFollowUp] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = () => {
-    if (!status || !followUp.trim()) return;
-    onSubmit({ status, followUp });
-    setFollowUp(''); // Reset follow-up after submission
+    // Validate input
+    if (!status && !followUp.trim()) {
+      setError('Status or follow-up note is required');
+      return;
+    }
+
+    onSubmit({ 
+      status,
+      followUp: followUp.trim()
+    });
+    
+    // Reset form
+    setFollowUp('');
+    setError('');
   };
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={tw`flex-1 bg-black/50 justify-center p-4`}>
         <View style={tw`bg-white rounded-lg p-4`}>
-          <Text style={tw`text-lg font-bold mb-4`}>Update Status</Text>
-          
+          <Text style={tw`text-lg font-bold mb-4`}>Update Report</Text>
+
+          {/* Status Picker */}
           <View style={tw`mb-4`}>
             <Text style={tw`text-sm text-gray-600 mb-2`}>Status</Text>
             <View style={tw`border border-gray-300 rounded`}>
               <Picker
                 selectedValue={status}
                 onValueChange={setStatus}
+                style={tw`h-12`}
               >
                 {STATUSES.map(s => (
                   <Picker.Item key={s} label={s} value={s} />
@@ -35,6 +52,7 @@ const UpdateStatusModal = ({ visible, onClose, onSubmit, currentStatus }) => {
             </View>
           </View>
 
+          {/* Follow-up Notes */}
           <View style={tw`mb-4`}>
             <Text style={tw`text-sm text-gray-600 mb-2`}>Follow-up Notes</Text>
             <TextInput
@@ -42,10 +60,19 @@ const UpdateStatusModal = ({ visible, onClose, onSubmit, currentStatus }) => {
               multiline
               placeholder="Enter follow-up details..."
               value={followUp}
-              onChangeText={setFollowUp}
+              onChangeText={(text) => {
+                setFollowUp(text);
+                setError('');
+              }}
             />
           </View>
 
+          {/* Error Message */}
+          {error ? (
+            <Text style={tw`text-red-500 mb-4`}>{error}</Text>
+          ) : null}
+
+          {/* Action Buttons */}
           <View style={tw`flex-row justify-end`}>
             <TouchableOpacity 
               onPress={onClose}
@@ -55,13 +82,13 @@ const UpdateStatusModal = ({ visible, onClose, onSubmit, currentStatus }) => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSubmit}
-              disabled={!status || !followUp.trim()}
               style={[
-                tw`bg-blue-600 px-4 py-2 rounded`,
-                (!status || !followUp.trim()) && tw`opacity-50`
+                styles.buttonPrimary,
+                (!status && !followUp.trim()) && tw`opacity-50`
               ]}
+              disabled={!status && !followUp.trim()}
             >
-              <Text style={tw`text-white font-medium`}>Update</Text>
+              <Text style={styles.buttonTextPrimary}>Update</Text>
             </TouchableOpacity>
           </View>
         </View>

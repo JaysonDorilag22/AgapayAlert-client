@@ -100,7 +100,7 @@ export default function Report() {
   }
 
   const handleReportPress = (report) => {
-    navigation.navigate("ReportDetails", { reportId: report._id });
+    navigation.navigate("MyReportDetail", { reportId: report._id });
   };
 
   return (

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { AlertCircle, UserX, UserX2, Users, Car } from "lucide-react-native";
+import { AlertCircle, UserX, UserX2, Users, Car, Clock } from "lucide-react-native";
 import PropTypes from 'prop-types';
 import tw from "twrnc";
 import styles from "@/styles/styles";
@@ -9,6 +9,10 @@ const reportTypes = {
   Missing: {
     icon: Users,
     description: "A case where a person's whereabouts are unknown and they have disappeared under concerning circumstances.",
+  },
+  Absent: {
+    icon: Clock,
+    description: "A case where a person has not returned or made contact within 24 hours but no immediate danger is suspected.",
   },
   Abducted: {
     icon: UserX,
@@ -98,7 +102,7 @@ const BasicInfoForm = ({ onNext, onBack, initialData = { type: '' } }) => {
             <Text style={tw`text-red-600`}>{error}</Text>
           </View>
         )}
-
+      </ScrollView>
       <View style={tw`flex-row mt-4`}>
         <TouchableOpacity
           style={[styles.buttonSecondary, tw`flex-1 mr-2`]}
@@ -118,7 +122,6 @@ const BasicInfoForm = ({ onNext, onBack, initialData = { type: '' } }) => {
           <Text style={styles.buttonTextPrimary}>Next</Text>
         </TouchableOpacity>
       </View>
-      </ScrollView>
     </View>
   );
 };

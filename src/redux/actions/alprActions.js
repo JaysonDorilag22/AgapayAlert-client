@@ -54,7 +54,6 @@ export const scanPlate = (imageData, reportId) => async (dispatch) => {
     return { success: true, data: uploadResult.data };
 
   } catch (error) {
-    console.log('Error scanning plate:', error.response?.data || error.message);
     
     const errorMessage = error.response?.data?.msg 
       || error.response?.data?.detail 
@@ -150,7 +149,6 @@ export const linkScanToReport = (scanId, reportId) => async (dispatch) => {
       type: LINK_SCAN_FAIL,
       payload: error.response?.data?.msg || error.message
     });
-    console.log('Error linking scan:', error.response?.data || error.message);
     return { success: false, error: error.message };
   }
 };
