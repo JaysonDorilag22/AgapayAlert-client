@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   FlatList,
@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import tw from "twrnc";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReportListItem from "@/components/report/ReportListItem";
 import TypeBadges from "@/components/report/TypeBadges";
 import NoDataFound from "@/components/NoDataFound";
@@ -16,6 +16,8 @@ import { getUserReports } from "@/redux/actions/reportActions";
 import { ReportListItemSkeleton } from "@/components/skeletons";
 import styles from "@/styles/styles";
 import { useNavigation } from "@react-navigation/native";
+import { initializeSocket, joinRoom, leaveRoom } from "@/services/socketService";
+import { SOCKET_EVENTS } from "@/config/constants";
 
 export default function Report() {
   const navigation = useNavigation();
@@ -24,7 +26,53 @@ export default function Report() {
   const [selectedType, setSelectedType] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const { user } = useSelector((state) => state.auth);
+  const socketRef = useRef(null);
   const skeletonCount = 12;
+
+  // Socket setup
+  useEffect(() => {
+    let mounted = true;
+
+    const setupSocket = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const socket = await initializeSocket(token);
+        
+        if (socket && mounted) {
+          socketRef.current = socket;
+
+          // Join user-specific room
+          if (user?._id) {
+            joinRoom(`user_${user._id}`);
+          }
+
+          // Listen for report updates
+          socket.on(SOCKET_EVENTS.REPORT_UPDATED, (data) => {
+            if (mounted) {
+              // Refresh reports when an update is received
+              loadReports(selectedType, 1);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Socket setup error:', error);
+      }
+    };
+
+    setupSocket();
+
+    // Cleanup
+    return () => {
+      mounted = false;
+      if (socketRef.current) {
+        if (user?._id) {
+          leaveRoom(`user_${user._id}`);
+        }
+        socketRef.current.off(SOCKET_EVENTS.REPORT_UPDATED);
+      }
+    };
+  }, [user]);
 
   const loadReports = async (type = selectedType, page = 1) => {
     const params = {

@@ -8,7 +8,7 @@ const StationMap = ({
   reportLocation,
   stationLocation,
   distance,
-  height = 300,
+  height = 400,
   onClose
 }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -37,19 +37,29 @@ const StationMap = ({
         <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-        <style>
-          html, body { margin: 0; padding: 0; height: 100%; width: 100%; }
-          #map { width: 100%; height: 100%; }
+         <style>
+          html, body { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            width: 100%; 
+          }
+          #map { 
+            width: 100%; 
+            height: 100%; 
+          }
           .route-info {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
+            bottom: 20px; // Increased from 10px
+            left: 20px; // Increased from 10px
             background: white;
-            padding: 8px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 12px; // Increased from 8px
+            border-radius: 8px; // Increased from 4px
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             z-index: 1000;
             font-family: Arial, sans-serif;
+            font-size: 14px; // Added font size
+            font-weight: 500; // Added font weight
           }
         </style>
       </head>
@@ -104,8 +114,11 @@ const StationMap = ({
   `;
 
   return (
-    <View style={tw`relative`}>
-      <View style={[tw`overflow-hidden rounded-lg`, { height }]}>
+    <View style={tw`relative mb-4`}>
+      <View style={[
+        tw`overflow-hidden rounded-xl`, // Changed from rounded-lg to rounded-xl
+        { height: height } // Using the increased height
+      ]}>
         <WebView
           key={retryCount}
           source={{ html: mapHTML }}
@@ -141,10 +154,10 @@ const StationMap = ({
       {/* Close Button */}
       {onClose && (
         <TouchableOpacity 
-          style={tw`absolute top-2 right-2 bg-white p-2 rounded-full shadow-lg z-50`}
+          style={tw`absolute top-12 right-2 bg-white p-1 rounded-full shadow-lg z-50`} // Increased padding and top/right position
           onPress={() => onClose()}
         >
-          <X size={24} color="#666" />
+          <X size={28} color="#666" /> 
         </TouchableOpacity>
       )}
     </View>

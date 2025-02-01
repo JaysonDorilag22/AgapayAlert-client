@@ -1,0 +1,7 @@
+{
+    "typescript.tsserver.watchOptions": "vscode",
+    "typescript.tsserver.maxMemory": 2048,
+    "github.copilot.chat.codeGeneration.instructions": [
+        
+    ]
+}

@@ -6,44 +6,59 @@ import {
 } from '../actiontypes/policeStationType';
 import serverConfig from "../../config/serverConfig";
 
-export const searchPoliceStations = (addressData) => async (dispatch) => {
+// Update the searchPoliceStations action in policeStationActions.js
+export const searchPoliceStations = (searchData) => async (dispatch) => {
   try {
     dispatch({ type: POLICE_STATION_SEARCH_REQUEST });
 
-    // Validate required fields
-    if (!addressData?.address?.streetAddress) {
-      throw new Error('Missing street address');
+    // Validate search data has either coordinates or address
+    if (!searchData?.coordinates && !searchData?.address) {
+      throw new Error('Missing location data');
     }
 
     const config = {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
+      withCredentials: true
     };
 
-    // Format request payload
+    // Make API request with search data
     const { data } = await axios.post(
       `${serverConfig.baseURL}/police-station/search`,
-      addressData, // Send full addressData object as received
+      searchData,
       config
     );
 
+    // Map the data including both distance fields
+    const mappedStations = data.policeStations.map(station => ({
+      ...station,
+      estimatedRoadDistance: station.estimatedRoadDistance || null,
+      directDistance: station.directDistance || null
+    }));
+
+    // Dispatch success with response data
     dispatch({
       type: POLICE_STATION_SEARCH_SUCCESS,
       payload: {
-        policeStations: data.policeStations,
-        coordinates: data.coordinates,
+        policeStations: mappedStations,
+        coordinates: data.searchCoordinates,
         addressUsed: data.addressUsed,
-        searchRadius: data.searchRadius,
-      },
+        searchRadius: data.searchRadius || 5
+      }
     });
 
-    return { success: true, data };
+    return { 
+      success: true, 
+      data: mappedStations 
+    };
+
   } catch (error) {
+    const errorMessage = error.response?.data?.msg || error.message;
     dispatch({
       type: POLICE_STATION_SEARCH_FAIL,
-      payload: error.response?.data?.msg || error.message,
+      payload: errorMessage
     });
-    return { success: false, error: error.response?.data?.msg || error.message };
+    return { success: false, error: errorMessage };
   }
 };
