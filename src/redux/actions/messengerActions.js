@@ -30,7 +30,6 @@ export const getMessengerStatus = () => async (dispatch) => {
       config
     );
 
-    console.log('Status response:', data);
 
     dispatch({
       type: GET_MESSENGER_STATUS_SUCCESS,

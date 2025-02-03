@@ -112,8 +112,7 @@ export const deleteUser = (userId) => async (dispatch) => {
   }
 };
 
-// Get user list
-// Get user list
+
 // In src/redux/actions/userActions.js
 export const getUserList = (params = {}) => async (dispatch) => {
   dispatch({ type: GET_USER_LIST_REQUEST });
@@ -126,7 +125,7 @@ export const getUserList = (params = {}) => async (dispatch) => {
     }).toString();
 
     const { data } = await axios.get(
-      `${serverConfig.baseURL}/user/list?${queryParams}`, // Changed from /user/users to /user/list
+      `${serverConfig.baseURL}/user/list?${queryParams}`, 
       { withCredentials: true }
     );
 
@@ -165,6 +164,68 @@ export const createUser = (userDetails) => async (dispatch) => {
   }
 };
 
+// Create user with role
+export const createUserWithRole = (userData) => async (dispatch) => {
+  try {
+    dispatch({ type: CREATE_USER_REQUEST });
+
+    const config = {
+      headers: { 
+        "Content-Type": "multipart/form-data"
+      },
+      withCredentials: true
+    };
+
+    // Create FormData object
+    const formData = new FormData();
+    
+    // Append basic user info
+    formData.append('firstName', userData.get('firstName'));
+    formData.append('lastName', userData.get('lastName'));
+    formData.append('email', userData.get('email'));
+    formData.append('password', userData.get('password'));
+    formData.append('number', userData.get('number'));
+    formData.append('role', userData.get('role'));
+
+    // Append police station if provided
+    if (userData.get('policeStationId')) {
+      formData.append('policeStationId', userData.get('policeStationId'));
+    }
+
+    // Append address fields
+    formData.append('address[streetAddress]', userData.get('address[streetAddress]'));
+    formData.append('address[barangay]', userData.get('address[barangay]'));
+    formData.append('address[city]', userData.get('address[city]'));
+    formData.append('address[zipCode]', userData.get('address[zipCode]'));
+
+    // Append avatar if exists
+    const avatar = userData.get('avatar');
+    if (avatar) {
+      formData.append('avatar', avatar);
+    }
+
+    const { data } = await axios.post(
+      `${serverConfig.baseURL}/user/create`,
+      formData,
+      config
+    );
+
+    dispatch({
+      type: CREATE_USER_SUCCESS,
+      payload: data.data
+    });
+
+    return { success: true, data: data.data };
+
+  } catch (error) {
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: CREATE_USER_FAILURE,
+      payload: message
+    });
+    return { success: false, error: message };
+  }
+};
 
 export const updateDutyStatus = (isOnDuty) => async (dispatch) => {
   try {
@@ -206,9 +267,6 @@ export const getPoliceStationOfficers = (policeStationId) => async (dispatch) =>
       `${serverConfig.baseURL}/user/police-station/${policeStationId}/officers`,
       { withCredentials: true }
     );
-
-    // Add logging after data is received
-    console.log('API Response:', data);
 
     dispatch({
       type: GET_POLICE_STATION_OFFICERS_SUCCESS,

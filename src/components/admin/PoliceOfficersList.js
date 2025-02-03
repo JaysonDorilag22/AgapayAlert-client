@@ -61,12 +61,10 @@ const PoliceOfficersList = () => {
   const { policeStation, loading } = useSelector(state => state.user);
 
   useEffect(() => {
-    console.log('Police Station:', user?.policeStation);
     const fetchData = async () => {
       if (user?.policeStation) {
         try {
           const response = await dispatch(getPoliceStationOfficers(user.policeStation));
-          console.log('Fetch Response:', response);
         } catch (error) {
           console.error('Fetch Error:', error);
         }

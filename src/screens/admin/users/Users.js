@@ -1,31 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  FlatList, 
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
   RefreshControl,
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
   TextInput,
-  Image
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { Search, ChevronRight } from 'lucide-react-native';
-import { getUserList } from '@/redux/actions/userActions';
-import tw from 'twrnc';
-import showToast from '@/utils/toastUtils';
-import { useNavigation } from '@react-navigation/native';
-import NoDataFound from '@/components/NoDataFound';
-import styles from '@/styles/styles';
-import { UserSkeleton } from '@/components/skeletons';
+  Image,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { Search, ChevronRight, Plus } from "lucide-react-native";
+import { getUserList } from "@/redux/actions/userActions";
+import tw from "twrnc";
+import showToast from "@/utils/toastUtils";
+import { useNavigation } from "@react-navigation/native";
+import NoDataFound from "@/components/NoDataFound";
+import styles from "@/styles/styles";
+import { UserSkeleton } from "@/components/skeletons";
+import CreateUserModal from "./CreateUserModal";
 
-const USER_ROLES = [
-  'POLICE_OFFICER',
-  'POLICE_ADMIN',
-  'CITY_ADMIN',
-  'SUPER_ADMIN'
-];
+const USER_ROLES = ["POLICE_OFFICER", "POLICE_ADMIN", "CITY_ADMIN", "SUPER_ADMIN"];
 
 export default function Users() {
   const navigation = useNavigation();
@@ -33,10 +29,11 @@ export default function Users() {
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState(null);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [error, setError] = useState(null);
-  const { users, loading } = useSelector(state => state.user);
+  const { users, loading } = useSelector((state) => state.user);
 
   useEffect(() => {
     loadUsers(1);
@@ -44,23 +41,25 @@ export default function Users() {
 
   const loadUsers = async (page = 1) => {
     try {
-      const result = await dispatch(getUserList({
-        page,
-        limit: 10,
-        role: activeFilter?.toLowerCase(),
-        search: searchText
-      }));
-      
+      const result = await dispatch(
+        getUserList({
+          page,
+          limit: 10,
+          role: activeFilter?.toLowerCase(),
+          search: searchText,
+        })
+      );
+
       if (result.success) {
         setHasMore(result.data.hasMore);
         setError(null);
       } else {
-        setError('Failed to load users');
+        setError("Failed to load users");
       }
     } catch (error) {
-      console.error('Error loading users:', error);
-      setError('Failed to load users');
-      showToast('Failed to load users');
+      console.error("Error loading users:", error);
+      setError("Failed to load users");
+      showToast("Failed to load users");
     }
   };
 
@@ -86,7 +85,13 @@ export default function Users() {
   };
 
   const handleUserPress = (user) => {
-    navigation.navigate('UserDetails', { userId: user._id });
+    navigation.navigate("UserDetails", { userId: user._id });
+  };
+
+  const handleCreateSuccess = () => {
+    setShowCreateModal(false);
+    handleRefresh();
+    showToast("User created successfully");
   };
 
   const renderFilterBadges = () => (
@@ -99,31 +104,30 @@ export default function Users() {
       <TouchableOpacity
         style={[
           tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
-          !activeFilter ? styles.backgroundColorPrimary : tw`bg-white border-gray-300`
+          !activeFilter ? styles.backgroundColorPrimary : tw`bg-white border-gray-300`,
         ]}
         onPress={() => handleFilterPress(null)}
       >
-        <Text style={tw`${!activeFilter ? 'text-white' : 'text-gray-700'} text-[14px] font-medium`}>
-          All Roles
-        </Text>
+        <Text style={tw`${!activeFilter ? "text-white" : "text-gray-700"} text-[14px] font-medium`}>All Roles</Text>
       </TouchableOpacity>
-  
+
       {USER_ROLES.map((role) => (
         <TouchableOpacity
           key={role}
           style={[
             tw`min-w-[90px] h-[36px] rounded-lg mr-2 justify-center items-center border`,
-            activeFilter === role ? styles.backgroundColorPrimary : tw`bg-white border-gray-300`
+            activeFilter === role ? styles.backgroundColorPrimary : tw`bg-white border-gray-300`,
           ]}
           onPress={() => handleFilterPress(role)}
         >
-          <Text 
+          <Text
             numberOfLines={1}
-            style={tw`${activeFilter === role ? 'text-white' : 'text-gray-700'} text-[14px] font-medium px-3`}
+            style={tw`${activeFilter === role ? "text-white" : "text-gray-700"} text-[14px] font-medium px-3`}
           >
-            {role.split('_').map(word =>
-              word.charAt(0) + word.slice(1).toLowerCase()
-            ).join(' ')}
+            {role
+              .split("_")
+              .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+              .join(" ")}
           </Text>
         </TouchableOpacity>
       ))}
@@ -131,41 +135,38 @@ export default function Users() {
   );
 
   const renderUser = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={() => handleUserPress(item)}
       style={tw`flex-row items-center bg-white p-4 border-b border-gray-200`}
     >
-        <Image
-          source={{ 
-            uri: item.avatar?.url || 'https://via.placeholder.com/100'
-          }}
-          style={tw`w-12 h-12 rounded-full mr-3`}
-        />
-        
-        <View style={tw`flex-1`}>
-          <View style={tw`flex-row items-center mb-1`}>
-            <View style={[tw`rounded-full px-2 py-0.5 mr-2`, styles.backgroundColorPrimary + '20']}>
-              <Text style={[tw`text-xs font-medium`, { color: styles.colorPrimary}]}>
-                {item.roles[0]?.split('_').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                ).join(' ')}
-              </Text>
-            </View>
-          </View>
-  
-          <Text style={tw`text-gray-900 font-medium`}>
-            {item.firstName} {item.lastName}
-          </Text>
-          <Text style={tw`text-gray-500 text-sm`}>{item.email}</Text>
-          
-          {item.policeStation && (
-            <Text style={tw`text-gray-600 text-xs mt-1`}>
-              {item.policeStation.name}
+      <Image
+        source={{
+          uri: item.avatar?.url || "https://via.placeholder.com/100",
+        }}
+        style={tw`w-12 h-12 rounded-full mr-3`}
+      />
+
+      <View style={tw`flex-1`}>
+        <View style={tw`flex-row items-center mb-1`}>
+          <View style={[tw`rounded-full px-2 py-0.5 mr-2`, styles.backgroundColorPrimary + "20"]}>
+            <Text style={[tw`text-xs font-medium`, { color: styles.colorPrimary }]}>
+              {item.roles[0]
+                ?.split("_")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(" ")}
             </Text>
-          )}
+          </View>
         </View>
-  
-        <ChevronRight size={20} color={styles.colorPrimary} />
+
+        <Text style={tw`text-gray-900 font-medium`}>
+          {item.firstName} {item.lastName}
+        </Text>
+        <Text style={tw`text-gray-500 text-sm`}>{item.email}</Text>
+
+        {item.policeStation && <Text style={tw`text-gray-600 text-xs mt-1`}>{item.policeStation.name}</Text>}
+      </View>
+
+      <ChevronRight size={20} color={styles.colorPrimary} />
     </TouchableOpacity>
   );
 
@@ -182,8 +183,7 @@ export default function Users() {
               onChangeText={setSearchText}
             />
           </View>
-        {renderFilterBadges()}
-
+          {renderFilterBadges()}
         </View>
         {[...Array(10)].map((_, index) => (
           <UserSkeleton key={`skeleton-${index}`} />
@@ -195,10 +195,7 @@ export default function Users() {
   if (error) {
     return (
       <View style={tw`flex-1 bg-white`}>
-        <NoDataFound 
-          message={error}
-          onRetry={handleRefresh}
-        />
+        <NoDataFound message={error} onRetry={handleRefresh} />
       </View>
     );
   }
@@ -206,7 +203,8 @@ export default function Users() {
   return (
     <View style={tw`flex-1 bg-white`}>
       <View style={tw`p-4`}>
-        <View style={tw`flex-row items-center bg-white rounded-lg px-3 py-2 border border-gray-200`}>
+        {/* Search Bar */}
+        <View style={tw`flex-row items-center bg-white rounded-lg px-3 py-2 border border-gray-200 mb-4`}>
           <Search size={20} color="#6B7280" />
           <TextInput
             placeholder="Search users..."
@@ -215,38 +213,50 @@ export default function Users() {
             onChangeText={setSearchText}
           />
         </View>
+
+        {/* New User Button */}
+        <TouchableOpacity
+          style={tw`flex-row items-center bg-[#041562] rounded-lg px-4 py-2`}
+          onPress={() => setShowCreateModal(true)}
+        >
+          <Plus size={20} color="#fff" />
+          <Text style={tw`p-2 text-white text-center]`}>New User</Text>
+        </TouchableOpacity>
       </View>
-  
+
       {renderFilterBadges()}
-  
+
       <FlatList
         data={users}
         renderItem={renderUser}
-        keyExtractor={item => item._id}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
+        keyExtractor={(item) => item._id}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
         contentContainerStyle={tw`pb-20`}
         ListEmptyComponent={() => (
-          <NoDataFound 
+          <NoDataFound
             message={
-              searchText 
-                ? `No users found matching "${searchText}"` 
+              searchText
+                ? `No users found matching "${searchText}"`
                 : activeFilter
-                  ? `No ${activeFilter.split('_').map(word => 
-                      word.charAt(0) + word.slice(1).toLowerCase()
-                    ).join(' ')} users found`
-                  : "No users found"
+                ? `No ${activeFilter
+                    .split("_")
+                    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+                    .join(" ")} users found`
+                : "No users found"
             }
           />
         )}
         ListFooterComponent={
-          loading && users.length > 0 ? (
-            <ActivityIndicator style={tw`py-4`} color={styles.colorPrimary} />
-          ) : null
+          loading && users.length > 0 ? <ActivityIndicator style={tw`py-4`} color={styles.colorPrimary} /> : null
         }
+      />
+
+      <CreateUserModal
+        visible={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleCreateSuccess}
       />
     </View>
   );
