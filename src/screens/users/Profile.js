@@ -295,7 +295,7 @@ const Profile = () => {
 
       <Seperator />
 
-      <View style={tw`mb-5 mt-3`}>
+      {/* <View style={tw`mb-5 mt-3`}>
         <Text style={tw`text-lg font-bold mb-1`}>Preferred Notifications</Text>
         <View style={tw`flex-row justify-between items-center mb-1`}>
           <Text style={tw`text-gray-700`}>SMS</Text>
@@ -348,7 +348,7 @@ const Profile = () => {
             disabled={!isEditing}
           />
         </View>
-      </View>
+      </View> */}
 
       {isEditing && (
         <View style={tw`flex-row justify-between mb-4`}>

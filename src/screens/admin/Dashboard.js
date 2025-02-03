@@ -32,8 +32,9 @@ const Dashboard = () => {
   const [currentFilter, setCurrentFilter] = useState(null);
 
   const { user } = useSelector((state) => state.auth);
-  const { basicAnalytics, typeDistribution, statusDistribution, monthlyTrend, locationHotspots, loading } =
-    useSelector((state) => state.dashboard);
+  const { basicAnalytics, typeDistribution, statusDistribution, monthlyTrend, locationHotspots, loading } = useSelector(
+    (state) => state.dashboard
+  );
 
   const { reports, totalPages, totalReports } = useSelector((state) => state.report);
 
@@ -143,9 +144,7 @@ const Dashboard = () => {
             loading,
           },
         ],
-        renderItem: ({ item }) => (
-          <DistributionSection distribution={item.distribution} loading={item.loading} />
-        ),
+        renderItem: ({ item }) => <DistributionSection distribution={item.distribution} loading={item.loading} />,
       },
       {
         title: "Charts",

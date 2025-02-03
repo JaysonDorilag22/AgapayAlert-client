@@ -90,7 +90,7 @@ export default function GoogleAuth() {
           });
         }
       } else {
-        showToast(result.error);
+        showToast("error");
       }
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {

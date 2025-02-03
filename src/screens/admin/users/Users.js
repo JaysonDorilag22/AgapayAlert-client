@@ -21,7 +21,7 @@ import styles from "@/styles/styles";
 import { UserSkeleton } from "@/components/skeletons";
 import CreateUserModal from "./CreateUserModal";
 
-const USER_ROLES = ["POLICE_OFFICER", "POLICE_ADMIN", "CITY_ADMIN", "SUPER_ADMIN"];
+const USER_ROLES = ["POLICE_OFFICER", "POLICE_ADMIN"];
 
 export default function Users() {
   const navigation = useNavigation();
