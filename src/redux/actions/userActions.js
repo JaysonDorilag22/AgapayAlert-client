@@ -18,6 +18,12 @@ import {
   CREATE_USER_REQUEST,
   CREATE_USER_SUCCESS,
   CREATE_USER_FAILURE,
+  UPDATE_DUTY_REQUEST,
+  UPDATE_DUTY_SUCCESS,
+  UPDATE_DUTY_FAILURE,
+  GET_POLICE_STATION_OFFICERS_REQUEST,
+  GET_POLICE_STATION_OFFICERS_SUCCESS,
+  GET_POLICE_STATION_OFFICERS_FAILURE,
   CLEAR_USER_MESSAGE,
   CLEAR_USER_ERROR,
 } from "../actiontypes/userTypes";
@@ -156,6 +162,69 @@ export const createUser = (userDetails) => async (dispatch) => {
     const msg = error.response?.data?.msg || error.message;
     dispatch({ type: UPDATE_USER_FAILURE, payload: { msg } });
     return { success: false, error: msg };
+  }
+};
+
+
+export const updateDutyStatus = (isOnDuty) => async (dispatch) => {
+  try {
+    dispatch({ type: UPDATE_DUTY_REQUEST });
+
+    const { data } = await axios.put(
+      `${serverConfig.baseURL}/user/duty-status/update`,
+      { isOnDuty },
+      { withCredentials: true }
+    );
+
+    dispatch({
+      type: UPDATE_DUTY_SUCCESS,
+      payload: {
+        isOnDuty: data.data.isOnDuty,
+        lastDutyChange: data.data.lastDutyChange,
+        dutyHistory: data.data.dutyHistory
+      }
+    });
+
+    return { success: true, data: data.data };
+
+  } catch (error) {
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: UPDATE_DUTY_FAILURE,
+      payload: message
+    });
+    return { success: false, error: message };
+  }
+};
+
+// Get police station officers
+export const getPoliceStationOfficers = (policeStationId) => async (dispatch) => {
+  try {
+    dispatch({ type: GET_POLICE_STATION_OFFICERS_REQUEST });
+
+    const { data } = await axios.get(
+      `${serverConfig.baseURL}/user/police-station/${policeStationId}/officers`,
+      { withCredentials: true }
+    );
+
+    dispatch({
+      type: GET_POLICE_STATION_OFFICERS_SUCCESS,
+      payload: {
+        policeStation: data.data.policeStation,
+        officers: data.data.officers,
+        summary: data.data.summary
+      }
+    });
+
+    return { success: true, data: data.data };
+
+  } catch (error) {
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: GET_POLICE_STATION_OFFICERS_FAILURE, 
+      payload: message
+    });
+    return { success: false, error: message };
   }
 };
 

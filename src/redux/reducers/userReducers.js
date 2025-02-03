@@ -17,6 +17,12 @@ import {
   CREATE_USER_REQUEST,
   CREATE_USER_SUCCESS,
   CREATE_USER_FAIL,
+  UPDATE_DUTY_REQUEST,
+  UPDATE_DUTY_SUCCESS,
+  UPDATE_DUTY_FAILURE,
+  GET_POLICE_STATION_OFFICERS_REQUEST,
+  GET_POLICE_STATION_OFFICERS_SUCCESS,
+  GET_POLICE_STATION_OFFICERS_FAILURE,
   CLEAR_USER_MESSAGE,
   CLEAR_USER_ERROR,
 } from "../actiontypes/userTypes";
@@ -29,6 +35,15 @@ const initialState = {
   error: null,
   message: null,
   success: false,
+  dutyStatus: {
+    isOnDuty: false,
+    lastDutyChange: null,
+    dutyHistory: [],
+  },
+  policeStation: {
+    officers: [],
+    summary: null,
+  },
 };
 
 export const userReducer = (state = initialState, action) => {
@@ -54,10 +69,7 @@ export const userReducer = (state = initialState, action) => {
         loading: false,
         loadingAction: null,
         user: action.payload.user || action.payload,
-        message:
-          action.type === UPDATE_USER_SUCCESS
-            ? "User updated successfully"
-            : null,
+        message: action.type === UPDATE_USER_SUCCESS ? "User updated successfully" : null,
         success: true,
         error: null,
       };
@@ -106,17 +118,15 @@ export const userReducer = (state = initialState, action) => {
 
     // Success cases
     case GET_USER_LIST_SUCCESS:
-  return {
-    ...state,
-    loading: false,
-    users: action.payload.currentPage === 1 
-      ? action.payload.users 
-      : [...state.users, ...action.payload.users],
-    currentPage: action.payload.currentPage,
-    totalPages: action.payload.totalPages,
-    hasMore: action.payload.hasMore,
-    error: null
-  };
+      return {
+        ...state,
+        loading: false,
+        users: action.payload.currentPage === 1 ? action.payload.users : [...state.users, ...action.payload.users],
+        currentPage: action.payload.currentPage,
+        totalPages: action.payload.totalPages,
+        hasMore: action.payload.hasMore,
+        error: null,
+      };
 
     case CREATE_USER_SUCCESS:
       return {
@@ -151,6 +161,73 @@ export const userReducer = (state = initialState, action) => {
       return {
         ...state,
         error: null,
+      };
+
+    case UPDATE_DUTY_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        loadingAction: action.type,
+        error: null,
+        success: false,
+      };
+
+    case UPDATE_DUTY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loadingAction: null,
+        dutyStatus: {
+          isOnDuty: action.payload.isOnDuty,
+          lastDutyChange: action.payload.lastDutyChange,
+          dutyHistory: action.payload.dutyHistory,
+        },
+        success: true,
+        error: null,
+      };
+
+    case UPDATE_DUTY_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        loadingAction: null,
+        error: action.payload,
+        success: false,
+      };
+
+    // Police Station Officers Cases
+    case GET_POLICE_STATION_OFFICERS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        loadingAction: action.type,
+        error: null,
+      };
+
+    case GET_POLICE_STATION_OFFICERS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        loadingAction: null,
+        policeStation: {
+          ...action.payload.policeStation,
+          officers: action.payload.officers,
+          summary: action.payload.summary,
+        },
+        error: null,
+      };
+
+    case GET_POLICE_STATION_OFFICERS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        loadingAction: null,
+        error: action.payload,
+        policeStation: {
+          ...state.policeStation,
+          officers: [],
+          summary: null,
+        },
       };
 
     default:
