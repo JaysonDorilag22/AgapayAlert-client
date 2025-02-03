@@ -9,7 +9,7 @@ import tw from "twrnc";
 import ChangePassword from "@/components/auth/ChangePassword";
 import { ProfileSkeleton } from "@/components/skeletons";
 import Seperator from "@/components/Seperator";
-
+import MessengerButton from "@/components/MessengerButton";
 import { logout, clearAuthMessage, clearAuthError } from "@/redux/actions/authActions";
 import { getUserDetails, updateUserDetails } from "@/redux/actions/userActions";
 import { pickImage } from "@/utils/imagePicker";
@@ -172,15 +172,11 @@ const Profile = () => {
         <View style={tw`relative`}>
           <Image
             source={{
-              uri:
-                avatar?.url || avatar?.uri || "https://via.placeholder.com/150",
+              uri: avatar?.url || avatar?.uri || "https://via.placeholder.com/150",
             }}
             style={tw`w-24 h-24 rounded-full`}
           />
-          <TouchableOpacity
-            style={tw`absolute bottom-0 right-0 bg-white p-1 rounded-full`}
-            onPress={handlePickImage}
-          >
+          <TouchableOpacity style={tw`absolute bottom-0 right-0 bg-white p-1 rounded-full`} onPress={handlePickImage}>
             <Edit3 color="black" size={20} />
           </TouchableOpacity>
         </View>
@@ -195,9 +191,7 @@ const Profile = () => {
         <TextInput style={styles.input} value={user.email} editable={false} />
         <View style={tw`flex-row items-center mt-1 mb-2`}>
           <Info color="red" size={16} />
-          <Text style={tw`text-sm text-red-500 ml-1`}>
-            Email cannot be edited as it is used for verification
-          </Text>
+          <Text style={tw`text-sm text-red-500 ml-1`}>Email cannot be edited as it is used for verification</Text>
         </View>
       </View>
       <View style={tw`flex-row justify-between`}>
@@ -207,9 +201,7 @@ const Profile = () => {
             style={isEditing ? styles.activeInput : styles.input}
             value={formData.firstName}
             editable={isEditing}
-            onChangeText={(text) =>
-              setFormData({ ...formData, firstName: text })
-            }
+            onChangeText={(text) => setFormData({ ...formData, firstName: text })}
           />
         </View>
         <View style={tw`flex-1`}>
@@ -218,9 +210,7 @@ const Profile = () => {
             style={isEditing ? styles.activeInput : styles.input}
             value={formData.lastName}
             editable={isEditing}
-            onChangeText={(text) =>
-              setFormData({ ...formData, lastName: text })
-            }
+            onChangeText={(text) => setFormData({ ...formData, lastName: text })}
           />
         </View>
       </View>
@@ -362,55 +352,37 @@ const Profile = () => {
 
       {isEditing && (
         <View style={tw`flex-row justify-between mb-4`}>
-          <TouchableOpacity
-            style={[styles.buttonOutline, tw`flex-1 mr-2`]}
-            onPress={handleCancel}
-          >
+          <TouchableOpacity style={[styles.buttonOutline, tw`flex-1 mr-2`]} onPress={handleCancel}>
             <Text style={styles.buttonTextOutline}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.buttonPrimary, tw`flex-1`]}
-            onPress={handleSave}
-          >
+          <TouchableOpacity style={[styles.buttonPrimary, tw`flex-1`]} onPress={handleSave}>
             <Text style={styles.buttonTextPrimary}>Save</Text>
           </TouchableOpacity>
         </View>
       )}
 
       <Seperator style={tw`mb-3`} />
+      <MessengerButton/>
 
       {!isEditing && (
-        <TouchableOpacity
-          style={[styles.buttonPrimary, tw`mt-4`]}
-          onPress={handleEdit}
-        >
+        <TouchableOpacity style={[styles.buttonPrimary, tw`mt-4`]} onPress={handleEdit}>
           <Text style={styles.buttonTextPrimary}>Edit Profile</Text>
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity
-        style={styles.buttonOutline}
-        onPress={() => setIsChangePasswordVisible(true)}
-      >
+      <TouchableOpacity style={styles.buttonOutline} onPress={() => setIsChangePasswordVisible(true)}>
         <Text style={styles.buttonTextOutline}>Change Password</Text>
       </TouchableOpacity>
 
-      <ChangePassword
-        visible={isChangePasswordVisible}
-        onClose={() => setIsChangePasswordVisible(false)}
-      />
+      <ChangePassword visible={isChangePasswordVisible} onClose={() => setIsChangePasswordVisible(false)} />
 
-<TouchableOpacity
-  style={[styles.buttonSecondary, tw`mb-40`]}
-  onPress={handleLogout}
-  disabled={authLoading}
->
-  {authLoading ? (
-    <ActivityIndicator size="small" color="#EEEEEE" />
-  ) : (
-    <Text style={styles.buttonTextPrimary}>Logout</Text>
-  )}
-</TouchableOpacity>
+      <TouchableOpacity style={[styles.buttonSecondary, tw`mb-40`]} onPress={handleLogout} disabled={authLoading}>
+        {authLoading ? (
+          <ActivityIndicator size="small" color="#EEEEEE" />
+        ) : (
+          <Text style={styles.buttonTextPrimary}>Logout</Text>
+        )}
+      </TouchableOpacity>
     </ScrollView>
   );
 };

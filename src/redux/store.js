@@ -8,6 +8,7 @@ import { broadcastReducer } from './reducers/broadcastReducers';
 import { notificationReducer } from './reducers/notificationReducers';
 import { alprReducer } from './reducers/alprReducers';
 import { feedbackReducer } from './reducers/feedbackReducers';
+import { messengerReducer } from './reducers/messengerReducers';
 
 const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ const store = configureStore({
     broadcast: broadcastReducer,
     notification: notificationReducer,
     alpr: alprReducer,
-    feedback: feedbackReducer
+    feedback: feedbackReducer,
+    messenger: messengerReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

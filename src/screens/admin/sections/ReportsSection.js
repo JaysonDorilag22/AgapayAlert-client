@@ -46,6 +46,21 @@ const ReportsSection = () => {
   const [inputValue, setInputValue] = useState("");
   const [selectedType, setSelectedType] = useState("All");
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending":
+        return "bg-yellow-500 text-yellow-800";
+      case "Assigned":
+        return "bg-blue-500 text-blue-800";
+      case "Under Investigation":
+        return "bg-purple-500 text-purple-800";
+      case "Resolved":
+        return "bg-green-500 text-green-800";
+      default:
+        return "bg-gray-500 text-gray-800";
+    }
+  };
+
   // Socket setup
   useEffect(() => {
     let mounted = true;
@@ -187,9 +202,11 @@ const ReportsSection = () => {
           {format(parseISO(report?.createdAt), "MMM dd, yyyy 'at' h:mm a")}
         </Text>
       </View>
-      <View style={tw`px-2 py-1 rounded bg-gray-100`}>
-        <Text style={tw`text-sm text-gray-600`}>{report?.status}</Text>
-      </View>
+      <View style={tw`${getStatusColor(report.status)}, rounded-full`}>
+            <Text style={tw`px-2 py-0.5 text-xs font-medium`}>
+              {report.status}
+            </Text>
+          </View>
     </TouchableOpacity>
   );
 

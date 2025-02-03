@@ -1,30 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  ActivityIndicator,
-  TouchableOpacity,
-  Modal,
-} from "react-native";
+import { View, Text, ScrollView, Image, ActivityIndicator, TouchableOpacity, Modal } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  MapPin,
-  Calendar,
-  Clock,
-  Phone,
-  Mail,
-  User,
-  MapPinned,
-  AlertCircle,
-} from "lucide-react-native";
+import { MapPin, Calendar, Clock, Phone, Mail, User, MapPinned, AlertCircle } from "lucide-react-native";
 import tw from "twrnc";
 import { getReportDetails } from "@/redux/actions/reportActions";
-import {
-  publishBroadcast,
-  unpublishBroadcast,
-} from "@/redux/actions/broadcastActions";
+import { publishBroadcast, unpublishBroadcast } from "@/redux/actions/broadcastActions";
 import { assignOfficer, updateUserReport } from "@/redux/actions/reportActions";
 import { getUserList } from "@/redux/actions/userActions";
 import { formatDate } from "@/utils/dateUtils";
@@ -34,12 +14,7 @@ import BroadcastModal from "./BroadcastModal";
 import BroadcastHistory from "./BroadcastHistory";
 import UpdateStatusModal from "./UpdateStatusModal";
 
-const AssignOfficerModal = ({
-  visible,
-  onClose,
-  onSubmit,
-  policeStationId,
-}) => {
+const AssignOfficerModal = ({ visible, onClose, onSubmit, policeStationId }) => {
   const [selectedOfficer, setSelectedOfficer] = useState(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -81,18 +56,13 @@ const AssignOfficerModal = ({
               {users.map((officer) => (
                 <TouchableOpacity
                   key={officer._id}
-                  style={[
-                    tw`p-3 border-b border-gray-200`,
-                    selectedOfficer?._id === officer._id && tw`bg-blue-50`,
-                  ]}
+                  style={[tw`p-3 border-b border-gray-200`, selectedOfficer?._id === officer._id && tw`bg-blue-50`]}
                   onPress={() => setSelectedOfficer(officer)}
                 >
                   <Text style={tw`font-medium`}>
                     {officer.firstName} {officer.lastName}
                   </Text>
-                  <Text style={tw`text-sm text-gray-600`}>
-                    Badge #{officer.badgeNumber}
-                  </Text>
+                  <Text style={tw`text-sm text-gray-600`}>Badge #{officer.badgeNumber}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -109,10 +79,7 @@ const AssignOfficerModal = ({
                 }
               }}
               disabled={!selectedOfficer}
-              style={[
-                tw`px-4 py-2 bg-blue-600 rounded`,
-                !selectedOfficer && tw`opacity-50`,
-              ]}
+              style={[tw`px-4 py-2 bg-blue-600 rounded`, !selectedOfficer && tw`opacity-50`]}
             >
               <Text style={tw`text-white font-medium`}>Assign</Text>
             </TouchableOpacity>
@@ -149,12 +116,8 @@ const ReportDetails = ({ route }) => {
 
   // Clean selectors
   const { user = {} } = useSelector((state) => state.auth || {});
-  const { currentReport, detailsLoading, detailsError } = useSelector(
-    (state) => state.report || {}
-  );
-  const { loading: broadcastLoading } = useSelector(
-    (state) => state.broadcast || {}
-  );
+  const { currentReport, detailsLoading, detailsError } = useSelector((state) => state.report || {});
+  const { loading: broadcastLoading } = useSelector((state) => state.broadcast || {});
 
   // Load report details
   useEffect(() => {
@@ -191,9 +154,7 @@ const ReportDetails = ({ route }) => {
     const result = await dispatch(publishBroadcast(reportId, broadcastData));
 
     if (result.success) {
-      showToast(
-        broadcastData.scheduledDate ? "Broadcast scheduled" : "Broadcast sent"
-      );
+      showToast(broadcastData.scheduledDate ? "Broadcast scheduled" : "Broadcast sent");
       dispatch(getReportDetails(reportId));
       setShowBroadcastModal(false);
     } else {
@@ -208,10 +169,10 @@ const ReportDetails = ({ route }) => {
         showToast("Status or follow-up note is required");
         return;
       }
-  
+
       // Send update request
       const result = await dispatch(updateUserReport(reportId, updateData));
-  
+
       if (result.success) {
         showToast(updateData.status ? "Status updated successfully" : "Follow-up added successfully");
         setShowStatusModal(false);
@@ -231,18 +192,12 @@ const ReportDetails = ({ route }) => {
         {currentReport?.assignedOfficer ? (
           <View>
             <Text style={tw`font-medium`}>
-              {currentReport.assignedOfficer.firstName}{" "}
-              {currentReport.assignedOfficer.lastName}
+              {currentReport.assignedOfficer.firstName} {currentReport.assignedOfficer.lastName}
             </Text>
-            <Text style={tw`text-sm text-gray-600`}>
-              Badge #{currentReport.assignedOfficer.badgeNumber}
-            </Text>
+            <Text style={tw`text-sm text-gray-600`}>Badge #{currentReport.assignedOfficer.badgeNumber}</Text>
           </View>
         ) : (
-          <TouchableOpacity
-            style={[styles.buttonPrimary]}
-            onPress={() => setShowAssignModal(true)}
-          >
+          <TouchableOpacity style={[styles.buttonPrimary]} onPress={() => setShowAssignModal(true)}>
             <Text style={styles.buttonTextPrimary}>Assign Officer</Text>
           </TouchableOpacity>
         )}
@@ -258,11 +213,7 @@ const ReportDetails = ({ route }) => {
           <View style={tw`flex-row flex-wrap -mx-1`}>
             {currentReport.additionalImages.map((image, index) => (
               <View key={index} style={tw`w-1/3 p-1`}>
-                <Image
-                  source={{ uri: image.url }}
-                  style={tw`h-24 w-full rounded-lg`}
-                  resizeMode="cover"
-                />
+                <Image source={{ uri: image.url }} style={tw`h-24 w-full rounded-lg`} resizeMode="cover" />
               </View>
             ))}
           </View>
@@ -276,11 +227,7 @@ const ReportDetails = ({ route }) => {
       <SectionCard title="Broadcast Actions">
         <View style={tw`flex-row justify-between mb-4`}>
           <TouchableOpacity
-            style={[
-              styles.buttonPrimary,
-              !currentReport?.broadcastConsent && tw`opacity-50`,
-              tw`flex-1 mr-2`,
-            ]}
+            style={[styles.buttonPrimary, !currentReport?.broadcastConsent && tw`opacity-50`, tw`flex-1 mr-2`]}
             disabled={!currentReport?.broadcastConsent || broadcastLoading}
             onPress={() => setShowBroadcastModal(true)}
           >
@@ -289,11 +236,7 @@ const ReportDetails = ({ route }) => {
 
           {currentReport?.isPublished && (
             <TouchableOpacity
-              style={[
-                styles.buttonSecondary,
-                broadcastLoading && tw`opacity-50`,
-                tw`flex-1 ml-2`,
-              ]}
+              style={[styles.buttonSecondary, broadcastLoading && tw`opacity-50`, tw`flex-1 ml-2`]}
               disabled={broadcastLoading}
               onPress={async () => {
                 try {
@@ -316,17 +259,14 @@ const ReportDetails = ({ route }) => {
 
         {currentReport?.broadcastHistory?.length > 0 && (
           <View style={tw`mt-4`}>
-            <Text style={tw`text-sm font-medium mb-2`}>
-              Latest Broadcast Stats
-            </Text>
+            <Text style={tw`text-sm font-medium mb-2`}>Latest Broadcast Stats</Text>
             <View style={tw`bg-gray-50 p-3 rounded-lg`}>
               {currentReport.broadcastHistory.slice(-1)[0].deliveryStats && (
                 <View>
-                  {["push", "sms", "facebook"].map((type) => (
+                  {["push", "messenger", "facebook"].map((type) => (
                     <Text key={type} style={tw`text-gray-600`}>
                       {`${type.charAt(0).toUpperCase() + type.slice(1)}: ${
-                        currentReport.broadcastHistory.slice(-1)[0]
-                          .deliveryStats[type] || 0
+                        currentReport.broadcastHistory.slice(-1)[0].deliveryStats[type] || 0
                       }`}
                     </Text>
                   ))}
@@ -337,73 +277,56 @@ const ReportDetails = ({ route }) => {
         )}
       </SectionCard>
     ),
-    [
-      currentReport?.broadcastConsent,
-      currentReport?.isPublished,
-      currentReport?.broadcastHistory,
-      broadcastLoading,
-    ]
+    [currentReport?.broadcastConsent, currentReport?.isPublished, currentReport?.broadcastHistory, broadcastLoading]
   );
 
-  const FollowUpHistory = useMemo(
-    () => (
+  const FollowUpHistory = useMemo(() => {
+    return (
       <SectionCard title="Follow-up History">
         {currentReport?.followUp?.length > 0 ? (
-          <View>
-            {currentReport.followUp.map((item, index) => (
-              <View key={index} style={tw`bg-gray-50 p-3 rounded-lg`}>
-                <Text style={tw`text-gray-600 mb-1`}>{item.note}</Text>
-                <Text style={tw`text-sm text-gray-500`}>
-                  {formatDate(item.date)}
-                </Text>
-              </View>
-            ))}
-          </View>
+          <ScrollView
+            style={tw`max-h-[300px]`}
+            showsVerticalScrollIndicator={true}
+            nestedScrollEnabled={true}
+            bounces={false}
+          >
+            <View>
+              {currentReport.followUp.map((item, index) => {
+                console.log(`Follow-up ${index + 1}:`, {
+                  note: item.note,
+                  date: item.updatedAt,
+                  formattedDate: formatDate(item.updatedAt),
+                });
+
+                return (
+                  <View key={index} style={tw`bg-gray-50 p-3 rounded-lg mb-2`}>
+                    <Text style={tw`text-gray-600 mb-1`}>{item.note}</Text>
+                    <Text style={tw`text-sm text-gray-500`}>{formatDate(item.updatedAt)}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
         ) : (
-          <Text style={tw`text-gray-600 text-center`}>
-            No follow-up history available
-          </Text>
+          <Text style={tw`text-gray-600 text-center`}>No follow-up history available</Text>
         )}
       </SectionCard>
-    ),
-    [currentReport?.followUp]
-  );
+    );
+  }, [currentReport?.followUp]);
 
   const ConsentStatus = useMemo(
     () => (
       <SectionCard>
         <View style={tw`flex-col items-start`}>
           <Text style={tw`text-lg font-semibold mb-3`}>Broadcast Consent</Text>
-          <View
-            style={tw`${
-              currentReport?.broadcastConsent ? "bg-green-100" : "bg-red-100"
-            } p-3 rounded-lg w-full`}
-          >
+          <View style={tw`${currentReport?.broadcastConsent ? "bg-green-100" : "bg-red-100"} p-3 rounded-lg w-full`}>
             <View style={tw`flex-row items-center`}>
-              <AlertCircle
-                size={20}
-                color={currentReport?.broadcastConsent ? "#059669" : "#DC2626"}
-                style={tw`mr-2`}
-              />
+              <AlertCircle size={20} color={currentReport?.broadcastConsent ? "#059669" : "#DC2626"} style={tw`mr-2`} />
               <View>
-                <Text
-                  style={tw`${
-                    currentReport?.broadcastConsent
-                      ? "text-green-800"
-                      : "text-red-800"
-                  } font-medium`}
-                >
-                  {currentReport?.broadcastConsent
-                    ? "Consent Given"
-                    : "No Consent"}
+                <Text style={tw`${currentReport?.broadcastConsent ? "text-green-800" : "text-red-800"} font-medium`}>
+                  {currentReport?.broadcastConsent ? "Consent Given" : "No Consent"}
                 </Text>
-                <Text
-                  style={tw`${
-                    currentReport?.broadcastConsent
-                      ? "text-green-600"
-                      : "text-red-600"
-                  } text-sm mt-1`}
-                >
+                <Text style={tw`${currentReport?.broadcastConsent ? "text-green-600" : "text-red-600"} text-sm mt-1`}>
                   {currentReport?.broadcastConsent
                     ? "This report can be broadcasted"
                     : "This report cannot be broadcasted"}
@@ -418,13 +341,7 @@ const ReportDetails = ({ route }) => {
   );
 
   if (detailsLoading) {
-    return (
-      <ActivityIndicator
-        size="large"
-        color="#0056A7"
-        style={tw`flex-1 items-center justify-center`}
-      />
-    );
+    return <ActivityIndicator size="large" color="#0056A7" style={tw`flex-1 items-center justify-center`} />;
   }
 
   if (detailsError) {
@@ -435,25 +352,21 @@ const ReportDetails = ({ route }) => {
     <ScrollView style={tw`flex-1 bg-gray-50`}>
       <View style={tw`p-4`}>
         <SectionCard>
-          <Text style={tw`text-xl font-bold text-gray-800 mb-2`}>
-            {currentReport?.type} Report
-          </Text>
+          <Text style={tw`text-xl font-bold text-gray-800 mb-2`}>{currentReport?.type} Report</Text>
           <View style={tw`flex-row items-center mb-4`}>
             <View style={tw`bg-blue-100 px-3 py-1 rounded-full`}>
               <Text style={tw`text-blue-800`}>{currentReport?.status}</Text>
             </View>
-            <Text style={tw`text-gray-500 ml-3`}>
-              {formatDate(currentReport?.createdAt)}
-            </Text>
+            <Text style={tw`text-gray-500 ml-3`}>{formatDate(currentReport?.createdAt)}</Text>
           </View>
           {currentReport?.personInvolved?.mostRecentPhoto?.url && (
             <Image
               source={{ uri: currentReport.personInvolved.mostRecentPhoto.url }}
-              style={tw`w-48 h-48 rounded-lg`}
+              style={tw`w-48 h-48 rounded-lg mb-5`}
               resizeMode="cover"
             />
           )}
-          <View >
+          <View>
             {[
               {
                 icon: <User size={20} />,
@@ -493,12 +406,7 @@ const ReportDetails = ({ route }) => {
                 value: currentReport?.personInvolved?.lastKnownLocation,
               },
             ].map((item, index) => (
-              <InfoRow
-                key={index}
-                icon={item.icon}
-                label={item.label}
-                value={item.value}
-              />
+              <InfoRow key={index} icon={item.icon} label={item.label} value={item.value} />
             ))}
           </View>
         </SectionCard>
@@ -532,12 +440,7 @@ const ReportDetails = ({ route }) => {
                 value: currentReport?.location?.email,
               },
             ].map((item, index) => (
-              <InfoRow
-                key={index}
-                icon={item.icon}
-                label={item.label}
-                value={item.value}
-              />
+              <InfoRow key={index} icon={item.icon} label={item.label} value={item.value} />
             ))}
           </View>
         </SectionCard>
@@ -565,23 +468,19 @@ const ReportDetails = ({ route }) => {
         policeStationId={currentReport?.assignedPoliceStation?._id}
       />
 
-<SectionCard title="Status Management">
-        <View style={tw`flex-row justify-between items-center`}>
-          <View style={tw`flex-1`}>
-            <Text style={tw`text-gray-600`}>Current Status</Text>
-            <Text style={tw`text-lg font-medium`}>{currentReport?.status}</Text>
-          </View>
-          {user?._id && currentReport?.assignedOfficer?._id && 
-           String(user._id) === String(currentReport.assignedOfficer._id) && (
-            <TouchableOpacity
-              style={styles.buttonPrimary}
-              onPress={() => setShowStatusModal(true)}
-            >
-              <Text style={styles.buttonTextPrimary}>Update Status</Text>
+      <View style={tw`flex-col p-4`}>
+        <View>
+          <Text style={tw`text-gray-600`}>Current Status</Text>
+          <Text style={tw`text-lg font-medium`}>{currentReport?.status || "No status available"}</Text>
+        </View>
+        {user?._id &&
+          currentReport?.assignedOfficer?._id &&
+          String(user._id) === String(currentReport.assignedOfficer._id) && (
+            <TouchableOpacity style={styles?.buttonPrimary} onPress={() => setShowStatusModal(true)}>
+              <Text style={styles?.buttonTextPrimary}>Update Status</Text>
             </TouchableOpacity>
           )}
-        </View>
-      </SectionCard>
+      </View>
 
       <UpdateStatusModal
         visible={showStatusModal}
