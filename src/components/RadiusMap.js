@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { WebView } from "react-native-webview";
 import tw from "twrnc";
 
 const RadiusMap = ({
-  center = { lat: 14.5176, lng: 121.0509 }, // Default to Metro Manila
+  center = { lat: 14.5176, lng: 121.0509 },
   radiusKm = 5,
   height = 300,
   onClose
@@ -16,92 +16,77 @@ const RadiusMap = ({
   const handleMessage = (event) => {
     if (event.nativeEvent.data === 'MAP_LOADED') {
       setIsLoading(false);
+      setError(null);
     }
   };
 
-  const loadMap = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-    setRetryCount(prev => prev + 1);
-  }, []);
-
   const mapHTML = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-        <style>
-          html, body { 
-            margin: 0; 
-            padding: 0; 
-            height: 100%; 
-            width: 100%; 
-          }
-          #map { 
-            width: 100%; 
-            height: 100%; 
-          }
-          .radius-info {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            z-index: 1000;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-          }
-        </style>
-      </head>
-      <body>
-        <div id="map"></div>
-        <div class="radius-info">Radius: ${radiusKm} km</div>
-        <script>
-          try {
-            const map = L.map('map');
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+      <style>
+        html, body { 
+          margin: 0; 
+          padding: 0; 
+          height: 100%; 
+          width: 100%; 
+        }
+        #map { 
+          width: 100%; 
+          height: 100%; 
+          background: #f8f9fa;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        try {
+          // Initialize map
+          const map = L.map('map', {
+            center: [${center.lat}, ${center.lng}],
+            zoom: 13
+          });
+          
+          // Add tile layer
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(map);
 
-            // Add center marker
-            const centerMarker = L.marker([${center.lat}, ${center.lng}], {
-              title: 'Center'
-            }).addTo(map);
+          // Add center marker
+          const marker = L.marker([${center.lat}, ${center.lng}]).addTo(map);
 
-            // Add radius circle
-            const circle = L.circle([${center.lat}, ${center.lng}], {
-              radius: ${radiusKm * 1000},
-              color: '#2563eb',
-              fillColor: '#3b82f6',
-              fillOpacity: 0.2,
-              weight: 2
-            }).addTo(map);
+          // Add radius circle
+          const circle = L.circle([${center.lat}, ${center.lng}], {
+            radius: ${radiusKm * 1000}, // Convert km to meters
+            color: '#2563eb',
+            fillColor: '#3b82f6',
+            fillOpacity: 0.2,
+            weight: 2
+          }).addTo(map);
 
-            // Fit bounds to circle
-            map.fitBounds(circle.getBounds());
+          // Fit map to circle bounds
+          map.fitBounds(circle.getBounds());
 
+          // Signal that map is loaded
+          setTimeout(() => {
             window.ReactNativeWebView.postMessage('MAP_LOADED');
-          } catch (e) {
-            window.ReactNativeWebView.postMessage('MAP_ERROR: ' + e.message);
-          }
-        </script>
-      </body>
-    </html>
-  `;
+          }, 500);
+        } catch (e) {
+          window.ReactNativeWebView.postMessage('MAP_ERROR: ' + e.message);
+        }
+      </script>
+    </body>
+  </html>
+`;
 
   return (
     <View style={tw`relative mb-4`}>
-      <View style={[
-        tw`overflow-hidden rounded-xl`,
-        { height }
-      ]}>
+      <View style={[tw`overflow-hidden rounded-xl`, { height }]}>
         <WebView
           key={retryCount}
           source={{ html: mapHTML }}
@@ -111,25 +96,12 @@ const RadiusMap = ({
           javaScriptEnabled={true}
           domStorageEnabled={true}
           onMessage={handleMessage}
-          onError={(syntheticEvent) => {
-            const { nativeEvent } = syntheticEvent;
-            setError(nativeEvent.description);
-          }}
+          startInLoadingState={true}
         />
         {isLoading && (
-          <View style={tw`absolute inset-0 items-center justify-center bg-white`}>
-            <Text>Loading map...</Text>
-          </View>
-        )}
-        {error && (
-          <View style={tw`absolute inset-0 items-center justify-center bg-white p-4`}>
-            <Text style={tw`text-red-500 mb-4 text-center`}>{error}</Text>
-            <TouchableOpacity
-              onPress={loadMap}
-              style={tw`bg-blue-500 px-4 py-2 rounded-lg`}
-            >
-              <Text style={tw`text-white font-medium`}>Retry</Text>
-            </TouchableOpacity>
+          <View style={tw`absolute inset-0 bg-white justify-center items-center`}>
+            <ActivityIndicator size="large" color="#2563eb" />
+            <Text style={tw`mt-4 text-gray-600`}>Loading map...</Text>
           </View>
         )}
       </View>
