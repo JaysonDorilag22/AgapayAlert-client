@@ -204,18 +204,18 @@ export const userReducer = (state = initialState, action) => {
         error: null,
       };
 
-    case GET_POLICE_STATION_OFFICERS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        loadingAction: null,
-        policeStation: {
-          ...action.payload.policeStation,
-          officers: action.payload.officers,
-          summary: action.payload.summary,
-        },
-        error: null,
-      };
+      case GET_POLICE_STATION_OFFICERS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          loadingAction: null,
+          policeStation: {
+            ...action.payload.policeStation,
+            officers: action.payload.officers,
+            summary: action.payload.summary,
+          },
+          error: null,
+        };
 
     case GET_POLICE_STATION_OFFICERS_FAILURE:
       return {

@@ -103,6 +103,20 @@ export const unsubscribeFromReports = () => {
   socket.off(SOCKET_EVENTS.REPORT_UPDATED);
 };
 
+export const subscribeToOfficerUpdates = (callback) => {
+  if (!socket?.connected) return;
+  socket.on(SOCKET_EVENTS.OFFICER_UPDATED, callback);
+  socket.on(SOCKET_EVENTS.DUTY_STATUS_CHANGED, callback);
+};
+
+export const unsubscribeFromUpdates = () => {
+  if (!socket?.connected) return;
+  socket.off(SOCKET_EVENTS.NEW_REPORT);
+  socket.off(SOCKET_EVENTS.REPORT_UPDATED);
+  socket.off(SOCKET_EVENTS.OFFICER_UPDATED);
+  socket.off(SOCKET_EVENTS.DUTY_STATUS_CHANGED);
+};
+
 // Get socket instance
 export const getSocket = () => socket;
 

@@ -201,11 +201,14 @@ export const updateDutyStatus = (isOnDuty) => async (dispatch) => {
 export const getPoliceStationOfficers = (policeStationId) => async (dispatch) => {
   try {
     dispatch({ type: GET_POLICE_STATION_OFFICERS_REQUEST });
-
+    
     const { data } = await axios.get(
       `${serverConfig.baseURL}/user/police-station/${policeStationId}/officers`,
       { withCredentials: true }
     );
+
+    // Add logging after data is received
+    console.log('API Response:', data);
 
     dispatch({
       type: GET_POLICE_STATION_OFFICERS_SUCCESS,
@@ -216,6 +219,8 @@ export const getPoliceStationOfficers = (policeStationId) => async (dispatch) =>
       }
     });
 
+    console.log('Summary:', data.data.summary);
+   
     return { success: true, data: data.data };
 
   } catch (error) {
