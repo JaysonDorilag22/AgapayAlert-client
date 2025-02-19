@@ -6,7 +6,7 @@ import logo from '../../assets/logo1.png';
 export default function Logo() {
   return (
     <View>
-      <Image source={logo} style={tw`w-10 h-10`} />
+      <Image source={logo} style={tw`w-15 h-15`} />
     </View>
   );
 }

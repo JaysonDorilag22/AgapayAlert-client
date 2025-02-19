@@ -79,7 +79,9 @@ export default function ResetPassword() {
         >
           {t("resetPassword")}
         </Text>
+        
       </View>
+      
       <Formik
         initialValues={{ otp: "", newPassword: "" }}
         validationSchema={resetPasswordValidationSchema}

@@ -45,7 +45,7 @@ export default function ForgotPassword() {
         <Text
           style={[
             tw`text-3xl font-bold mt-8 text-center`,
-            { color: styles.textPrimary.color },
+            { color: styles.textPrimary.color }, styles.fontTextSecondary
           ]}
         >
           {t("forgotPassword")}
@@ -87,7 +87,7 @@ export default function ForgotPassword() {
             <Text
               style={[
                 tw`text-sm mt-2 text-center`,
-                { color: styles.textPrimary.color },
+                { color: styles.textPrimary.color }, styles.fontTextSecondary
               ]}
             >
               {t("enterEmail")}

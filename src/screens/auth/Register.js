@@ -79,9 +79,7 @@ export default function Register() {
   const handleCitySearch = async (text) => {
     setCitySearch(text);
     if (text.length > 0) {
-      const filtered = cities.filter((city) =>
-        city.label.toLowerCase().includes(text.toLowerCase())
-      );
+      const filtered = cities.filter((city) => city.label.toLowerCase().includes(text.toLowerCase()));
       setCitySuggestions(filtered);
       setShowCitySuggestions(true);
     } else {
@@ -192,40 +190,18 @@ export default function Register() {
         validationSchema={registerValidationSchema}
         onSubmit={handleRegister}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          errors,
-          touched,
-          setFieldValue,
-          setFieldTouched,
-        }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue, setFieldTouched }) => (
           <View style={styles.container}>
-            <TouchableOpacity
-              onPress={() => handlePickImage(setFieldValue)}
-              style={tw`mb-4`}
-            >
-              <View
-                style={tw`w-24 h-24 rounded-full bg-gray-200 justify-center items-center`}
-              >
+            <TouchableOpacity onPress={() => handlePickImage(setFieldValue)} style={tw`mb-4`}>
+              <View style={tw`w-24 h-24 rounded-full bg-gray-200 justify-center items-center`}>
                 {values.avatar ? (
-                  <Image
-                    source={{ uri: values.avatar.uri || values.avatar }}
-                    style={tw`w-24 h-24 rounded-full`}
-                  />
+                  <Image source={{ uri: values.avatar.uri || values.avatar }} style={tw`w-24 h-24 rounded-full`} />
                 ) : (
                   <Camera color="gray" size={24} />
                 )}
               </View>
             </TouchableOpacity>
-            <Text
-              style={[
-                tw`text-lg font-bold mb-2`,
-                { color: styles.textPrimary.color, alignSelf: "flex-start" },
-              ]}
-            >
+            <Text style={[tw`text-lg font-bold mb-2`, { color: styles.textPrimary.color, alignSelf: "flex-start" }]}>
               {t("accountInfo")}
             </Text>
             <View style={tw`flex-row justify-between w-full`}>
@@ -238,14 +214,7 @@ export default function Register() {
                   value={values.firstName}
                 />
                 {touched.firstName && errors.firstName && (
-                  <Text
-                    style={[
-                      tw`text-red-500 text-xs`,
-                      { alignSelf: "flex-start" },
-                    ]}
-                  >
-                    {errors.firstName}
-                  </Text>
+                  <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.firstName}</Text>
                 )}
               </View>
               <View style={tw`flex-1 ml-2`}>
@@ -257,14 +226,7 @@ export default function Register() {
                   value={values.lastName}
                 />
                 {touched.lastName && errors.lastName && (
-                  <Text
-                    style={[
-                      tw`text-red-500 text-xs`,
-                      { alignSelf: "flex-start" },
-                    ]}
-                  >
-                    {errors.lastName}
-                  </Text>
+                  <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.lastName}</Text>
                 )}
               </View>
             </View>
@@ -276,11 +238,7 @@ export default function Register() {
               value={values.phoneNumber}
             />
             {touched.phoneNumber && errors.phoneNumber && (
-              <Text
-                style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
-              >
-                {errors.phoneNumber}
-              </Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.phoneNumber}</Text>
             )}
             <TextInput
               style={styles.input}
@@ -290,11 +248,7 @@ export default function Register() {
               value={values.email}
             />
             {touched.email && errors.email && (
-              <Text
-                style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
-              >
-                {errors.email}
-              </Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.email}</Text>
             )}
             <TextInput
               style={styles.input}
@@ -305,18 +259,9 @@ export default function Register() {
               value={values.password}
             />
             {touched.password && errors.password && (
-              <Text
-                style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
-              >
-                {errors.password}
-              </Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.password}</Text>
             )}
-            <Text
-              style={[
-                tw`text-lg font-bold mt-4`,
-                { color: styles.textPrimary.color, alignSelf: "flex-start" },
-              ]}
-            >
+            <Text style={[tw`text-lg font-bold mt-4`, { color: styles.textPrimary.color, alignSelf: "flex-start" }]}>
               {t("address")}
             </Text>
 
@@ -329,18 +274,12 @@ export default function Register() {
               value={values.streetAddress}
             />
             {touched.streetAddress && errors.streetAddress && (
-              <Text
-                style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
-              >
-                {errors.streetAddress}
-              </Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.streetAddress}</Text>
             )}
 
             {/* <View style={tw` mb-4`}> */}
             {!selectedCity && (
-              <Text style={tw`text-sm text-gray-500 italic`}>
-                Please choose a city first to select barangay
-              </Text>
+              <Text style={tw`text-sm text-gray-500 italic`}>Please choose a city first to select barangay</Text>
             )}
 
             <TextInput
@@ -354,11 +293,7 @@ export default function Register() {
               onBlur={handleBlur("city")}
             />
             {touched.city && errors.city && (
-              <Text
-                style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
-              >
-                {errors.city}
-              </Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.city}</Text>
             )}
 
             {showCitySuggestions && citySuggestions.length > 0 && (
@@ -406,12 +341,7 @@ export default function Register() {
               </View>
             )}
 
-            {isLoadingCities && (
-              <ActivityIndicator
-                size="small"
-                color={styles.textPrimary.color}
-              />
-            )}
+            {isLoadingCities && <ActivityIndicator size="small" color={styles.textPrimary.color} />}
 
             <View style={[styles.input, tw`p-0 justify-center`]}>
               <Picker
@@ -426,29 +356,16 @@ export default function Register() {
               >
                 <Picker.Item label="Select Barangay" value="" />
                 {barangays.map((barangay) => (
-                  <Picker.Item
-                    key={barangay.value}
-                    label={barangay.label}
-                    value={barangay.value}
-                  />
+                  <Picker.Item key={barangay.value} label={barangay.label} value={barangay.value} />
                 ))}
               </Picker>
             </View>
 
             {touched.barangay && errors.barangay && (
-              <Text
-                style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
-              >
-                {errors.barangay}
-              </Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.barangay}</Text>
             )}
 
-            {isLoadingBarangays && (
-              <ActivityIndicator
-                size="small"
-                color={styles.textPrimary.color}
-              />
-            )}
+            {isLoadingBarangays && <ActivityIndicator size="small" color={styles.textPrimary.color} />}
 
             <TextInput
               style={styles.input}
@@ -458,21 +375,14 @@ export default function Register() {
               value={values.zipCode}
             />
             {touched.zipCode && errors.zipCode && (
-              <Text
-                style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }]}
-              >
-                {errors.zipCode}
-              </Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.zipCode}</Text>
             )}
             <CheckBox
               title={
                 <Text>
                   {t("agreeTerms")}{" "}
                   <Text
-                    style={[
-                      tw`text-sm font-bold underline`,
-                      { color: styles.textPrimary.color },
-                    ]}
+                    style={[tw`text-sm font-bold underline`, { color: styles.textPrimary.color }]}
                     onPress={() => setModalVisible(true)}
                   >
                     {t("termsAndPrivacy")}
@@ -485,10 +395,7 @@ export default function Register() {
               textStyle={[tw`text-sm`, { color: styles.textPrimary.color }]}
             />
             <TouchableOpacity
-              style={[
-                styles.buttonPrimary,
-                { backgroundColor: styles.buttonSecondary.backgroundColor },
-              ]}
+              style={[styles.buttonPrimary, { backgroundColor: styles.buttonSecondary.backgroundColor }]}
               disabled={!isChecked || isUploading}
               onPress={handleSubmit}
             >
@@ -498,12 +405,7 @@ export default function Register() {
                 <Text style={styles.buttonTextPrimary}>{t("register")}</Text>
               )}
             </TouchableOpacity>
-            <Text
-              style={[
-                tw`text-sm font-bold mt-2`,
-                { color: styles.textPrimary.color, textAlign: "center" },
-              ]}
-            >
+            <Text style={[tw`text-sm font-bold mt-2`, { color: styles.textPrimary.color, textAlign: "center" }]}>
               {t("alreadyHaveAccount")}
             </Text>
             <TouchableOpacity
@@ -515,10 +417,7 @@ export default function Register() {
           </View>
         )}
       </Formik>
-      <TermsModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-      />
+      <TermsModal visible={modalVisible} onClose={() => setModalVisible(false)} />
     </ScrollView>
   );
 }

@@ -19,14 +19,18 @@ const styles = {
     fontFamily: 'BebasNeue_400Regular',
   },
 
+  fontTextSecondary:{
+    fontFamily: 'Nunito_400Regular',
+  },
+
   headingTwo:{
-    fontSize: 30,
+    fontSize: 25,
     fontFamily: 'BebasNeue_400Regular',
     color: colorPrimary
   },
 
   headingOne: {
-    fontSize: 60,
+    fontSize: 80,
     fontFamily: 'BebasNeue_400Regular',
     color: colorPrimary
   },

@@ -11,9 +11,8 @@ import tw from "twrnc";
 
 import ChangeLanguage from "@/components/ChangeLanguage";
 import Logo from "@/components/Logo";
-import logo1 from '../../../assets/logo1.png';
-import ph from '../../../assets/ph.png';
-
+import logo1 from "../../../assets/logo1.png";
+import ph from "../../../assets/ph.png";
 
 import { clearAuthError, clearAuthMessage, login } from "@/redux/actions/authActions";
 import { loginValidationSchema } from "@/validation/loginValidation";
@@ -95,19 +94,22 @@ export default function Login() {
     <Formik initialValues={{ email: "", password: "" }} validationSchema={loginValidationSchema} onSubmit={handleLogin}>
       {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
         <View style={styles.container}>
-        <Image 
+          {/* <Image 
           source={ph}
           style={[tw`absolute w-full h-full`, { opacity: 0.5 }]} 
           resizeMode="cover"
-        />
+        /> */}
           <View style={tw`absolute top-5 right-0 z-10 p-4`}>
             <ChangeLanguage />
           </View>
-          <View style={tw`mb-10 justify-start items-start self-start`}>
-            <Image source={logo1} style={tw`w-25 h-25`}/>
+          <Image source={logo1} style={tw`w-15 h-15 mb-10`} />
+
+          <View style={tw`mb-10 items-center`}>
             <Text style={[styles.headingTwo, { paddingTop: 10 }]}>{t("welcome")}</Text>
             <Text style={[styles.headingOne]}>AgapayAlert</Text>
-            <Text style={[tw`text-xl`, { color: styles.textPrimary.color }, styles.fontText]}>{t("signIn")}</Text>
+            <Text style={[tw`text-xl`, { color: styles.textPrimary.color }, styles.fontTextSecondary]}>
+              {t("signIn")}
+            </Text>
           </View>
           <View style={tw`w-full`}>
             <TextInput
@@ -118,7 +120,9 @@ export default function Login() {
               value={values.email}
             />
             {touched.email && errors.email && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontText]}>{errors.email}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.email}
+              </Text>
             )}
           </View>
           <View style={tw`w-full mt-4 relative`}>
@@ -131,7 +135,7 @@ export default function Login() {
               value={values.password}
             />
             <TouchableOpacity
-              style={tw`absolute right-0 top-0 h-full justify-center pr-3`}
+              style={tw`absolute right-0 top-0  justify-center mr-3 mt-7`}
               onPress={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
@@ -141,11 +145,13 @@ export default function Login() {
               )}
             </TouchableOpacity>
             {touched.password && errors.password && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontText]}>{errors.password}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.password}
+              </Text>
             )}
           </View>
           <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")} style={tw`self-end mt-2`}>
-            <Text style={[tw`text-sm`, { color: styles.textSecondary.color }, styles.fontText]}>
+            <Text style={[tw`text-sm underline`, { color: styles.textSecondary.color }, styles.fontTextSecondary]}>
               {t("forgotPassword")} {"?"}
             </Text>
           </TouchableOpacity>
@@ -157,8 +163,13 @@ export default function Login() {
                 <Text style={styles.buttonTextPrimary}>{t("login")}</Text>
               )}
             </TouchableOpacity>
+            <View style={tw`flex-row items-center my-2`}>
+              <View style={tw`flex-1 h-px bg-gray-300`} />
+              <Text style={tw`mx-3 text-gray-500`}>or</Text>
+              <View style={tw`flex-1 h-px bg-gray-300`} />
+            </View>
             <View>{/* <GoogleAuth />  */}</View>
-            <Text style={[tw`text-sm mt-5 p-2`, { color: styles.textPrimary.color }, styles.fontText]}>
+            <Text style={[tw`text-sm mt-5 p-2 underline`, { color: styles.textPrimary.color }, styles.fontText]}>
               {t("noAccount")}
             </Text>
             <TouchableOpacity style={styles.buttonSecondary} onPress={() => navigation.navigate("Register")}>
