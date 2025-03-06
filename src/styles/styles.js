@@ -10,63 +10,118 @@ const colorDisabled = '#A9A9A9';
 const colorText = '#333333';
 const colorWhite = '#FFFFFF';
 
-// System font family based on platform
-
-
 const styles = {
-
-  fontText:{
-    fontFamily: 'BebasNeue_400Regular',
+  fontText: {
+    fontFamily: 'Poppins_500Medium',
   },
 
-  fontTextSecondary:{
-    fontFamily: 'Nunito_400Regular',
+  fontTextSecondary: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
   },
 
-  headingTwo:{
-    fontSize: 25,
-    fontFamily: 'BebasNeue_400Regular',
+  headingTwo: {
+    fontSize: 15,
+    fontFamily: 'Poppins_600SemiBold',
     color: colorPrimary
   },
 
   headingOne: {
-    fontSize: 80,
-    fontFamily: 'BebasNeue_400Regular',
+    fontSize: 25,
+    fontFamily: 'Poppins_600SemiBold',
     color: colorPrimary
   },
 
   backgroundColorPrimary: {backgroundColor: colorPrimary},
+  
   // Container styles
-  container: tw.style(`flex-1 justify-center items-center p-4`, { backgroundColor: colorWhite }),
+  container: tw.style(`flex-1 p-4 items-center`, { 
+    backgroundColor: colorWhite,
+    fontFamily: 'Poppins_400Regular'
+  }),
 
-  // Text styles
-  textPrimary: tw.style(`text-lg font-bold`, { color: colorPrimary }),
-  textSecondary: tw.style(`text-lg font-bold`, { color: colorAccent }),
+  // Text styles 
+  textPrimary: tw.style(`text-sm`, { 
+    color: colorPrimary,
+    fontFamily: 'Poppins_600SemiBold'
+  }),
+  
+  textSecondary: tw.style(`text-sm font-bold`, { 
+    color: colorAccent,
+    fontFamily: 'Poppins_600SemiBold'
+  }),
 
   // Button styles
-  buttonContainer: tw.style(`w-full items-center mt-3`),
-  buttonPrimary: tw.style(`p-3 rounded-lg w-full mb-3`, { backgroundColor: colorPrimary, textAlign: 'center' }),
-  buttonSecondary: tw.style(`p-3 rounded-lg w-full mb-3`, { backgroundColor: colorSecondary, textAlign: 'center' }),
+  buttonContainer: tw.style(`w-full items-center mt-3`, {
+    fontFamily: 'Poppins_500Medium'
+  }),
+  buttonPrimary: tw.style(`p-3 rounded-lg w-full mb-3`, { 
+    backgroundColor: colorPrimary, 
+    textAlign: 'center',
+    fontFamily: 'Poppins_500Medium'
+  }),
+  buttonSecondary: tw.style(`p-3 rounded-lg w-full mb-3`, { 
+    backgroundColor: colorSecondary, 
+    textAlign: 'center',
+    fontFamily: 'Poppins_500Medium'
+  }),
 
-  buttonTextPrimary: tw.style(`text-center text-base`, { color: colorBackground, fontFamily: 'BebasNeue_400Regular' }), 
-  buttonOutline: tw.style(`p-3 rounded-lg w-full mb-3 border`, { borderColor: colorSecondary, backgroundColor: 'transparent', textAlign: 'center' }),
-  buttonTextOutline: tw.style(`text-center`, { color: colorSecondary }), 
+  // Button text styles
+  buttonTextPrimary: tw.style(`text-center text-sm p-2`, { 
+    color: colorBackground, 
+    fontFamily: 'Poppins_500Medium'
+  }),
+  buttonOutline: tw.style(`p-3 rounded-lg w-full mb-3 border`, { 
+    borderColor: colorSecondary, 
+    backgroundColor: 'transparent', 
+    textAlign: 'center',
+    fontFamily: 'Poppins_500Medium'
+  }),
+  buttonTextOutline: tw.style(`text-center`, { 
+    color: colorSecondary, 
+    fontFamily: 'Poppins_500Medium'
+  }),
+
   // Input styles
-  input: tw.style(`w-full p-5 mb-2 mt-2 rounded-lg border text-base`, { borderColor: colorDisabled, backgroundColor: colorWhite, color: colorText, fontFamily: 'Nunito_400Regular' }),
-  input2: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`),
-  activeInput: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { borderColor: '#000000', backgroundColor: '#ffffff', color: '#000000' }),
+  input: tw.style(`w-full p-5 mb-2 mt-2 rounded-lg border`, { 
+    borderColor: colorDisabled, 
+    backgroundColor: colorWhite, 
+    color: colorText, 
+    fontFamily: 'Poppins_400Regular'
+  }),
+  input2: tw.style(`w-full p-1 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`, {
+    fontFamily: 'Poppins_400Regular'
+  }),
+  activeInput: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { 
+    borderColor: '#000000', 
+    backgroundColor: '#ffffff', 
+    color: '#000000',
+    fontFamily: 'Poppins_400Regular'
+  }),
 
-  buttonDanger: tw`bg-red-600 px-4 py-2 rounded-lg`,
-  buttonTextDanger: tw`text-white font-medium text-center`,
+  buttonDanger: tw.style(`bg-red-600 px-4 py-2 rounded-lg`, {
+    fontFamily: 'Poppins_500Medium'
+  }),
+  buttonTextDanger: tw.style(`text-white font-medium text-center`, {
+    fontFamily: 'Poppins_500Medium'
+  }),
 
-
-  //Text size
-  textSmall: tw.style(`text-sm`),
-  textMedium: tw.style(`text-sm`),
-  TextBase: tw.style(`text-base`),
-  textLarge: tw.style(`text-lg`),
-  textExtraLarge: tw.style(`text-xl`),
-
+  // Text sizes with Poppins
+  textSmall: tw.style(`text-sm`, {
+    fontFamily: 'Poppins_400Regular'
+  }),
+  textMedium: tw.style(`text-sm`, {
+    fontFamily: 'Poppins_500Medium'
+  }), 
+  TextBase: tw.style(`text-base`, {
+    fontFamily: 'Poppins_400Regular'
+  }),
+  textLarge: tw.style(`text-lg`, {
+    fontFamily: 'Poppins_500Medium'
+  }),
+  textExtraLarge: tw.style(`text-xl`, {
+    fontFamily: 'Poppins_600SemiBold'
+  }),
 
   elevation: {
     elevation: 5,

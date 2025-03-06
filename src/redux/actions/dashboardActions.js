@@ -119,14 +119,58 @@ export const getMonthlyTrend = () => async (dispatch) => {
 };
 
 // Location Hotspots
-export const getLocationHotspots = () => async (dispatch) => {
+// export const getLocationHotspots = () => async (dispatch) => {
+//   try {
+//     dispatch({ type: GET_LOCATION_HOTSPOTS_REQUEST });
+
+//     const { data } = await axios.get(
+//       `${serverConfig.baseURL}/charts/location-hotspots`,
+//       { withCredentials: true }
+//     );
+
+//     dispatch({
+//       type: GET_LOCATION_HOTSPOTS_SUCCESS,
+//       payload: data.data
+//     });
+
+//     return { success: true, data: data.data };
+//   } catch (error) {
+//     dispatch({
+//       type: GET_LOCATION_HOTSPOTS_FAIL,
+//       payload: error.response?.data?.error || error.message
+//     });
+//     return { success: false, error: error.message };
+//   }
+// };
+
+export const getLocationHotspots = (filters = {}) => async (dispatch) => {
   try {
     dispatch({ type: GET_LOCATION_HOTSPOTS_REQUEST });
 
+    // Only include non-empty filters
+    const validFilters = {};
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        // For dates, only include if they're actually changed from default
+        if ((key === 'startDate' || key === 'endDate') && value === new Date().toISOString()) {
+          return;
+        }
+        validFilters[key] = value;
+      }
+    });
+
+    const queryParams = new URLSearchParams(validFilters).toString();
+
+    console.log(queryParams)
+
     const { data } = await axios.get(
-      `${serverConfig.baseURL}/charts/location-hotspots`,
+      `${serverConfig.baseURL}/charts/location-hotspots${queryParams ? `?${queryParams}` : ''}`,
       { withCredentials: true }
     );
+
+    if (!data?.data?.analysis) {
+      throw new Error('Invalid or empty data received from server');
+    }
 
     dispatch({
       type: GET_LOCATION_HOTSPOTS_SUCCESS,

@@ -93,27 +93,22 @@ export default function Login() {
   return (
     <Formik initialValues={{ email: "", password: "" }} validationSchema={loginValidationSchema} onSubmit={handleLogin}>
       {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-        <View style={styles.container}>
-          {/* <Image 
-          source={ph}
-          style={[tw`absolute w-full h-full`, { opacity: 0.5 }]} 
-          resizeMode="cover"
-        /> */}
-          <View style={tw`absolute top-5 right-0 z-10 p-4`}>
+        <View style={tw`flex-1 p-4 bg-white justify-center`}>
+          <View style={tw`absolute top-5 right-0 z-10 p-4 `}>
             <ChangeLanguage />
           </View>
-          <Image source={logo1} style={tw`w-15 h-15 mb-10`} />
+          <Image source={logo1} style={tw`w-15 h-15 mt-10`} />
 
-          <View style={tw`mb-10 items-center`}>
-            <Text style={[styles.headingTwo, { paddingTop: 10 }]}>{t("welcome")}</Text>
-            <Text style={[styles.headingOne]}>AgapayAlert</Text>
-            <Text style={[tw`text-xl`, { color: styles.textPrimary.color }, styles.fontTextSecondary]}>
-              {t("signIn")}
-            </Text>
+          <View style={tw`items-start`}>
+            {/* <Text style={[styles.headingTwo]}>{t("welcome")}</Text>
+            <Text style={[styles.headingOne]}>AgapayAlert</Text> */}
+            <Text style={[tw`mt-10`, { color: styles.textPrimary.color }, styles.headingOne]}>{t("signIn")}</Text>
           </View>
+
           <View style={tw`w-full`}>
             <TextInput
               style={[styles.input, tw`w-full`]}
+
               placeholder={t("Email")}
               onChangeText={handleChange("email")}
               onBlur={handleBlur("email")}
@@ -168,12 +163,19 @@ export default function Login() {
               <Text style={tw`mx-3 text-gray-500`}>or</Text>
               <View style={tw`flex-1 h-px bg-gray-300`} />
             </View>
+
+            <TouchableOpacity style={styles.buttonOutline} onPress={handleSubmit} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator size="small" color="#EEEEEE" />
+              ) : (
+                <Text style={styles.buttonTextOutline}>Sign in with Google</Text>
+              )}
+            </TouchableOpacity>
             <View>{/* <GoogleAuth />  */}</View>
-            <Text style={[tw`text-sm mt-5 p-2 underline`, { color: styles.textPrimary.color }, styles.fontText]}>
-              {t("noAccount")}
-            </Text>
-            <TouchableOpacity style={styles.buttonSecondary} onPress={() => navigation.navigate("Register")}>
-              <Text style={[styles.buttonTextPrimary]}>{t("register")}</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+              <Text style={[tw`text-sm mt-5 p-2`, { color: styles.textPrimary.color }, styles.fontText]}>
+                {t("noAccount")} <Text style={tw`underline`}>{t("register")}</Text>
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

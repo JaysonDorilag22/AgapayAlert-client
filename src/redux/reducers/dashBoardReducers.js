@@ -125,20 +125,19 @@ import {
       case GET_LOCATION_HOTSPOTS_REQUEST:
         return {
           ...state,
-          loading: { ...state.loading, location: true },
-          error: { ...state.error, location: null }
+          loading: true
         };
       case GET_LOCATION_HOTSPOTS_SUCCESS:
         return {
           ...state,
-          locationHotspots: action.payload,
-          loading: { ...state.loading, location: false }
+          loading: false,
+          locationHotspots: action.payload
         };
       case GET_LOCATION_HOTSPOTS_FAIL:
         return {
           ...state,
-          loading: { ...state.loading, location: false },
-          error: { ...state.error, location: action.payload }
+          loading: false,
+          error: action.payload
         };
   
       default:

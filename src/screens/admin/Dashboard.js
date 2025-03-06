@@ -36,9 +36,6 @@ const Dashboard = () => {
     (state) => state.dashboard
   );
 
-  const { reports, totalPages, totalReports } = useSelector((state) => state.report);
-
-  // Socket setup
   useEffect(() => {
     let mounted = true;
 
@@ -50,7 +47,6 @@ const Dashboard = () => {
         if (socket && mounted) {
           socketRef.current = socket;
 
-          // Join role-specific rooms
           if (user?.policeStation) {
             joinRoom(`policeStation_${user.policeStation}`);
           }
@@ -58,7 +54,6 @@ const Dashboard = () => {
             joinRoom(`city_${user.address.city}`);
           }
 
-          // Subscribe to new reports
           subscribeToNewReports((data) => {
             if (mounted) loadData();
           });
@@ -70,7 +65,6 @@ const Dashboard = () => {
 
     setupSocket();
 
-    // Cleanup on unmount
     return () => {
       mounted = false;
       if (socketRef.current) {
@@ -85,7 +79,6 @@ const Dashboard = () => {
     };
   }, [user]);
 
-  // Initial load
   useEffect(() => {
     loadData();
   }, []);
@@ -115,7 +108,7 @@ const Dashboard = () => {
     () => [
       {
         title: "Header",
-        data: [{}], // Dummy data to trigger render
+        data: [{}],
         renderItem: () => (
           <>
             <DutyStatusCard />
@@ -160,19 +153,7 @@ const Dashboard = () => {
         renderItem: ({ item }) => <ChartsSection {...item} />,
       },
     ],
-    [
-      basicAnalytics,
-      typeDistribution,
-      statusDistribution,
-      monthlyTrend,
-      locationHotspots,
-      loading,
-      reports,
-      refreshing,
-      page,
-      totalPages,
-      totalReports,
-    ]
+    [basicAnalytics, typeDistribution, statusDistribution, monthlyTrend, locationHotspots, loading, refreshing, page]
   );
 
   return (
