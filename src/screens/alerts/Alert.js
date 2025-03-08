@@ -114,6 +114,8 @@ export default function Alert() {
         })
       );
 
+      console.log('Notifications result:', result);
+      console.log('Current notifications:', notifications);
       if (!result.success) {
         showToast(result.error || "Failed to load notifications");
       }
@@ -145,20 +147,38 @@ export default function Alert() {
 
   const handleNotificationPress = async (notification) => {
     try {
+      console.log('Processing notification:', notification);
       await dispatch(markNotificationAsRead(notification._id));
-
-      if (notification.data?.reportId) {
-        navigation.navigate("ReportDetails", {
-          reportId: notification.data.reportId._id,
+  
+      // Handle FINDER_REPORT_CREATED type
+      if (notification.type === 'FINDER_REPORT_CREATED') {
+        console.log('Navigating to finder report:', notification.data.finderReportId);
+        navigation.navigate('FinderDetails', {
+          finderId: notification.data.finderReportId
         });
-      } else {
-        navigation.navigate("AlertDetails", {
-          notificationId: notification._id,
+      }
+      // Handle FINDER_REPORT type
+      else if (notification.type === 'FINDER_REPORT') {
+        console.log('Navigating to report:', notification.data?.reportId?._id);
+        navigation.navigate('Finder', {
+          reportId: notification.data?.reportId?._id
+        });
+      }
+      // Handle other report types
+      else if (notification.data?.reportId) {
+        navigation.navigate('ReportDetails', {
+          reportId: notification.data.reportId._id
+        });
+      }
+      // Handle general alerts
+      else {
+        navigation.navigate('AlertDetails', {
+          notificationId: notification._id
         });
       }
     } catch (error) {
-      console.error("Error handling notification:", error);
-      showToast("Failed to process notification");
+      console.error('Error handling notification:', error);
+      showToast('Failed to process notification');
     }
   };
 

@@ -39,6 +39,7 @@ const Stack = createStackNavigator();
 import AdminNavigator from './src/navigation/AdminNavigator';
 import showToast from '@/utils/toastUtils';
 import { AlertDetails } from '@/screens/alerts';
+import Finder from '@/screens/alerts/Finder';
 
 
 
@@ -158,6 +159,16 @@ export default function App() {
               options={{ 
                 headerShown: true,
                 headerTitle: 'Notification Details',
+                headerTintColor: '#fff',
+                headerStyle: { backgroundColor: '#041562'}
+              }}
+            />
+             <Stack.Screen 
+              name="FinderDetails" 
+              component={Finder}
+              options={{ 
+                headerShown: true,
+                headerTitle: 'Finder Details',
                 headerTintColor: '#fff',
                 headerStyle: { backgroundColor: '#041562'}
               }}

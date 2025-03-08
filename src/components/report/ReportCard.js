@@ -1,23 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { MapPin, Clock, User, Eye } from 'lucide-react-native';
 import { format } from 'date-fns';
 import tw from 'twrnc';
-import styles from '@styles/styles';
+import styles from '@/styles/styles';
+import FinderReportModal from '@/screens/users/FinderReportModal';
 
 const ReportCard = ({ report, onPress }) => {
+  const [showFinderModal, setShowFinderModal] = useState(false);
+
   const formatDateTime = (date, time) => {
     try {
       if (!date || !time) return 'N/A';
       
-      // Format the date
       const dateObj = new Date(date);
       const dateStr = format(dateObj, 'MMM dd, yyyy');
   
-      // Handle time with AM/PM format
       const timeStr = time.toLowerCase()
-        .replace(/\s/g, '') // Remove spaces
-        .match(/(\d{1,2}):(\d{1,2}):?(\d{1,2})?(?:am|pm)/); // Parse time components
+        .replace(/\s/g, '')
+        .match(/(\d{1,2}):(\d{1,2}):?(\d{1,2})?(?:am|pm)/);
   
       if (!timeStr) return dateStr;
   
@@ -35,11 +36,20 @@ const ReportCard = ({ report, onPress }) => {
     }
   };
 
+  const handleFinderReport = (e) => {
+    e.stopPropagation();
+    setShowFinderModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowFinderModal(false);
+  };
 
   if (!report) return null;
-
+  console.log('Report ID being passed:', report?.id);
   return (
-    <TouchableOpacity 
+    <>
+      <TouchableOpacity 
       style={tw`bg-white shadow-sm mb-4 overflow-hidden`}
       onPress={() => onPress(report)}
     >
@@ -88,16 +98,20 @@ const ReportCard = ({ report, onPress }) => {
 
         <TouchableOpacity
           style={[tw`mt-4 rounded-lg py-2 px-4 flex-row justify-center`, styles.backgroundColorPrimary]}
-          onPress={(e) => {
-            e.stopPropagation(); 
-            // Handle "I Found This Person" action
-          }}
+          onPress={handleFinderReport}
         >
-          <Eye size={18} color="white" style={tw`mr-2`} />
+          <Eye size={18} color="white" style={tw`mr-2 mt-2`} />
           <Text style={styles.buttonTextPrimary}>I Found This Person</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
+
+    <FinderReportModal
+  visible={showFinderModal}
+  onClose={handleCloseModal}
+  reportId={report?.id} // Convert ObjectId to string
+/>
+    </>
   );
 };
 

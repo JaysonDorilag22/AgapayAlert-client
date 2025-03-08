@@ -9,6 +9,7 @@ import { notificationReducer } from './reducers/notificationReducers';
 import { alprReducer } from './reducers/alprReducers';
 import { feedbackReducer } from './reducers/feedbackReducers';
 import { messengerReducer } from './reducers/messengerReducers';
+import { finderReducer } from './reducers/finderReducers'
 
 const store = configureStore({
   reducer: {
@@ -21,7 +22,8 @@ const store = configureStore({
     notification: notificationReducer,
     alpr: alprReducer,
     feedback: feedbackReducer,
-    messenger: messengerReducer
+    messenger: messengerReducer,
+    finder: finderReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
