@@ -40,7 +40,10 @@ import {
   GET_REPORT_DETAILS_FAIL,
   SEARCH_REPORTS_REQUEST,
   SEARCH_REPORTS_SUCCESS,
-  SEARCH_REPORTS_FAIL
+  SEARCH_REPORTS_FAIL,
+  SEARCH_PUBLIC_REPORTS_REQUEST,
+  SEARCH_PUBLIC_REPORTS_SUCCESS,
+  SEARCH_PUBLIC_REPORTS_FAIL
 } from "../actiontypes/reportTypes";
 
 // Create Report
@@ -484,6 +487,61 @@ export const searchReports = (params = {}) => async (dispatch) => {
     const message = error.response?.data?.msg || error.message;
     dispatch({
       type: SEARCH_REPORTS_FAIL,
+      payload: message
+    });
+    return { success: false, error: message };
+  }
+};
+
+
+// Search Public Reports
+export const searchPublicReports = (params = {}) => async (dispatch) => {
+  try {
+    dispatch({ type: SEARCH_PUBLIC_REPORTS_REQUEST });
+
+    // Construct query parameters
+    const queryParams = new URLSearchParams({
+      page: params.page || 1,
+      limit: params.limit || 10,
+      ...(params.searchQuery && { searchQuery: params.searchQuery }),
+      ...(params.city && { city: params.city })
+    }).toString();
+
+    const { data } = await axios.get(
+      `${serverConfig.baseURL}/report/public-search?${queryParams}`,
+      { withCredentials: true }
+    );
+
+    // Log response for debugging
+    console.log("Public search response:", data);
+
+    // Validate data structure
+    if (!data || !data.data || !Array.isArray(data.data.reports)) {
+      throw new Error('Invalid response format');
+    }
+
+    dispatch({
+      type: SEARCH_PUBLIC_REPORTS_SUCCESS,
+      payload: {
+        reports: data.data.reports,
+        currentPage: data.data.currentPage,
+        totalPages: data.data.totalPages,
+        totalResults: data.data.totalResults,
+        hasMore: data.data.hasMore,
+        isNewSearch: params.page === 1
+      }
+    });
+
+    return { 
+      success: true, 
+      data: data.data 
+    };
+
+  } catch (error) {
+    // console.error('Public search error:', error);
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: SEARCH_PUBLIC_REPORTS_FAIL,
       payload: message
     });
     return { success: false, error: message };

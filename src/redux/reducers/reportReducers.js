@@ -38,6 +38,9 @@ import {
   SEARCH_REPORTS_SUCCESS,
   SEARCH_REPORTS_FAIL,
   CLEAR_REPORTS,
+  SEARCH_PUBLIC_REPORTS_REQUEST,
+  SEARCH_PUBLIC_REPORTS_SUCCESS,
+  SEARCH_PUBLIC_REPORTS_FAIL,
 } from "../actiontypes/reportTypes";
 
 const initialState = {
@@ -127,9 +130,7 @@ export const reportReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         reports: state.reports.map((report) =>
-          report._id === action.payload.report._id
-            ? action.payload.report
-            : report
+          report._id === action.payload.report._id ? action.payload.report : report
         ),
       };
     case UPDATE_REPORT_FAIL:
@@ -142,9 +143,7 @@ export const reportReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        reports: state.reports.filter(
-          (report) => report._id !== action.payload
-        ),
+        reports: state.reports.filter((report) => report._id !== action.payload),
       };
     case DELETE_REPORT_FAIL:
       return { ...state, loading: false, error: action.payload };
@@ -155,9 +154,7 @@ export const reportReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        reports: state.reports.map((report) =>
-          report._id === action.payload._id ? action.payload : report
-        ),
+        reports: state.reports.map((report) => (report._id === action.payload._id ? action.payload : report)),
       };
     case ASSIGN_STATION_FAIL:
       return { ...state, loading: false, error: action.payload };
@@ -168,9 +165,7 @@ export const reportReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        reports: state.reports.map((report) =>
-          report._id === action.payload._id ? action.payload : report
-        ),
+        reports: state.reports.map((report) => (report._id === action.payload._id ? action.payload : report)),
       };
     case ASSIGN_OFFICER_FAIL:
       return { ...state, loading: false, error: action.payload };
@@ -296,6 +291,42 @@ export const reportReducer = (state = initialState, action) => {
         ...state,
         searchLoading: false,
         searchError: action.payload,
+      };
+
+    case SEARCH_PUBLIC_REPORTS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        publicSearchResults: {
+          reports: [], // Clear previous results
+          currentPage: 1,
+          totalPages: 1,
+          totalResults: 0,
+          hasMore: false,
+        },
+      };
+
+    case SEARCH_PUBLIC_REPORTS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        publicSearchResults: {
+          reports: action.payload.isNewSearch
+            ? action.payload.reports
+            : [...(state.publicSearchResults?.reports || []), ...action.payload.reports],
+          currentPage: action.payload.currentPage,
+          totalPages: action.payload.totalPages,
+          totalResults: action.payload.totalResults,
+          hasMore: action.payload.hasMore,
+        },
+      };
+
+    case SEARCH_PUBLIC_REPORTS_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
       };
 
     default:

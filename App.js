@@ -40,6 +40,7 @@ import AdminNavigator from './src/navigation/AdminNavigator';
 import showToast from '@/utils/toastUtils';
 import { AlertDetails } from '@/screens/alerts';
 import Finder from '@/screens/alerts/Finder';
+import SearchScreen from '@/screens/reports/SearchScreen';
 
 
 
@@ -172,6 +173,16 @@ export default function App() {
                 headerTintColor: '#fff',
                 headerStyle: { backgroundColor: '#041562'}
               }}
+            />
+             <Stack.Screen 
+              name="Search" 
+              options={{ 
+                headerShown: true,
+                headerTitle: 'Search',
+                headerTintColor: '#041562',
+                headerStyle: { backgroundColor: '#ffffff'}
+              }}
+              component={SearchScreen}
             />
           </Stack.Navigator>
         </NavigationContainer>
