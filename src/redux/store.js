@@ -10,6 +10,7 @@ import { alprReducer } from './reducers/alprReducers';
 import { feedbackReducer } from './reducers/feedbackReducers';
 import { messengerReducer } from './reducers/messengerReducers';
 import { finderReducer } from './reducers/finderReducers'
+import { emergencyContactsReducer } from './reducers/emergencyContactsReducers';
 
 const store = configureStore({
   reducer: {
@@ -23,7 +24,8 @@ const store = configureStore({
     alpr: alprReducer,
     feedback: feedbackReducer,
     messenger: messengerReducer,
-    finder: finderReducer
+    finder: finderReducer,
+    emergencyContacts: emergencyContactsReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

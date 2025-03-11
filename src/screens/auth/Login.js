@@ -21,13 +21,17 @@ import showToast from "@/utils/toastUtils";
 
 // import GoogleAuth from "components/auth/GoogleAuth";
 
+
+import EmergencyContactModal from "./EmergencyContactModal";
+import { AlertCircle } from "lucide-react-native";
+
 export default function Login() {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
-
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [playerId, setPlayerId] = useState(null);
 
   // useEffect(() => {
@@ -177,7 +181,18 @@ export default function Login() {
                 {t("noAccount")} <Text style={tw`underline`}>{t("register")}</Text>
               </Text>
             </TouchableOpacity>
+            <EmergencyContactModal
+            visible={showEmergencyModal}
+            onClose={() => setShowEmergencyModal(false)}
+          />
           </View>
+          <TouchableOpacity 
+            style={[tw`bg-red-600 rounded-lg px-4 py-3 flex-row items-center justify-center mt-4`, { marginBottom: 20 }]}
+            onPress={() => setShowEmergencyModal(true)}
+          >
+            <AlertCircle size={20} color="#fff" style={tw`mr-2`} />
+            <Text style={tw`text-white font-bold text-lg`}>Emergency Contacts</Text>
+          </TouchableOpacity>
         </View>
       )}
     </Formik>
