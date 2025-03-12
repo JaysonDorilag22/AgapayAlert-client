@@ -89,7 +89,7 @@ const styles = {
     color: colorText, 
     fontFamily: 'Poppins_400Regular'
   }),
-  input2: tw.style(`w-full p-1 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`, {
+  input2: tw.style(`w-full p-5 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`, {
     fontFamily: 'Poppins_400Regular'
   }),
   activeInput: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { 
