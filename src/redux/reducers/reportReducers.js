@@ -103,16 +103,18 @@ export const reportReducer = (state = initialState, action) => {
         reports: [],
       };
 
-    case GET_REPORTS_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        reports: action.payload.reports, // Replace instead of accumulate
-        currentPage: action.payload.currentPage,
-        totalPages: action.payload.totalPages,
-        totalReports: action.payload.totalReports,
-        hasMore: action.payload.currentPage < action.payload.totalPages,
-      };
+      case GET_REPORTS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          reports: action.payload.reports,
+          pagination: {
+            currentPage: action.payload.currentPage,
+            totalPages: action.payload.totalPages,
+            totalReports: action.payload.totalReports,
+            hasMore: action.payload.hasMore,
+          },
+        };
 
     case GET_REPORTS_FAIL:
       return {

@@ -12,6 +12,7 @@ import {
   unsubscribeFromReports 
 } from '@/services/socketService';
 import ReportsSection from '../sections/ReportsSection';
+import showToast from "@/utils/toastUtils";
 
 export default function Reports() {
   const dispatch = useDispatch();
@@ -22,9 +23,27 @@ export default function Reports() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { reports = [], loading = false, pagination = {} } = useSelector(
-    (state) => state.report
-  );
+  // Updated selector to correctly access data structure from API
+  const { 
+    reports = [], 
+    loading = false,
+  } = useSelector((state) => state.report || {});
+
+  // Extract pagination data correctly from the API response
+  const { 
+    currentPage: storedPage = 1,
+    totalPages = 0,
+    totalReports = 0,
+    hasMore = false 
+  } = useSelector((state) => state.report?.data || {});
+  
+  // Create a pagination object for compatibility with the rest of your component
+  const pagination = { 
+    currentPage: storedPage, 
+    totalPages, 
+    totalReports, 
+    hasMore 
+  };
 
   const { user } = useSelector(state => state.auth);
 
@@ -60,6 +79,7 @@ export default function Reports() {
         }
       } catch (error) {
         console.error('Socket setup error:', error);
+        showToast("Socket connection error");
       }
     };
 
@@ -80,6 +100,7 @@ export default function Reports() {
     };
   }, [user, selectedType, searchQuery, currentPage]);
 
+  // Enhanced loadReports with better error handling and logging
   const loadReports = useCallback(async (page, type, query = "") => {
     try {
       const params = {
@@ -88,9 +109,17 @@ export default function Reports() {
         ...(type !== "All" && { type }),
         ...(query.trim() && { query: query.trim() })
       };
-      await dispatch(getReports(params));
+      
+      console.log("Fetching reports with params:", params);
+      const result = await dispatch(getReports(params));
+      
+      if (!result.success) {
+        console.error("Failed to load reports:", result.error);
+        showToast(result.error || "Failed to load reports");
+      }
     } catch (error) {
       console.error('Error loading reports:', error);
+      showToast("Error loading reports");
     }
   }, [dispatch]);
 
@@ -137,7 +166,16 @@ export default function Reports() {
   // Initial load
   useEffect(() => {
     loadReports(1, selectedType);
-  }, []); 
+  }, []);
+
+  // Debug logging
+  useEffect(() => {
+    console.log("Redux state:", {
+      reportsCount: reports?.length || 0,
+      pagination,
+      loading
+    });
+  }, [reports, pagination, loading]);
 
   return (
     <View style={{ flex: 1 }}>
