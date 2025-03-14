@@ -13,7 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { format, parseISO } from "date-fns";
 import { debounce } from "lodash";
-import { Search } from "lucide-react-native";
+import { Search, Building2 } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NoDataFound from "@/components/NoDataFound";
 import { ReportListItemSkeleton } from "@/components/skeletons";
@@ -198,15 +198,26 @@ const ReportsSection = () => {
           {`${report?.personInvolved?.firstName || ""} ${report?.personInvolved?.lastName || ""}`.trim() || "N/A"}
         </Text>
         <Text style={tw`text-sm text-gray-500`}>{report?.type || "N/A"}</Text>
-        <Text style={tw`text-xs text-gray-400`}>
+        
+        {/* Police Station Information */}
+        {report?.assignedPoliceStation && (
+          <View style={tw`flex-row items-center mt-0.5`}>
+            <Building2 size={14} color="#4B5563" style={tw`mr-1`} />
+            <Text style={tw`text-xs text-gray-600`}>
+              {report.assignedPoliceStation.name || "Assigned Station N/A"}
+            </Text>
+          </View>
+        )}
+        
+        <Text style={tw`text-xs text-gray-400 mt-0.5`}>
           {format(parseISO(report?.createdAt), "MMM dd, yyyy 'at' h:mm a")}
         </Text>
       </View>
       <View style={tw`${getStatusColor(report.status)}, rounded-full`}>
-            <Text style={tw`px-2 py-0.5 text-xs font-medium`}>
-              {report.status}
-            </Text>
-          </View>
+        <Text style={tw`px-2 py-0.5 text-xs font-medium`}>
+          {report.status}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 

@@ -55,12 +55,12 @@ const styles = {
   buttonContainer: tw.style(`w-full items-center mt-3`, {
     fontFamily: 'Poppins_500Medium'
   }),
-  buttonPrimary: tw.style(`p-3 rounded-lg w-full mb-3`, { 
+  buttonPrimary: tw.style(`p-2 rounded-lg w-full mb-3`, { 
     backgroundColor: colorPrimary, 
     textAlign: 'center',
     fontFamily: 'Poppins_500Medium'
   }),
-  buttonSecondary: tw.style(`p-3 rounded-lg w-full mb-3`, { 
+  buttonSecondary: tw.style(`p-2 rounded-lg w-full mb-3`, { 
     backgroundColor: colorSecondary, 
     textAlign: 'center',
     fontFamily: 'Poppins_500Medium'
@@ -83,13 +83,16 @@ const styles = {
   }),
 
   // Input styles
-  input: tw.style(`w-full p-5 mb-2 mt-2 rounded-lg border`, { 
+  input: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { 
     borderColor: colorDisabled, 
     backgroundColor: colorWhite, 
     color: colorText, 
     fontFamily: 'Poppins_400Regular'
   }),
-  input2: tw.style(`w-full p-5 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`, {
+  input2: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`, {
+    fontFamily: 'Poppins_400Regular'
+  }),
+  input3: tw.style(`w-full p-1 mb-2 mt-2 rounded-lg border border-gray-300 bg-white`, {
     fontFamily: 'Poppins_400Regular'
   }),
   activeInput: tw.style(`w-full p-3 mb-2 mt-2 rounded-lg border`, { 

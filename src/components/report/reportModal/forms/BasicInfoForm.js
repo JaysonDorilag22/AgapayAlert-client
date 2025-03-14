@@ -78,14 +78,16 @@ const BasicInfoForm = ({ onNext, onBack, initialData = { type: '' } }) => {
                   </View>
                   <View style={tw`flex-1`}>
                     <Text style={[
-                      tw`font-bold text-lg mb-1`,
-                      isSelected ? tw`text-blue-600` : tw`text-gray-800`
+                      tw`font-bold mb-1`,
+                      isSelected ? tw`text-blue-600` : tw`text-gray-800`,
+                      styles.textMedium
                     ]}>
                       {key}
                     </Text>
                     <Text style={[
-                      tw`text-sm text-justify`,
-                      isSelected ? tw`text-blue-600` : tw`text-gray-600`
+                      tw`text-justify p-1`,
+                      isSelected ? tw`text-blue-600` : tw`text-gray-600`,
+                      styles.textSmall
                     ]}>
                       {value.description}
                     </Text>

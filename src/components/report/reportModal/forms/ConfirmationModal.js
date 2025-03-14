@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, TouchableOpacity, Image  } from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import {
   AlertCircle,
   PhoneCall,
@@ -90,7 +90,7 @@ const ConfirmationModal = ({ onNext }) => {
             style={tw`w-20 h-20 rounded-full mr-3`}
           />
           <View style={tw`flex-1`}>
-            <Text style={tw`${styles.TextBase} font-bold`}>
+            <Text style={[tw`font-bold`, styles.textLarge]}>
               {user?.firstName?.charAt(0).toUpperCase() +
                 user?.firstName?.slice(1)}{" "}
               {user?.lastName?.charAt(0).toUpperCase() +
@@ -113,24 +113,17 @@ const ConfirmationModal = ({ onNext }) => {
             </View>
           </View>
         </View>
-
-        {/* <View style={tw`flex-row items-center bg-red-50 p-3 rounded-lg`}>
-          <AlertCircle color="#EF4444" size={20} style={tw`mr-2`} />
-          <Text style={tw`${styles.textSmall} text-red-600 text-justify`}>
-            Please ensure all your information above is correct before
-            proceeding. You can edit your profile information from the Profile
-            tab.
-          </Text>
-        </View> */}
       </View>
     );
   };
 
   return (
-    <View style={tw`flex-1 justify-between p-2`}>
+    <View style={tw`flex-1 bg-white justify-between p-2`}>
+      <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
         {renderUserInfo()}
+        
         <View style={tw`rounded-lg p-3 mb-4 border border-gray-200`}>
-          <Text style={tw`${styles.textLarge} font-bold mb-4`}>
+          <Text style={[tw`mb-4`, styles.textLarge, styles.textPrimary]}>
             Important Reminders
           </Text>
           {reminders.map((reminder, index) => {
@@ -150,19 +143,29 @@ const ConfirmationModal = ({ onNext }) => {
                   style={tw`mr-2 mt-0.5`}
                 />
                 <Text
-                  style={tw`${reminder.textColor} text-sm flex-1 text-justify`}
+                  style={[tw`${reminder.textColor} flex-1 text-justify`, styles.textSmall]}
                 >
-                  <Text style={tw`font-bold`}>{reminder.title}</Text>{" "}
+                  <Text style={[styles.fontText, tw`font-bold`]}>
+                    {reminder.title}
+                  </Text>{" "}
                   {reminder.description}
                 </Text>
               </View>
             );
           })}
         </View>
+      </ScrollView>
 
-      <TouchableOpacity style={styles.buttonPrimary} onPress={onNext}>
-        <Text style={styles.buttonTextPrimary}>I Understand, Continue</Text>
-      </TouchableOpacity>
+      {/* Button positioned outside ScrollView */}
+      <View style={tw`mt-4`}>
+        <TouchableOpacity 
+          style={styles.buttonPrimary} 
+          onPress={onNext}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.buttonTextPrimary}>I Understand, Continue</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

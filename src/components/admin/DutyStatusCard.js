@@ -1,16 +1,31 @@
-import React from 'react';
-import { View, Text, Image, Switch } from 'react-native';
-import { Clock, Calendar, History } from 'lucide-react-native';
+import React, { useEffect } from 'react';
+import { View, Text, Image, Switch, ActivityIndicator } from 'react-native';
+import { Clock, Calendar, History, Building2, AlertCircle } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateDutyStatus } from '@/redux/actions/userActions';
 import showToast from '@/utils/toastUtils';
 import tw from 'twrnc';
+import { getPoliceStations } from '@/redux/actions/policeStationActions';
+import styles from '@/styles/styles';
 
 const DutyStatusCard = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = React.useState(false);
   const { user } = useSelector((state) => state.auth);
+  const { policeStations, loading: policeStationsLoading } = useSelector((state) => state.policeStation);
 
+  // Fetch police stations on component mount
+  useEffect(() => {
+    if (user?.policeStation && (!policeStations || policeStations.length === 0)) {
+      dispatch(getPoliceStations());
+    }
+  }, [dispatch, user]);
+
+  // Find police station details if available in the Redux store
+  const userPoliceStation = policeStations?.find(station => 
+    station._id === user?.policeStation
+  );
+  
   // Calculate current duty hours if on duty
   const currentDutyHours = user?.lastDutyChange ? 
     ((new Date() - new Date(user.lastDutyChange)) / (1000 * 60 * 60)).toFixed(1) : 0;
@@ -38,77 +53,152 @@ const DutyStatusCard = () => {
   };
 
   return (
-    <View style={tw`bg-white rounded-lg border border-gray-200 p-4 mb-4`}>
-      {/* Profile Header */}
-      <View style={tw`flex-row items-center mb-4`}>
-        <Image 
-          source={{ uri: user?.avatar?.url || 'https://via.placeholder.com/60' }}
-          style={tw`w-16 h-16 rounded-full mr-4`}
-        />
-        <View style={tw`flex-1`}>
-          <Text style={tw`text-xl font-bold text-gray-800`}>
-            {user?.firstName} {user?.lastName}
-          </Text>
-          <Text style={tw`text-sm text-gray-600`}>
-            {user?.email}
-          </Text>
-          <Text style={tw`text-xs text-gray-500`}>
-            ID: {user?._id}
-          </Text>
+    <View style={tw`bg-white rounded-xl shadow-sm overflow-hidden mb-4`}>
+      {/* Header Section with gradient background */}
+      <View style={tw`p-4 border-b border-gray-100`}>
+        <View style={tw`flex-row items-center`}>
+          <Image 
+            source={{ uri: user?.avatar?.url || 'https://via.placeholder.com/60' }}
+            style={tw`w-16 h-16 rounded-full border-2 border-white`}
+          />
+          <View style={tw`ml-4 flex-1`}>
+            <Text style={tw`text-xl font-bold text-gray-800`}>
+              {user?.firstName} {user?.lastName}
+            </Text>
+            <Text style={tw`text-sm text-gray-600`}>
+              {user?.email}
+            </Text>
+          </View>
+          
+          {/* Status Badge */}
+          <View style={[
+            tw`px-3 py-1.5 rounded-full`, 
+            user?.isOnDuty ? tw`bg-green-100` : tw`bg-red-100`
+          ]}>
+            <Text style={[
+              tw`text-sm font-medium`,
+              user?.isOnDuty ? tw`text-green-700` : tw`text-red-700`
+            ]}>
+              {user?.isOnDuty ? 'On Duty' : 'Off Duty'}
+            </Text>
+          </View>
         </View>
       </View>
 
-      {/* Duty Status */}
-      <View style={tw`flex-row items-center justify-between mb-4 bg-gray-50 p-3 rounded-lg`}>
-        <View>
-          <Text style={tw`text-base font-medium text-gray-700`}>Duty Status</Text>
-          {user?.isOnDuty && (
-            <Text style={tw`text-sm text-green-600`}>
-              {currentDutyHours} hours on current shift
+      {/* Police Station Info */}
+      {user?.policeStation && (
+        <View style={tw`px-4 py-3 border-b border-gray-100 bg-blue-50`}>
+          <View style={tw`flex-row items-center mb-1`}>
+            <Building2 size={18} color="#2563eb" style={tw`mr-2`} />
+            <Text style={tw`text-base font-medium text-blue-800`}>
+              Police Station Assignment
             </Text>
+          </View>
+          
+          {policeStationsLoading ? (
+            <View style={tw`flex-row items-center mt-1 ml-7`}>
+              <ActivityIndicator size="small" color="#2563eb" style={tw`mr-2`} />
+              <Text style={tw`text-sm text-gray-600`}>Loading station details...</Text>
+            </View>
+          ) : userPoliceStation ? (
+            <View style={tw`ml-7`}>
+              <Text style={tw`text-sm text-gray-700 font-medium`}>
+                {userPoliceStation.name}
+              </Text>
+              {userPoliceStation.address && (
+                <Text style={tw`text-xs text-gray-600 mt-0.5`}>
+                  {userPoliceStation.address.streetAddress}, {userPoliceStation.address.barangay}, {userPoliceStation.address.city}
+                </Text>
+              )}
+            </View>
+          ) : (
+            <View style={tw`ml-7`}>
+              <Text style={tw`text-sm text-gray-700`}>Assigned to police station</Text>
+              <Text style={tw`text-xs text-gray-600`}>ID: {user.policeStation}</Text>
+            </View>
           )}
         </View>
-        <Switch
-          value={user?.isOnDuty}
-          onValueChange={handleDutyStatusChange}
-          disabled={loading}
-          trackColor={{ false: '#ef4444', true: '#22c55e' }}
-          thumbColor={loading ? '#9ca3af' : '#ffffff'}
-        />
+      )}
+
+      {/* Duty Status Control */}
+      <View style={tw`px-4 py-4`}>
+        <View style={tw`flex-row items-center justify-between mb-4 p-3 rounded-lg bg-gray-50`}>
+          <View>
+            <Text style={tw`text-base font-medium text-gray-800`}>Duty Status</Text>
+            {user?.isOnDuty && (
+              <View style={tw`flex-row items-center mt-1`}>
+                <Clock size={14} color="#059669" style={tw`mr-1`} />
+                <Text style={tw`text-sm text-green-600 font-medium`}>
+                  {currentDutyHours} hours on current shift
+                </Text>
+              </View>
+            )}
+          </View>
+          
+          <Switch
+            value={user?.isOnDuty}
+            onValueChange={handleDutyStatusChange}
+            disabled={loading}
+            trackColor={{ false: '#f87171', true: '#34d399' }}
+            thumbColor={loading ? '#9ca3af' : '#ffffff'}
+            ios_backgroundColor="#f87171"
+            style={tw`scale-110`}
+          />
+        </View>
+
+        {/* Warning Note for minimum duty hours */}
+        <View style={tw`flex-row items-center p-3 rounded-lg bg-red-50 mb-4`}>
+          <AlertCircle size={16} color="#ef4444" style={tw`mr-2 flex-shrink-0`} />
+          <Text style={tw`text-xs text-red-600 flex-1`}>
+            Minimum 8 hours required before going off duty
+          </Text>
+        </View>
+
+        {/* Time Details */}
+        <View style={tw`rounded-lg p-3 bg-gray-50`}>
+          <Text style={tw`text-base font-medium text-gray-800 mb-2`}>
+            Duty Statistics
+          </Text>
+          
+          <View style={tw`space-y-3`}>
+            <View style={tw`flex-row items-center`}>
+              <View style={tw`w-8 h-8 rounded-full bg-blue-100 items-center justify-center mr-2`}>
+                <Clock size={16} color="#2563eb" />
+              </View>
+              <Text style={tw`text-sm text-gray-700`}>
+                {user?.isOnDuty ? 
+                  `On duty since ${new Date(user.lastDutyChange).toLocaleTimeString()}` : 
+                  'Currently Off Duty'}
+              </Text>
+            </View>
+
+            <View style={tw`flex-row items-center`}>
+              <View style={tw`w-8 h-8 rounded-full bg-blue-100 items-center justify-center mr-2`}>
+                <History size={16} color="#2563eb" />
+              </View>
+              <Text style={tw`text-sm text-gray-700`}>
+                Total duty hours: <Text style={tw`font-medium`}>{totalDutyHours.toFixed(1)}h</Text>
+              </Text>
+            </View>
+
+            <View style={tw`flex-row items-center`}>
+              <View style={tw`w-8 h-8 rounded-full bg-blue-100 items-center justify-center mr-2`}>
+                <Calendar size={16} color="#2563eb" />
+              </View>
+              <View style={tw`flex-1`}>
+                <Text style={tw`text-sm text-gray-700`}>
+                  Last duty change: 
+                </Text>
+                <Text style={tw`text-sm text-gray-700 font-medium`}>
+                  {user?.lastDutyChange ? 
+                    new Date(user.lastDutyChange).toLocaleString() : 
+                    'No recent activity'}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
       </View>
-
-      {/* Time Details */}
-      <View style={tw`space-y-3`}>
-        <View style={tw`flex-row items-center`}>
-          <Clock size={16} color="#2563eb" style={tw`mr-2`} />
-          <Text style={tw`text-sm text-gray-600`}>
-            {user?.isOnDuty ? 
-              `On duty since ${new Date(user.lastDutyChange).toLocaleTimeString()}` : 
-              'Currently Off Duty'}
-          </Text>
-        </View>
-
-        <View style={tw`flex-row items-center`}>
-          <History size={16} color="#2563eb" style={tw`mr-2`} />
-          <Text style={tw`text-sm text-gray-600`}>
-            Total duty hours: {totalDutyHours.toFixed(1)}h
-          </Text>
-        </View>
-
-        <View style={tw`flex-row items-center`}>
-          <Calendar size={16} color="#2563eb" style={tw`mr-2`} />
-          <Text style={tw`text-sm text-gray-600`}>
-            Last duty change: {user?.lastDutyChange ? 
-              new Date(user.lastDutyChange).toLocaleString() : 
-              'No recent activity'}
-          </Text>
-        </View>
-      </View>
-
-      {/* Note */}
-      <Text style={tw`text-xs text-red-500 mt-4`}>
-        Note: Minimum 8 hours required before going off duty
-      </Text>
     </View>
   );
 };

@@ -25,7 +25,7 @@ export default function Reports() {
   const { reports = [], loading = false, pagination = {} } = useSelector(
     (state) => state.report
   );
-  
+
   const { user } = useSelector(state => state.auth);
 
   // Socket setup
