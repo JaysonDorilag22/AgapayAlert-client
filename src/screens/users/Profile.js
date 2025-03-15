@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, TextInput, Switch, TouchableOpacity, ActivityIndicator } from "react-native";
 
 import { useNavigation } from "@react-navigation/native";
-import { MapPin, Mail, Info, Edit3 } from "lucide-react-native";
+import { MapPin, Mail, Info, Edit3, Camera, IdCard, File } from "lucide-react-native";
 import { useSelector, useDispatch } from "react-redux";
 import tw from "twrnc";
 
@@ -26,6 +26,7 @@ const Profile = () => {
   const [isChangePasswordVisible, setIsChangePasswordVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
+    middleName: "",
     lastName: "",
     number: "",
     address: {
@@ -41,6 +42,7 @@ const Profile = () => {
     },
   });
   const [avatar, setAvatar] = useState(null);
+  const [card, setCard] = useState(null);
 
   useEffect(() => {
     if (authUser?._id) {
@@ -52,6 +54,7 @@ const Profile = () => {
     if (user) {
       setFormData({
         firstName: user.firstName || "",
+        middleName: user.middleName || "",
         lastName: user.lastName || "",
         number: user.number || "",
         address: user.address || {
@@ -67,6 +70,7 @@ const Profile = () => {
         },
       });
       setAvatar(user.avatar);
+      setCard(user.card);
     }
   }, [user]);
 
@@ -89,6 +93,7 @@ const Profile = () => {
     if (user) {
       setFormData({
         firstName: user.firstName,
+        middleName: user.middleName || "",
         lastName: user.lastName,
         number: user.number,
         address: user.address || {
@@ -104,6 +109,7 @@ const Profile = () => {
         },
       });
       setAvatar(user.avatar);
+      setCard(user.card);
     }
   };
 
@@ -119,6 +125,7 @@ const Profile = () => {
     const updatedData = new FormData();
     Object.entries({
       firstName: formData.firstName,
+      middleName: formData.middleName,
       lastName: formData.lastName,
       number: formData.number,
       "address[streetAddress]": formData.address.streetAddress,
@@ -126,18 +133,28 @@ const Profile = () => {
       "address[city]": formData.address.city,
       "address[zipCode]": formData.address.zipCode,
     }).forEach(([key, value]) => {
-      if (value) updatedData.append(key, value);
+      if (value !== undefined && value !== null) updatedData.append(key, value);
     });
 
     if (sms) updatedData.append("preferredNotifications[sms]", true);
     if (push) updatedData.append("preferredNotifications[push]", true);
     if (email) updatedData.append("preferredNotifications[email]", true);
 
+    // Upload avatar if changed
     if (avatar?.uri?.startsWith("file://")) {
       updatedData.append("avatar", {
         uri: avatar.uri,
         type: "image/jpeg",
-        name: avatar.name,
+        name: "avatar.jpg",
+      });
+    }
+
+    // Upload ID card if changed
+    if (card?.uri?.startsWith("file://")) {
+      updatedData.append("card", {
+        uri: card.uri,
+        type: "image/jpeg",
+        name: "card.jpg",
       });
     }
 
@@ -152,9 +169,26 @@ const Profile = () => {
   };
 
   const handlePickImage = async () => {
-    const result = await pickImage();
-    if (result) {
-      setAvatar(result);
+    try {
+      const result = await pickImage();
+      if (result) {
+        setAvatar(result);
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      showToast("Failed to pick image");
+    }
+  };
+
+  const handlePickCard = async () => {
+    try {
+      const result = await pickImage();
+      if (result) {
+        setCard(result);
+      }
+    } catch (error) {
+      console.error("Error picking ID card image:", error);
+      showToast("Failed to pick ID card image");
     }
   };
 
@@ -168,17 +202,25 @@ const Profile = () => {
 
   return (
     <ScrollView style={tw`flex-1 bg-white p-4`}>
-      <View style={tw`items-center mb-4`}>
-        <View style={tw`relative`}>
-          <Image
-            source={{
-              uri: avatar?.url || avatar?.uri || "https://via.placeholder.com/150",
-            }}
-            style={tw`w-24 h-24 rounded-full`}
-          />
-          <TouchableOpacity style={tw`absolute bottom-0 right-0 bg-white p-1 rounded-full`} onPress={handlePickImage}>
-            <Edit3 color="black" size={20} />
-          </TouchableOpacity>
+      <View style={tw`flex-row justify-center mb-4`}>
+        {/* Avatar Upload */}
+        <View style={tw`items-center`}>
+          <View style={tw`relative`}>
+            <Image
+              source={{
+                uri: avatar?.url || avatar?.uri || "https://via.placeholder.com/150",
+              }}
+              style={tw`w-24 h-24 rounded-full`}
+            />
+            <TouchableOpacity
+              style={tw`absolute bottom-0 right-0 bg-white p-1 rounded-full`}
+              onPress={handlePickImage}
+              disabled={!isEditing}
+            >
+              <Edit3 color={isEditing ? "black" : "gray"} size={20} />
+            </TouchableOpacity>
+          </View>
+          <Text style={tw`text-xs mt-1 text-gray-600`}>Profile Photo</Text>
         </View>
       </View>
 
@@ -194,6 +236,8 @@ const Profile = () => {
           <Text style={tw`text-sm text-red-500 ml-1`}>Email cannot be edited as it is used for verification</Text>
         </View>
       </View>
+
+      {/* Name fields */}
       <View style={tw`flex-row justify-between`}>
         <View style={tw`flex-1 mr-1`}>
           <Text style={tw`text-sm`}>First Name</Text>
@@ -204,7 +248,19 @@ const Profile = () => {
             onChangeText={(text) => setFormData({ ...formData, firstName: text })}
           />
         </View>
-        <View style={tw`flex-1`}>
+
+        <View style={tw`w-14`}>
+          <Text style={tw`text-sm`}>M.I.</Text>
+          <TextInput
+            style={isEditing ? [styles.activeInput, tw`text-center`] : [styles.input, tw`text-center`]}
+            value={formData.middleName}
+            maxLength={1}
+            editable={isEditing}
+            onChangeText={(text) => setFormData({ ...formData, middleName: text })}
+          />
+        </View>
+
+        <View style={tw`flex-1 ml-1`}>
           <Text style={tw`text-sm`}>Last Name</Text>
           <TextInput
             style={isEditing ? styles.activeInput : styles.input}
@@ -214,6 +270,7 @@ const Profile = () => {
           />
         </View>
       </View>
+
       <View style={tw`mb-1`}>
         <Text style={tw`text-sm `}>Contact Number</Text>
         <TextInput
@@ -222,6 +279,30 @@ const Profile = () => {
           editable={isEditing}
           onChangeText={(text) => setFormData({ ...formData, number: text })}
         />
+      </View>
+      <View style={tw`mb-1`}>
+        <Text style={tw`text-sm`}>ID Card</Text>
+        <View style={tw`items-center justify-center`}>
+          <TouchableOpacity onPress={isEditing ? handlePickCard : null} disabled={!isEditing}>
+            <View
+              style={tw`mt-1 w-50 h-50 rounded-lg bg-gray-200 justify-center items-center border border-dashed border-gray-400 ${
+                isEditing ? "border-blue-500" : ""
+              }`}
+            >
+              {card?.url || card?.uri ? (
+                <Image source={{ uri: card.url || card.uri }} style={tw`w-50 h-50 rounded-lg`} />
+              ) : (
+                <File color={isEditing ? "blue" : "gray"} size={24} />
+              )}
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={tw`flex-row items-center mt-1 mb-2 bg-red-200 p-2 rounded-md`}>
+          <Info color="red" size={16} />
+          <Text style={tw`text-sm text-red-500 ml-1`}>
+            ID card is required for user verification to prevent false reports
+          </Text>
+        </View>
       </View>
 
       <Seperator />
@@ -293,65 +374,10 @@ const Profile = () => {
         </View>
       </View>
 
-      <Seperator />
-
-      {/* <View style={tw`mb-5 mt-3`}>
-        <Text style={tw`text-lg font-bold mb-1`}>Preferred Notifications</Text>
-        <View style={tw`flex-row justify-between items-center mb-1`}>
-          <Text style={tw`text-gray-700`}>SMS</Text>
-          <Switch
-            value={formData.preferredNotifications.sms}
-            onValueChange={(value) =>
-              setFormData({
-                ...formData,
-                preferredNotifications: {
-                  sms: value,
-                  push: false,
-                  email: false,
-                },
-              })
-            }
-            disabled={!isEditing}
-          />
-        </View>
-        <View style={tw`flex-row justify-between items-center mb-1`}>
-          <Text style={tw`text-gray-700`}>Push</Text>
-          <Switch
-            value={formData.preferredNotifications.push}
-            onValueChange={(value) =>
-              setFormData({
-                ...formData,
-                preferredNotifications: {
-                  sms: false,
-                  push: value,
-                  email: false,
-                },
-              })
-            }
-            disabled={!isEditing}
-          />
-        </View>
-        <View style={tw`flex-row justify-between items-center`}>
-          <Text style={tw`text-gray-700`}>Email</Text>
-          <Switch
-            value={formData.preferredNotifications.email}
-            onValueChange={(value) =>
-              setFormData({
-                ...formData,
-                preferredNotifications: {
-                  sms: false,
-                  push: false,
-                  email: value,
-                },
-              })
-            }
-            disabled={!isEditing}
-          />
-        </View>
-      </View> */}
-
       {isEditing && (
         <View style={tw`flex-row justify-between mb-4`}>
+          <Seperator />
+
           <TouchableOpacity style={[styles.buttonOutline, tw`flex-1 mr-2`]} onPress={handleCancel}>
             <Text style={styles.buttonTextOutline}>Cancel</Text>
           </TouchableOpacity>
@@ -362,7 +388,7 @@ const Profile = () => {
       )}
 
       <Seperator style={tw`mb-3`} />
-      <MessengerButton/>
+      <MessengerButton />
 
       {!isEditing && (
         <TouchableOpacity style={[styles.buttonPrimary, tw`mt-4`]} onPress={handleEdit}>

@@ -4,6 +4,7 @@ export const registerValidationSchema = Yup.object().shape({
   firstName: Yup.string()
     .min(2, 'First Name must be at least 2 characters')
     .required('First Name is required'),
+    middleName: Yup.string(), // Not required
   lastName: Yup.string()
     .min(2, 'Last Name must be at least 2 characters')
     .required('Last Name is required'),
@@ -31,4 +32,6 @@ export const registerValidationSchema = Yup.object().shape({
     .matches(/^[0-9]+$/, 'ZIP code must contain only digits')
     .min(4, 'ZIP code must be at least 4 digits')
     .required('ZIP Code is required'),
+avatar: Yup.mixed().required('Profile photo is required'),
+card: Yup.mixed().required('ID card photo is required'),
 });

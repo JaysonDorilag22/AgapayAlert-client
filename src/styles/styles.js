@@ -51,6 +51,11 @@ const styles = {
     fontFamily: 'Poppins_600SemiBold'
   }),
 
+  textdesc: tw.style(`text-xs`, { 
+    color: colorAccent,
+    fontFamily: ' Poppins_100Thin'
+  }),
+
   // Button styles
   buttonContainer: tw.style(`w-full items-center mt-3`, {
     fontFamily: 'Poppins_500Medium'

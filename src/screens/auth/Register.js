@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, TextInput, Image, ScrollView, ActivityIndicator } from "react-native";
 
-import { Camera } from "lucide-react-native";
+import { Camera, AlertCircle, IdCard } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { CheckBox } from "react-native-elements";
 import { useTranslation } from "react-i18next";
@@ -26,6 +26,7 @@ import tw from "twrnc";
 
 export default function Register() {
   const [avatar, setAvatar] = useState(null);
+  const [card, setCard] = useState(null);
   const [isChecked, setIsChecked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -76,7 +77,7 @@ export default function Register() {
     }
   };
 
-  const handleCitySearch = async (text) => {
+  const handleCitySearch = (text, setFieldValue, setFieldTouched) => {
     setCitySearch(text);
     if (text.length > 0) {
       const filtered = cities.filter((city) => city.label.toLowerCase().includes(text.toLowerCase()));
@@ -89,8 +90,10 @@ export default function Register() {
       setBarangays([]);
       setSelectedBarangay("");
       setSelectedCity(null);
-      setFieldValue("barangay", "");
-      setFieldTouched("barangay", true);
+      if (setFieldValue) {
+        setFieldValue("barangay", "");
+        setFieldTouched("barangay", true);
+      }
     }
   };
 
@@ -102,10 +105,19 @@ export default function Register() {
     }
   };
 
+  const handlePickCard = async (setFieldValue) => {
+    const result = await pickImage();
+    if (result) {
+      setCard(result);
+      setFieldValue("card", result);
+    }
+  };
+
   const createFormData = (values) => {
     const formData = new FormData();
     const userFields = {
       firstName: values.firstName,
+      middleName: values.middleName,
       lastName: values.lastName,
       number: values.phoneNumber,
       email: values.email,
@@ -143,14 +155,40 @@ export default function Register() {
     };
   };
 
+  const handleCardUpload = async (card) => {
+    if (!card) return null;
+
+    let cardUri = card;
+    if (typeof card === "string") {
+      const fileUri = FileSystem.documentDirectory + "card.jpg";
+      const downloadResult = await FileSystem.downloadAsync(card, fileUri);
+      cardUri = downloadResult.uri;
+    } else if (card.uri) {
+      cardUri = card.uri;
+    }
+
+    return {
+      uri: cardUri,
+      type: "image/jpeg",
+      name: "card.jpg",
+    };
+  };
+
   const handleRegister = async (values, { resetForm }) => {
     try {
+      console.log("DEBUG: Register function triggered with data:", JSON.stringify(values, null, 2));
+
       setIsUploading(true);
       const formData = createFormData(values);
 
       const avatarFile = await handleAvatarUpload(values.avatar);
       if (avatarFile) {
         formData.append("avatar", avatarFile);
+      }
+
+      const cardFile = await handleCardUpload(values.card);
+      if (cardFile) {
+        formData.append("card", cardFile);
       }
 
       formData.append("isAgreed", isChecked.toString());
@@ -167,6 +205,7 @@ export default function Register() {
       }
     } catch (error) {
       setIsUploading(false);
+      console.log(error);
       showToast("Unexpected error occurred during registration");
       dispatch(clearAuthError());
     }
@@ -177,6 +216,7 @@ export default function Register() {
       <Formik
         initialValues={{
           firstName: route.params?.firstName || "",
+          middleName: route.params?.middleName || "",
           lastName: route.params?.lastName || "",
           phoneNumber: "",
           email: route.params?.email || "",
@@ -186,25 +226,48 @@ export default function Register() {
           city: "",
           zipCode: "",
           avatar: route.params?.avatar || null,
+          card: route.params?.card || null,
         }}
         validationSchema={registerValidationSchema}
         onSubmit={handleRegister}
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue, setFieldTouched }) => (
           <View style={styles.container}>
-            <TouchableOpacity onPress={() => handlePickImage(setFieldValue)} style={tw`mb-4`}>
-              <View style={tw`w-24 h-24 rounded-full bg-gray-200 justify-center items-center`}>
-                {values.avatar ? (
-                  <Image source={{ uri: values.avatar.uri || values.avatar }} style={tw`w-24 h-24 rounded-full`} />
-                ) : (
-                  <Camera color="gray" size={24} />
-                )}
-              </View>
-            </TouchableOpacity>
+            <View style={tw`flex-row justify-between mb-4 gap-3`}>
+              {/* Avatar Upload */}
+
+              <TouchableOpacity onPress={() => handlePickImage(setFieldValue)} style={tw`items-center`}>
+                <View
+                  style={tw`w-24 h-24 rounded-full bg-gray-200 justify-center items-center border border-dashed border-gray-400`}
+                >
+                  {values.avatar ? (
+                    <Image
+                      source={{ uri: typeof values.avatar === "string" ? values.avatar : values.avatar.uri }}
+                      style={tw`w-24 h-24 rounded-full`}
+                    />
+                  ) : (
+                    <Camera color="gray" size={24} />
+                  )}
+                </View>
+                <Text style={tw`text-xs mt-1 text-gray-600`}>Profile Photo</Text>
+              </TouchableOpacity>
+            </View>
+
+            {touched.avatar && errors.avatar && (
+              <Text style={[tw`text-red-500 text-xs mb-2`, { alignSelf: "flex-start" }]}>{errors.avatar}</Text>
+            )}
+
+            {touched.card && errors.card && (
+              <Text style={[tw`text-red-500 text-xs mb-2`, { alignSelf: "flex-start" }]}>{errors.card}</Text>
+            )}
+
             <Text style={[tw`text-lg font-bold mb-2`, { color: styles.textPrimary.color, alignSelf: "flex-start" }]}>
               {t("accountInfo")}
             </Text>
-            <View style={tw`flex-row justify-between w-full`}>
+
+            {/* First Name, Middle Name Row */}
+            <View style={tw`flex-row justify-between w-full mb-2`}>
+              {/* First Name */}
               <View style={tw`flex-1 mr-2`}>
                 <TextInput
                   style={styles.input}
@@ -214,31 +277,53 @@ export default function Register() {
                   value={values.firstName}
                 />
                 {touched.firstName && errors.firstName && (
-                  <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.firstName}</Text>
+                  <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                    {errors.firstName}
+                  </Text>
                 )}
               </View>
-              <View style={tw`flex-1 ml-2`}>
+
+              {/* Middle Initial */}
+              <View style={tw`w-14`}>
                 <TextInput
-                  style={styles.input}
-                  placeholder={t("lastName")}
-                  onChangeText={handleChange("lastName")}
-                  onBlur={handleBlur("lastName")}
-                  value={values.lastName}
+                  style={[styles.input, tw`text-center`]} // Centers the MI text
+                  placeholder={t("MI")}
+                  maxLength={1} // Limits input to 1 character
+                  onChangeText={handleChange("middleName")}
+                  onBlur={handleBlur("middleName")}
+                  value={values.middleName}
                 />
-                {touched.lastName && errors.lastName && (
-                  <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.lastName}</Text>
-                )}
               </View>
             </View>
+
+            {/* Last Name */}
+            <View style={tw`w-full mb-2`}>
+              <TextInput
+                style={styles.input}
+                placeholder={t("lastName")}
+                onChangeText={handleChange("lastName")}
+                onBlur={handleBlur("lastName")}
+                value={values.lastName}
+              />
+              {touched.lastName && errors.lastName && (
+                <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                  {errors.lastName}
+                </Text>
+              )}
+            </View>
+
             <TextInput
               style={styles.input}
               placeholder={t("phoneNumber")}
               onChangeText={handleChange("phoneNumber")}
+              keyboardType="number-pad"
               onBlur={handleBlur("phoneNumber")}
               value={values.phoneNumber}
             />
             {touched.phoneNumber && errors.phoneNumber && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.phoneNumber}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.phoneNumber}
+              </Text>
             )}
             <TextInput
               style={styles.input}
@@ -248,7 +333,9 @@ export default function Register() {
               value={values.email}
             />
             {touched.email && errors.email && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.email}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.email}
+              </Text>
             )}
             <TextInput
               style={styles.input}
@@ -259,8 +346,38 @@ export default function Register() {
               value={values.password}
             />
             {touched.password && errors.password && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.password}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.password}
+              </Text>
             )}
+
+            {/* ID Card Upload */}
+            <View style={tw`flex-row items-center mt-2 mb-4`}>
+              <TouchableOpacity onPress={() => handlePickCard(setFieldValue)}>
+                <View
+                  style={tw`w-24 h-24 rounded-lg bg-gray-200 justify-center items-center border border-dashed border-gray-400`}
+                >
+                  {values.card ? (
+                    <Image
+                      source={{ uri: typeof values.card === "string" ? values.card : values.card.uri }}
+                      style={tw`w-24 h-24 rounded-lg`}
+                    />
+                  ) : (
+                    <IdCard color="gray" size={24} />
+                  )}
+                </View>
+                <Text style={tw`text-xs mt-1 text-gray-600 text-center`}>ID Card</Text>
+              </TouchableOpacity>
+
+              <View style={tw`ml-4 flex-1`}>
+                <Text style={tw`text-sm font-medium mb-1`}>Government ID</Text>
+                <Text style={tw`text-xs text-gray-600 mb-2`}>Any valid government-issued identification</Text>
+                <Text style={tw`text-xs text-red-500 font-medium`}>
+                  Required to prevent false reports and verify your identity
+                </Text>
+              </View>
+            </View>
+
             <Text style={[tw`text-lg font-bold mt-4`, { color: styles.textPrimary.color, alignSelf: "flex-start" }]}>
               {t("address")}
             </Text>
@@ -274,7 +391,9 @@ export default function Register() {
               value={values.streetAddress}
             />
             {touched.streetAddress && errors.streetAddress && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.streetAddress}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.streetAddress}
+              </Text>
             )}
 
             {/* <View style={tw` mb-4`}> */}
@@ -287,13 +406,15 @@ export default function Register() {
               placeholder={t("city")}
               value={citySearch}
               onChangeText={(text) => {
-                handleCitySearch(text);
+                handleCitySearch(text, setFieldValue, setFieldTouched);
                 handleChange("city")(text);
               }}
               onBlur={handleBlur("city")}
             />
             {touched.city && errors.city && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.city}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.city}
+              </Text>
             )}
 
             {showCitySuggestions && citySuggestions.length > 0 && (
@@ -328,7 +449,7 @@ export default function Register() {
                         setCitySearch(city.label);
                         setShowCitySuggestions(false);
                         setFieldValue("city", city.label);
-                        setFieldTouched("city", true); // Add this line
+                        setFieldTouched("city", true);
                         handleBlur("city");
                         setSelectedBarangay("");
                         setFieldValue("barangay", "");
@@ -362,7 +483,9 @@ export default function Register() {
             </View>
 
             {touched.barangay && errors.barangay && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.barangay}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.barangay}
+              </Text>
             )}
 
             {isLoadingBarangays && <ActivityIndicator size="small" color={styles.textPrimary.color} />}
@@ -375,7 +498,9 @@ export default function Register() {
               value={values.zipCode}
             />
             {touched.zipCode && errors.zipCode && (
-              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>{errors.zipCode}</Text>
+              <Text style={[tw`text-red-500 text-xs`, { alignSelf: "flex-start" }, styles.fontTextSecondary]}>
+                {errors.zipCode}
+              </Text>
             )}
             <CheckBox
               title={
