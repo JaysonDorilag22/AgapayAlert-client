@@ -10,6 +10,7 @@ import {
   PhysicalDescriptionForm,
   PoliceStationForm,
   PreviewForm,
+  VideoUploadForm, 
 } from "./forms";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "@/styles/styles";
@@ -48,6 +49,7 @@ const initialFormState = {
   assignedPoliceStation: null,
   broadcastConsent: false,
   additionalImages: [],
+  video: null,
 };
 
 const ReportModal = ({ visible, onClose }) => {
@@ -62,7 +64,7 @@ const ReportModal = ({ visible, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const TOTAL_STEPS = 7;
+  const TOTAL_STEPS = 8;
 
 // Update save draft handler
 const handleClose = useCallback(() => {
@@ -202,13 +204,16 @@ useEffect(() => {
       case 5:
         return <LocationForm {...commonProps} onBack={() => handleBack(4)} />;
       case 6:
-        return <PoliceStationForm {...commonProps} onBack={() => handleBack(5)} />
+        return <VideoUploadForm {...commonProps} onBack={() => handleBack(5)} />; // Add this case
       case 7:
-        return <PreviewForm {...commonProps} onBack={() => handleBack(6)} onClose={handleClose}/>
+        return <PoliceStationForm {...commonProps} onBack={() => handleBack(6)} />
+      case 8:
+        return <PreviewForm {...commonProps} onBack={() => handleBack(7)} onClose={handleClose}/>
       default:
         return null;
     }
   }, [step, formData, handleNext, handleBack, handleClose]);
+
 
   const STEP_TITLES = [
     "Terms & Conditions",
@@ -216,6 +221,7 @@ useEffect(() => {
     "Person Details",
     "Physical Description",
     "Location Details",
+    "Video Evidence", 
     "Police Station",
     "Preview Report"
   ];

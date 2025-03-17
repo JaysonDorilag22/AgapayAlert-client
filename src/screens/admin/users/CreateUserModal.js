@@ -17,6 +17,25 @@ const USER_ROLES = {
   super_admin: ["city_admin", "police_admin", "police_officer"],
 };
 
+// Police ranks according to the backend model
+const POLICE_RANKS = [
+  // Commissioned Officers
+  "Police Colonel (PCol)",
+  "Police Lieutenant Colonel (PLtCol)",
+  "Police Major (PMaj)",
+  "Police Captain (PCpt)",
+  "Police Lieutenant (PLt)",
+
+  // Non-Commissioned Officers
+  "Police Executive Master Sergeant (PEMS)",
+  "Police Chief Master Sergeant (PCMS)",
+  "Police Senior Master Sergeant (PSMS)",
+  "Police Master Sergeant (PMSg)",
+  "Police Staff Sergeant (PSSg)",
+  "Police Corporal (PCpl)",
+  "Patrolman/Patrolwoman (Pat)",
+];
+
 const CreateUserModal = ({ visible, onClose, onSuccess }) => {
   const dispatch = useDispatch();
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -31,6 +50,7 @@ const CreateUserModal = ({ visible, onClose, onSuccess }) => {
     number: "",
     role: "",
     policeStationId: "",
+    rank: "", // Added rank field
     address: {
       streetAddress: "",
       barangay: "",
@@ -79,6 +99,12 @@ const CreateUserModal = ({ visible, onClose, onSuccess }) => {
         showToast('Please select a police station');
         return;
       }
+
+      // Police rank validation
+      if ((formData.role === 'police_officer' || formData.role === 'police_admin') && !formData.rank) {
+        showToast('Please select a police rank');
+        return;
+      }
   
       const formDataToSend = new FormData();
   
@@ -92,6 +118,11 @@ const CreateUserModal = ({ visible, onClose, onSuccess }) => {
   
       if (formData.policeStationId) {
         formDataToSend.append('policeStationId', formData.policeStationId);
+      }
+
+      // Add rank if provided
+      if (formData.rank) {
+        formDataToSend.append('rank', formData.rank);
       }
   
       // Add address data
@@ -162,6 +193,7 @@ const CreateUserModal = ({ visible, onClose, onSuccess }) => {
                       ...prev,
                       role: value,
                       policeStationId: "",
+                      rank: "", // Reset rank when role changes
                     }));
                   }}
                 >
@@ -192,6 +224,24 @@ const CreateUserModal = ({ visible, onClose, onSuccess }) => {
                     <Picker.Item label="Select Police Station" value="" />
                     {policeStations.map((station) => (
                       <Picker.Item key={station._id} label={station.name} value={station._id} />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+            )}
+
+            {/* Police Rank Picker - NEW */}
+            {(formData.role === "police_officer" || formData.role === "police_admin") && (
+              <View style={tw`mb-4`}>
+                <Text style={tw`text-sm text-gray-600 mb-1`}>Police Rank *</Text>
+                <View style={[styles.input, tw`p-0 justify-center`]}>
+                  <Picker
+                    selectedValue={formData.rank}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, rank: value }))}
+                  >
+                    <Picker.Item label="Select Police Rank" value="" />
+                    {POLICE_RANKS.map((rank) => (
+                      <Picker.Item key={rank} label={rank} value={rank} />
                     ))}
                   </Picker>
                 </View>

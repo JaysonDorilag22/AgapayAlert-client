@@ -5,3 +5,4 @@ export { default as PhysicalDescriptionForm } from './PhysicalDescriptionForm';
 export { default as LocationForm } from './LocationForm';
 export { default as PoliceStationForm } from './PoliceStationForm';
 export { default as PreviewForm } from './PreviewForm';
+export { default as VideoUploadForm } from './VideoUploadForm'; 

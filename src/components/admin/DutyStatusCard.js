@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Switch, ActivityIndicator } from 'react-native';
 import { Clock, Calendar, History, Building2, AlertCircle } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,9 +10,19 @@ import styles from '@/styles/styles';
 
 const DutyStatusCard = () => {
   const dispatch = useDispatch();
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
+  // Add local state to instantly update UI
+  const [localDutyStatus, setLocalDutyStatus] = useState(false);
+  
   const { user } = useSelector((state) => state.auth);
   const { policeStations, loading: policeStationsLoading } = useSelector((state) => state.policeStation);
+
+  // Initialize local state from Redux state
+  useEffect(() => {
+    if (user) {
+      setLocalDutyStatus(user.isOnDuty || false);
+    }
+  }, [user]);
 
   // Fetch police stations on component mount
   useEffect(() => {
@@ -36,15 +46,22 @@ const DutyStatusCard = () => {
   ) || 0;
 
   const handleDutyStatusChange = async (newStatus) => {
+    // Update local state immediately for responsive UI
+    setLocalDutyStatus(newStatus);
     setLoading(true);
+    
     try {
       const result = await dispatch(updateDutyStatus(newStatus));
       if (result.success) {
         showToast(`You are now ${newStatus ? 'on' : 'off'} duty`);
       } else {
+        // Revert local state if API call fails
+        setLocalDutyStatus(!newStatus);
         showToast(result.error || 'Failed to update duty status');
       }
     } catch (error) {
+      // Revert local state if API call fails
+      setLocalDutyStatus(!newStatus);
       console.error('Duty status update error:', error);
       showToast('Error updating duty status');
     } finally {
@@ -62,24 +79,25 @@ const DutyStatusCard = () => {
             style={tw`w-16 h-16 rounded-full border-2 border-white`}
           />
           <View style={tw`ml-4 flex-1`}>
-            <Text style={tw`text-xl font-bold text-gray-800`}>
-              {user?.firstName} {user?.lastName}
+            <Text style={[tw`text-lg font-bold text-gray-800`, styles.textSmall]}>
+              {user?.rank} {user?.firstName} {user?.lastName}
             </Text>
-            <Text style={tw`text-sm text-gray-600`}>
+            <Text style={[tw`text-sm text-gray-600`, styles.textSmall]}>
               {user?.email}
             </Text>
           </View>
           
-          {/* Status Badge */}
+          {/* Status Badge - Using local state for immediate feedback */}
           <View style={[
             tw`px-3 py-1.5 rounded-full`, 
-            user?.isOnDuty ? tw`bg-green-100` : tw`bg-red-100`
+            localDutyStatus ? tw`bg-green-100` : tw`bg-red-100`
           ]}>
             <Text style={[
               tw`text-sm font-medium`,
-              user?.isOnDuty ? tw`text-green-700` : tw`text-red-700`
+              localDutyStatus ? tw`text-green-700` : tw`text-red-700`,
+              styles.textMedium
             ]}>
-              {user?.isOnDuty ? 'On Duty' : 'Off Duty'}
+              {localDutyStatus ? 'On Duty' : 'Off Duty'}
             </Text>
           </View>
         </View>
@@ -90,7 +108,7 @@ const DutyStatusCard = () => {
         <View style={tw`px-4 py-3 border-b border-gray-100 bg-blue-50`}>
           <View style={tw`flex-row items-center mb-1`}>
             <Building2 size={18} color="#2563eb" style={tw`mr-2`} />
-            <Text style={tw`text-base font-medium text-blue-800`}>
+            <Text style={[tw`text-base font-medium text-blue-800`, styles.textLarge]}>
               Police Station Assignment
             </Text>
           </View>
@@ -98,23 +116,23 @@ const DutyStatusCard = () => {
           {policeStationsLoading ? (
             <View style={tw`flex-row items-center mt-1 ml-7`}>
               <ActivityIndicator size="small" color="#2563eb" style={tw`mr-2`} />
-              <Text style={tw`text-sm text-gray-600`}>Loading station details...</Text>
+              <Text style={[tw`text-sm text-gray-600`, styles.textSmall]}>Loading station details...</Text>
             </View>
           ) : userPoliceStation ? (
             <View style={tw`ml-7`}>
-              <Text style={tw`text-sm text-gray-700 font-medium`}>
+              <Text style={[tw`text-sm text-gray-700 font-medium`, styles.textMedium]}>
                 {userPoliceStation.name}
               </Text>
               {userPoliceStation.address && (
-                <Text style={tw`text-xs text-gray-600 mt-0.5`}>
+                <Text style={[tw`text-xs text-gray-600 mt-0.5`, styles.textSmall]}>
                   {userPoliceStation.address.streetAddress}, {userPoliceStation.address.barangay}, {userPoliceStation.address.city}
                 </Text>
               )}
             </View>
           ) : (
             <View style={tw`ml-7`}>
-              <Text style={tw`text-sm text-gray-700`}>Assigned to police station</Text>
-              <Text style={tw`text-xs text-gray-600`}>ID: {user.policeStation}</Text>
+              <Text style={[tw`text-sm text-gray-700`, styles.textSmall]}>Assigned to police station</Text>
+              <Text style={[tw`text-xs text-gray-600`, styles.textSmall]}>ID: {user.policeStation}</Text>
             </View>
           )}
         </View>
@@ -124,11 +142,11 @@ const DutyStatusCard = () => {
       <View style={tw`px-4 py-4`}>
         <View style={tw`flex-row items-center justify-between mb-4 p-3 rounded-lg bg-gray-50`}>
           <View>
-            <Text style={tw`text-base font-medium text-gray-800`}>Duty Status</Text>
-            {user?.isOnDuty && (
+            <Text style={[tw`text-base font-medium text-gray-800`, styles.textMedium]}>Duty Status</Text>
+            {localDutyStatus && (
               <View style={tw`flex-row items-center mt-1`}>
                 <Clock size={14} color="#059669" style={tw`mr-1`} />
-                <Text style={tw`text-sm text-green-600 font-medium`}>
+                <Text style={[tw`text-sm text-green-600 font-medium`, styles.textMedium]}>
                   {currentDutyHours} hours on current shift
                 </Text>
               </View>
@@ -136,7 +154,7 @@ const DutyStatusCard = () => {
           </View>
           
           <Switch
-            value={user?.isOnDuty}
+            value={localDutyStatus}
             onValueChange={handleDutyStatusChange}
             disabled={loading}
             trackColor={{ false: '#f87171', true: '#34d399' }}
@@ -149,14 +167,14 @@ const DutyStatusCard = () => {
         {/* Warning Note for minimum duty hours */}
         <View style={tw`flex-row items-center p-3 rounded-lg bg-red-50 mb-4`}>
           <AlertCircle size={16} color="#ef4444" style={tw`mr-2 flex-shrink-0`} />
-          <Text style={tw`text-xs text-red-600 flex-1`}>
+          <Text style={[tw`text-xs text-red-600 flex-1`, styles.textSmall]}>
             Minimum 8 hours required before going off duty
           </Text>
         </View>
 
         {/* Time Details */}
         <View style={tw`rounded-lg p-3 bg-gray-50`}>
-          <Text style={tw`text-base font-medium text-gray-800 mb-2`}>
+          <Text style={[tw`text-base font-medium text-gray-800 mb-2`, styles.textLarge]}>
             Duty Statistics
           </Text>
           
@@ -165,9 +183,9 @@ const DutyStatusCard = () => {
               <View style={tw`w-8 h-8 rounded-full bg-blue-100 items-center justify-center mr-2`}>
                 <Clock size={16} color="#2563eb" />
               </View>
-              <Text style={tw`text-sm text-gray-700`}>
-                {user?.isOnDuty ? 
-                  `On duty since ${new Date(user.lastDutyChange).toLocaleTimeString()}` : 
+              <Text style={[tw`text-sm text-gray-700`, styles.textSmall]}>
+                {localDutyStatus ? 
+                  `On duty since ${new Date(user?.lastDutyChange).toLocaleTimeString()}` : 
                   'Currently Off Duty'}
               </Text>
             </View>
@@ -176,8 +194,8 @@ const DutyStatusCard = () => {
               <View style={tw`w-8 h-8 rounded-full bg-blue-100 items-center justify-center mr-2`}>
                 <History size={16} color="#2563eb" />
               </View>
-              <Text style={tw`text-sm text-gray-700`}>
-                Total duty hours: <Text style={tw`font-medium`}>{totalDutyHours.toFixed(1)}h</Text>
+              <Text style={[tw`text-sm text-gray-700`, styles.textSmall]}>
+                Total duty hours: <Text style={[tw`font-medium`, styles.textMedium]}>{totalDutyHours.toFixed(1)}h</Text>
               </Text>
             </View>
 
@@ -186,10 +204,10 @@ const DutyStatusCard = () => {
                 <Calendar size={16} color="#2563eb" />
               </View>
               <View style={tw`flex-1`}>
-                <Text style={tw`text-sm text-gray-700`}>
+                <Text style={[tw`text-sm text-gray-700`, styles.textSmall]}>
                   Last duty change: 
                 </Text>
-                <Text style={tw`text-sm text-gray-700 font-medium`}>
+                <Text style={[tw`text-sm text-gray-700 font-medium`, styles.textMedium]}>
                   {user?.lastDutyChange ? 
                     new Date(user.lastDutyChange).toLocaleString() : 
                     'No recent activity'}

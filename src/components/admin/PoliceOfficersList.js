@@ -7,6 +7,7 @@ import { getPoliceStationOfficers } from '@/redux/actions/userActions';
 import { SOCKET_EVENTS } from '@/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import tw from 'twrnc';
+import styles from '@/styles/styles';
 
 const OfficerItem = ({ officer }) => {
   const isOnDuty = officer?.isOnDuty === true;
@@ -21,10 +22,10 @@ const OfficerItem = ({ officer }) => {
       />
       
       <View style={tw`flex-1`}>
-        <Text style={tw`font-medium text-gray-800`}>
+        <Text style={[tw`font-medium text-gray-800`, styles.textMedium]}>
           {officer.firstName} {officer.lastName}
         </Text>
-        <Text style={tw`text-sm text-gray-600`}>
+        <Text style={[tw`text-sm text-gray-600`, styles.textSmall]}>
           Active Reports: {officer.activeReports || 0} | Total: {officer.totalReports || 0}
         </Text>
       </View>
@@ -32,7 +33,10 @@ const OfficerItem = ({ officer }) => {
       <View style={tw`items-end`}>
         <View style={tw`flex-row items-center mb-1`}>
           <Clock size={14} color={isOnDuty ? '#059669' : '#DC2626'} style={tw`mr-1`} />
-          <Text style={tw`text-sm ${isOnDuty ? 'text-green-600' : 'text-red-600'}`}>
+          <Text style={[
+            tw`text-sm ${isOnDuty ? 'text-green-600' : 'text-red-600'}`,
+            styles.textSmall
+          ]}>
             {isOnDuty ? `${dutyHours}h` : 'Off duty'}
           </Text>
         </View>
@@ -40,12 +44,12 @@ const OfficerItem = ({ officer }) => {
           {isOnDuty ? (
             <View style={tw`bg-green-100 rounded-full px-2 py-0.5 flex-row items-center`}>
               <Check size={12} color="#059669" style={tw`mr-1`} />
-              <Text style={tw`text-xs text-green-700`}>On Duty</Text>
+              <Text style={[tw`text-xs text-green-700`, styles.textSmall]}>On Duty</Text>
             </View>
           ) : (
             <View style={tw`bg-red-100 rounded-full px-2 py-0.5 flex-row items-center`}>
               <X size={12} color="#DC2626" style={tw`mr-1`} />
-              <Text style={tw`text-xs text-red-700`}>Off Duty</Text>
+              <Text style={[tw`text-xs text-red-700`, styles.textSmall]}>Off Duty</Text>
             </View>
           )}
         </View>
@@ -121,10 +125,10 @@ const PoliceOfficersList = () => {
   return (
     <View style={tw`bg-white rounded-lg border border-gray-200 mb-4`}>
       <View style={tw`p-4 border-b border-gray-200`}>
-        <Text style={tw`text-lg font-bold text-gray-800`}>
+        <Text style={[tw`text-lg font-bold text-gray-800`, styles.textLarge]}>
           Police Officers ({summary.totalOfficers})
         </Text>
-        <Text style={tw`text-sm text-gray-600`}>
+        <Text style={[tw`text-sm text-gray-600`, styles.textSmall]}>
           On Duty: {summary.onDutyOfficers} | 
           Active Reports: {summary.activeReports} | 
           Total Reports: {summary.totalReports}
@@ -142,7 +146,9 @@ const PoliceOfficersList = () => {
           }
         }}
         ListEmptyComponent={() => (
-          <Text style={tw`text-gray-500 text-center py-4`}>No officers found</Text>
+          <Text style={[tw`text-gray-500 text-center py-4`, styles.textMedium]}>
+            No officers found
+          </Text>
         )}
       />
     </View>

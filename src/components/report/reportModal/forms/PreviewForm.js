@@ -118,8 +118,16 @@ const PreviewForm = ({
             });
           });
 
-          const result = await dispatch(createReport(formData));
+          if (initialData.video) {
+            formData.append("video", {
+              uri: initialData.video.uri,
+              type: initialData.video.type || 'video/mp4',
+              name: initialData.video.name || 'video.mp4',
+            });
+          }
+          console.log(formData)
 
+          const result = await dispatch(createReport(formData));
           if (result.success) {
             alert("Report submitted successfully");
             onClose();
@@ -359,6 +367,23 @@ const PreviewForm = ({
       </View>
     </View>
   );
+
+  const renderVideoInfo = () => {
+    if (!initialData.video) return null;
+    
+    return (
+      <View style={tw`mb-3`}>
+        <Text style={tw`text-lg font-bold mb-3`}>Video Evidence</Text>
+        <View style={tw`bg-gray-50 p-3 rounded-lg`}>
+          <Text style={tw`text-gray-600`}>
+            Video added: {(initialData.video.fileSize / (1024 * 1024)).toFixed(2)}MB
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  
 
   // Add error display component
   const renderError = () => (

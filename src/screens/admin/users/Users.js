@@ -145,7 +145,7 @@ export default function Users() {
         }}
         style={tw`w-12 h-12 rounded-full mr-3`}
       />
-
+  
       <View style={tw`flex-1`}>
         <View style={tw`flex-row items-center mb-1`}>
           <View style={[tw`rounded-full px-2 py-0.5 mr-2`, styles.backgroundColorPrimary + "20"]}>
@@ -156,16 +156,32 @@ export default function Users() {
                 .join(" ")}
             </Text>
           </View>
+          
+          {/* Display rank badge if police role */}
+          {(item.roles[0] === "police_officer" || item.roles[0] === "police_admin") && (
+            <View style={tw`bg-gray-100 rounded-full px-2 py-0.5`}>
+              <Text style={tw`text-xs text-gray-700 font-medium`}>
+                {item.rank || "N/R"}
+              </Text>
+            </View>
+          )}
         </View>
-
+  
         <Text style={tw`text-gray-900 font-medium`}>
           {item.firstName} {item.lastName}
         </Text>
         <Text style={tw`text-gray-500 text-sm`}>{item.email}</Text>
-
+        
+        {/* Display full rank information */}
+        {(item.roles[0] === "police_officer" || item.roles[0] === "police_admin") && (
+          <Text style={tw`text-gray-500 text-xs mt-0.5`}>
+            Rank: {item.rank || "Not Ranked"}
+          </Text>
+        )}
+  
         {item.policeStation && <Text style={tw`text-gray-600 text-xs mt-1`}>{item.policeStation.name}</Text>}
       </View>
-
+  
       <ChevronRight size={20} color={styles.colorPrimary} />
     </TouchableOpacity>
   );

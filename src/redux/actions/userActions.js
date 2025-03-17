@@ -186,6 +186,7 @@ export const createUserWithRole = (userData) => async (dispatch) => {
     formData.append('password', userData.get('password'));
     formData.append('number', userData.get('number'));
     formData.append('role', userData.get('role'));
+    formData.append('rank', userData.get('rank'));
 
     // Append police station if provided
     if (userData.get('policeStationId')) {

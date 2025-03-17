@@ -263,7 +263,7 @@ const HotspotMap = ({ data }) => {
             width={Dimensions.get("window").width - 32}
             height={220}
             chartConfig={chartConfig}
-            verticalLabelRotation={30}
+            verticalLabelRotation={0}
             showValuesOnTopOfBars={true}
             fromZero={true}
             style={tw`rounded-lg`}
@@ -277,7 +277,7 @@ const HotspotMap = ({ data }) => {
             width={Dimensions.get("window").width - 32}
             height={220}
             chartConfig={{ ...chartConfig, color: (opacity = 1) => `rgba(255, 99, 132, ${opacity})` }}
-            verticalLabelRotation={30}
+            verticalLabelRotation={0}
             showValuesOnTopOfBars={true}
             fromZero={true}
             style={tw`rounded-lg`}
