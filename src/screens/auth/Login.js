@@ -1,7 +1,7 @@
 // React and React Native imports
 import React, { useState, useEffect } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View, Image } from "react-native";
-// import {  OneSignal } from 'react-native-onesignal';
+import {  OneSignal } from 'react-native-onesignal';
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
 import { Eye, EyeOff } from "lucide-react-native";
@@ -19,7 +19,7 @@ import { loginValidationSchema } from "@/validation/loginValidation";
 import styles from "@/styles/styles";
 import showToast from "@/utils/toastUtils";
 
-// import GoogleAuth from "components/auth/GoogleAuth";
+import GoogleAuth from "components/auth/GoogleAuth";
 
 
 import EmergencyContactModal from "./EmergencyContactModal";
@@ -34,25 +34,25 @@ export default function Login() {
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [playerId, setPlayerId] = useState(null);
 
-  // useEffect(() => {
-  //   const getPlayerId = async () => {
-  //     try {
-  //       const deviceState = await OneSignal.User.pushSubscription.getPushSubscriptionId();
-  //       if (deviceState) {
-  //         setPlayerId(deviceState);
-  //       }
-  //     } catch (error) {
-  //       console.error('OneSignal Error:', error);
-  //     }
-  //   };
+  useEffect(() => {
+    const getPlayerId = async () => {
+      try {
+        const deviceState = await OneSignal.User.pushSubscription.getPushSubscriptionId();
+        if (deviceState) {
+          setPlayerId(deviceState);
+        }
+      } catch (error) {
+        console.error('OneSignal Error:', error);
+      }
+    };
 
-  //   // Initial fetch
-  //   getPlayerId();
+    // Initial fetch
+    getPlayerId();
 
-  //   // Subscription listener
-  //   const subscription = OneSignal.User.pushSubscription.addEventListener('change', getPlayerId);
-  //   return () => subscription?.remove();
-  // }, []);
+    // Subscription listener
+    const subscription = OneSignal.User.pushSubscription.addEventListener('change', getPlayerId);
+    return () => subscription?.remove();
+  }, []);
 
   const handleLogin = async (credentials) => {
     try {
@@ -101,12 +101,12 @@ export default function Login() {
           <View style={tw`absolute top-5 right-0 z-10 p-4 `}>
             <ChangeLanguage />
           </View>
-          <Image source={logo1} style={tw`w-15 h-15 mt-10`} />
+          <Image source={logo1} style={tw`w-15 h-15 mt-10 mb-5`} />
 
           <View style={tw`items-start`}>
-            {/* <Text style={[styles.headingTwo]}>{t("welcome")}</Text>
-            <Text style={[styles.headingOne]}>AgapayAlert</Text> */}
-            <Text style={[tw`mt-10`, { color: styles.textPrimary.color }, styles.headingOne]}>{t("signIn")}</Text>
+            <Text style={[styles.headingOne]}>{t("welcome")}</Text>
+            <Text style={tw`mb-2 text-red-500 text-xl`,[styles.head]}>AgapayAlert</Text>
+            <Text style={[tw`mt-1 mb-2`, { color: styles.textPrimary.color }, styles.textSmall]}>{t("signIn")}</Text>
           </View>
 
           <View style={tw`w-full`}>
@@ -162,20 +162,10 @@ export default function Login() {
                 <Text style={styles.buttonTextPrimary}>{t("login")}</Text>
               )}
             </TouchableOpacity>
-            <View style={tw`flex-row items-center my-2`}>
-              <View style={tw`flex-1 h-px bg-gray-300`} />
-              <Text style={tw`mx-3 text-gray-500`}>or</Text>
-              <View style={tw`flex-1 h-px bg-gray-300`} />
+            <View>
+            <GoogleAuth /> 
+            
             </View>
-
-            <TouchableOpacity style={styles.buttonOutline} onPress={handleSubmit} disabled={loading}>
-              {loading ? (
-                <ActivityIndicator size="small" color="#EEEEEE" />
-              ) : (
-                <Text style={styles.buttonTextOutline}>Sign in with Google</Text>
-              )}
-            </TouchableOpacity>
-            <View>{/* <GoogleAuth />  */}</View>
             <TouchableOpacity onPress={() => navigation.navigate("Register")}>
               <Text style={[tw`text-sm mt-5 p-2`, { color: styles.textPrimary.color }, styles.fontText]}>
                 {t("noAccount")} <Text style={tw`underline`}>{t("register")}</Text>

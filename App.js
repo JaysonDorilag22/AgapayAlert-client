@@ -1,6 +1,4 @@
 import "react-native-gesture-handler";
-// import { useFonts, BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
-// import {  Nunito_400Regular } from '@expo-google-fonts/nunito';
 import {
   useFonts,
   Poppins_100Thin,
@@ -22,8 +20,8 @@ import {
   Poppins_900Black,
   Poppins_900Black_Italic,
 } from "@expo-google-fonts/poppins";
-// import { LogLevel, OneSignal } from 'react-native-onesignal';
-// import Constants from "expo-constants";
+import { LogLevel, OneSignal } from 'react-native-onesignal';
+import Constants from "expo-constants";
 import React, { useState, useCallback, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -45,38 +43,38 @@ import SearchScreen from "@/screens/reports/SearchScreen";
 import { MoveLeft } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
 
-// OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-// OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
+OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
 
-// OneSignal.Notifications.requestPermission(true);
+OneSignal.Notifications.requestPermission(true);
 
 export default function App() {
   const [language, setLanguage] = useState("en");
   const [playerId, setPlayerId] = useState(null);
 
-  // useEffect(() => {
-  //   // Get the Player ID when the app starts
-  //   const getPlayerId = async () => {
-  //     try {
-  //       const deviceState = OneSignal.User.pushSubscription.getPushSubscriptionId();
-  //       setPlayerId(deviceState);
-  //     } catch (error) {
-  //       showToast('Error getting player ID');
-  //     }
-  //   };
+  useEffect(() => {
+    // Get the Player ID when the app starts
+    const getPlayerId = async () => {
+      try {
+        const deviceState = OneSignal.User.pushSubscription.getPushSubscriptionId();
+        setPlayerId(deviceState);
+      } catch (error) {
+        showToast('Error getting player ID');
+      }
+    };
 
-  //   getPlayerId();
+    getPlayerId();
 
-  //      // Listen for subscription changes
-  //      const subscription = OneSignal.User.pushSubscription.addEventListener('change', () => {
-  //       getPlayerId();
-  //     });
+       // Listen for subscription changes
+       const subscription = OneSignal.User.pushSubscription.addEventListener('change', () => {
+        getPlayerId();
+      });
 
-  //     return () => {
-  //       subscription?.remove();
-  //     };
+      return () => {
+        subscription?.remove();
+      };
 
-  // }, []);
+  }, []);
 
   const toggleLanguage = useCallback((newLanguage) => {
     setLanguage(newLanguage);

@@ -5,7 +5,7 @@ import {
   Modal,
   TouchableOpacity,
   FlatList,
-  Linking,
+  Linking, //Import the Linking
   ActivityIndicator,
   Platform,
   StatusBar,
@@ -89,6 +89,7 @@ const EmergencyContactModal = ({ visible, onClose }) => {
     }
   };
 
+// make a handleCall Function
   const handleCall = (phoneNumber) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
@@ -168,7 +169,7 @@ const EmergencyContactModal = ({ visible, onClose }) => {
             </View>
           )}
 
-          {/* Action buttons */}
+          {/* Action button for handle call */}
           <View style={tw`flex-row mt-3`}>
             {phoneNumber && phoneNumber !== "N/A" && (
               <TouchableOpacity

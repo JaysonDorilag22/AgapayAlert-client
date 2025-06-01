@@ -40,6 +40,13 @@ const MyReportDetail = ({ route }) => {
     dispatch(getReportDetails(reportId));
   }, [dispatch, reportId]);
 
+  useEffect(() => {
+    if (currentReport) {
+      console.log("Current Report Data:", currentReport);
+      console.log("Case ID:", currentReport.caseId);
+    }
+  }, [currentReport]);
+
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = parseISO(dateString);
@@ -350,6 +357,7 @@ const MyReportDetail = ({ route }) => {
         {/* Person Details */}
         <View style={tw`mb-6`}>
           <Text style={tw`text-lg font-semibold mb-4`}>Person Details</Text>
+          <DetailRow icon={<User size={20} color="#6B7280" />} label="Case ID" value={currentReport?.caseId || "N/A"} />
           {renderInput("firstName", "First Name", currentReport?.personInvolved?.firstName)}
           {renderInput("lastName", "Last Name", currentReport?.personInvolved?.lastName)}
           {renderInput("alias", "Alias", currentReport?.personInvolved?.alias)}
