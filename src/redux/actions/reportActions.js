@@ -96,10 +96,29 @@ export const getReports = (params = {}) => async (dispatch) => {
       withCredentials: true
     });
 
+    // Get current user from AsyncStorage or context to determine badges
+    const currentUser = await AsyncStorage.getItem('user');
+    const user = currentUser ? JSON.parse(currentUser) : null;
+
+    // Add badge information to each report
+    const reportsWithBadges = data.data.reports.map(report => {
+      const badges = {
+        isMyStation: user?.policeStation && 
+          report.assignedPoliceStation?._id?.toString() === user.policeStation.toString(),
+        isAssignedToMe: user?._id && 
+          report.assignedOfficer?._id?.toString() === user._id.toString(),
+        priority: report.priority || 3 // Use priority from backend
+      };
+      return {
+        ...report,
+        badges
+      };
+    });
+
     dispatch({
       type: GET_REPORTS_SUCCESS,
       payload: {
-        reports: data.data.reports,
+        reports: reportsWithBadges,
         currentPage: parseInt(data.data.currentPage),
         totalPages: parseInt(data.data.totalPages),
         totalReports: parseInt(data.data.totalReports),
@@ -108,7 +127,7 @@ export const getReports = (params = {}) => async (dispatch) => {
       }
     });
 
-    return { success: true, data: data.data };
+    return { success: true, data: { ...data.data, reports: reportsWithBadges } };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
     dispatch({
@@ -451,8 +470,6 @@ export const searchReports = (params = {}) => async (dispatch) => {
   try {
     dispatch({ type: SEARCH_REPORTS_REQUEST });
 
-    // Debug logs
-
     const queryParams = new URLSearchParams({
       page: params.page || 1,
       limit: params.limit || 10,
@@ -460,19 +477,31 @@ export const searchReports = (params = {}) => async (dispatch) => {
       ...(params.type && { type: params.type })
     });
 
-    // Debug query string
-
     const { data } = await axios.get(
       `${serverConfig.baseURL}/report/search?${queryParams}`,
       { withCredentials: true }
     );
 
-    // Debug response
+    // Get current user for badge information
+    const currentUser = await AsyncStorage.getItem('user');
+    const user = currentUser ? JSON.parse(currentUser) : null;
+
+    // Add badge information to each report
+    const reportsWithBadges = data.data.reports.map(report => ({
+      ...report,
+      badges: {
+        isMyStation: user?.policeStation && 
+          report.assignedPoliceStation?._id?.toString() === user.policeStation.toString(),
+        isAssignedToMe: user?._id && 
+          report.assignedOfficer?._id?.toString() === user._id.toString(),
+        priority: report.priority || 3
+      }
+    }));
 
     dispatch({
       type: SEARCH_REPORTS_SUCCESS,
       payload: {
-        reports: data.data.reports,
+        reports: reportsWithBadges,
         currentPage: data.data.currentPage,
         totalPages: data.data.totalPages,
         totalReports: data.data.totalReports,
@@ -481,7 +510,7 @@ export const searchReports = (params = {}) => async (dispatch) => {
       }
     });
 
-    return { success: true, data: data.data };
+    return { success: true, data: { ...data.data, reports: reportsWithBadges } };
   } catch (error) {
     console.error('Search error:', error);
     const message = error.response?.data?.msg || error.message;
@@ -513,7 +542,7 @@ export const searchPublicReports = (params = {}) => async (dispatch) => {
     );
 
     // Log response for debugging
-    console.log("Public search response:", data);
+    // console.log("Public search response:", data);
 
     // Validate data structure
     if (!data || !data.data || !Array.isArray(data.data.reports)) {

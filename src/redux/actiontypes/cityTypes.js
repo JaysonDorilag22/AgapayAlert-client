@@ -1,0 +1,19 @@
+// Loading states
+export const CITY_LOADING = 'CITY_LOADING';
+export const CITY_CREATE_LOADING = 'CITY_CREATE_LOADING';
+export const CITY_UPDATE_LOADING = 'CITY_UPDATE_LOADING';
+export const CITY_DELETE_LOADING = 'CITY_DELETE_LOADING';
+
+// Success states
+export const CITY_SUCCESS = 'CITY_SUCCESS';
+export const GET_CITIES_SUCCESS = 'GET_CITIES_SUCCESS';
+export const GET_CITY_SUCCESS = 'GET_CITY_SUCCESS';
+export const CREATE_CITY_SUCCESS = 'CREATE_CITY_SUCCESS';
+export const UPDATE_CITY_SUCCESS = 'UPDATE_CITY_SUCCESS';
+export const DELETE_CITY_SUCCESS = 'DELETE_CITY_SUCCESS';
+
+// Error state
+export const CITY_ERROR = 'CITY_ERROR';
+
+// Clear actions
+export const CLEAR_CITY_ERRORS = 'CLEAR_CITY_ERRORS';

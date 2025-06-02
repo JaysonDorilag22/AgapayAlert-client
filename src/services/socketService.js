@@ -3,6 +3,7 @@ import serverConfig from '@/config/serverConfig';
 import { SOCKET_EVENTS } from '@/config/constants';
 
 let socket = null;
+let newReportCallback = null; // Add this for modal handling
 const SOCKET_URL = serverConfig.socketURL;
 
 // Helper function to extract token from cookie
@@ -53,8 +54,17 @@ export const initializeSocket = async (cookieHeader) => {
 
     // Listen for new reports and updates
     socket.on(SOCKET_EVENTS.NEW_REPORT, (data) => {
-      console.log('New report received:', data);
-    });
+  console.log('New report received:', data);
+  console.log('newReportCallback exists:', !!newReportCallback);
+  
+  // Trigger the modal callback if it exists
+  if (newReportCallback) {
+    console.log('Calling newReportCallback with data');
+    newReportCallback(data);
+  } else {
+    console.log('No newReportCallback set!');
+  }
+});
 
     socket.on(SOCKET_EVENTS.REPORT_UPDATED, (data) => {
       console.log('Report updated:', data);
@@ -115,6 +125,16 @@ export const unsubscribeFromUpdates = () => {
   socket.off(SOCKET_EVENTS.REPORT_UPDATED);
   socket.off(SOCKET_EVENTS.OFFICER_UPDATED);
   socket.off(SOCKET_EVENTS.DUTY_STATUS_CHANGED);
+};
+
+// Set callback for new reports (for modal)
+export const setNewReportCallback = (callback) => {
+  newReportCallback = callback;
+};
+
+// Clear callback
+export const clearNewReportCallback = () => {
+  newReportCallback = null;
 };
 
 // Get socket instance

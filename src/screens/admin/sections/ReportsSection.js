@@ -17,7 +17,7 @@ import { Search, Building2 } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NoDataFound from "@/components/NoDataFound";
 import { ReportListItemSkeleton } from "@/components/skeletons";
-import { searchReports } from "@/redux/actions/reportActions";
+import { getReports } from "@/redux/actions/reportActions";
 import { 
   initializeSocket, 
   joinRoom, 
@@ -28,6 +28,7 @@ import {
 } from '@/services/socketService';
 import tw from "twrnc";
 import styles from "@/styles/styles";
+import ReportBadges from "@/components/report/ReportBadges";
 
 const REPORT_TYPES = ["All", "Absent", "Missing", "Abducted", "Kidnapped", "Hit-and-Run"];
 
@@ -38,7 +39,7 @@ const ReportsSection = () => {
 
   // Redux state
   const { reports = [], loading = false, totalPages = 0, currentPage = 1 } = 
-    useSelector((state) => state.report?.searchResults || {});
+    useSelector((state) => state.report || {});
   const { user } = useSelector(state => state.auth);
 
   // Local state
@@ -83,7 +84,7 @@ const ReportsSection = () => {
           // Subscribe to new reports
           subscribeToNewReports((data) => {
             if (mounted) {
-              dispatch(searchReports({
+              dispatch(getReports({
                 page: 1,
                 query: inputValue.trim(),
                 ...(selectedType !== "All" && { type: selectedType })
@@ -94,7 +95,7 @@ const ReportsSection = () => {
           // Subscribe to report updates
           subscribeToReportUpdates((data) => {
             if (mounted) {
-              dispatch(searchReports({
+              dispatch(getReports({
                 page: currentPage,
                 query: inputValue.trim(),
                 ...(selectedType !== "All" && { type: selectedType })
@@ -125,7 +126,7 @@ const ReportsSection = () => {
 
   // Initial load
   useEffect(() => {
-    dispatch(searchReports({ page: 1 }));
+    dispatch(getReports({ page: 1 }));
   }, [dispatch]);
 
   // Debounced search function
@@ -136,7 +137,7 @@ const ReportsSection = () => {
         ...(text.trim() && { query: text.trim() }),
         ...(type !== "All" && { type })
       };
-      dispatch(searchReports(searchParams));
+      dispatch(getReports(searchParams));
     }, 500),
     [dispatch]
   );
@@ -151,7 +152,7 @@ const ReportsSection = () => {
   const handleTypeSelect = useCallback((type) => {
     if (type === selectedType) return;
     setSelectedType(type);
-    dispatch(searchReports({
+    dispatch(getReports({
       page: 1,
       query: inputValue.trim(),
       ...(type !== "All" && { type })
@@ -161,7 +162,7 @@ const ReportsSection = () => {
   // Refresh handler
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await dispatch(searchReports({
+    await dispatch(getReports({
       page: 1,
       query: inputValue.trim(),
       ...(selectedType !== "All" && { type: selectedType })
@@ -172,7 +173,7 @@ const ReportsSection = () => {
   // Load more handler
   const handleLoadMore = useCallback(() => {
     if (!loading && currentPage < totalPages) {
-      dispatch(searchReports({
+      dispatch(getReports({
         page: currentPage + 1,
         query: inputValue.trim(),
         ...(selectedType !== "All" && { type: selectedType })
@@ -181,45 +182,50 @@ const ReportsSection = () => {
   }, [dispatch, loading, currentPage, totalPages, inputValue, selectedType]);
 
   // Render report item
-  const renderReport = ({ item: report, index }) => (
-    <TouchableOpacity
-      key={`${report._id}-${index}`}
-      onPress={() => navigation.navigate("ReportDetails", { reportId: report._id })}
-      style={tw`flex-row items-center p-4 border-b border-gray-200`}
-    >
-      <Image
-        source={{
-          uri: report?.personInvolved?.mostRecentPhoto?.url || "https://via.placeholder.com/40",
-        }}
-        style={tw`w-12 h-12 rounded-md`}
-      />
-      <View style={tw`flex-1 ml-3`}>
-        <Text style={tw`text-gray-900 font-medium`}>
-          {`${report?.personInvolved?.firstName || ""} ${report?.personInvolved?.lastName || ""}`.trim() || "N/A"}
-        </Text>
-        <Text style={tw`text-sm text-gray-500`}>{report?.type || "N/A"}</Text>
-        
-        {/* Police Station Information */}
-        {report?.assignedPoliceStation && (
-          <View style={tw`flex-row items-center mt-0.5`}>
-            <Building2 size={14} color="#4B5563" style={tw`mr-1`} />
-            <Text style={tw`text-xs text-gray-600`}>
-              {report.assignedPoliceStation.name || "Assigned Station N/A"}
-            </Text>
-          </View>
-        )}
-        
-        <Text style={tw`text-xs text-gray-400 mt-0.5`}>
-          {format(parseISO(report?.createdAt), "MMM dd, yyyy 'at' h:mm a")}
-        </Text>
-      </View>
-      <View style={tw`${getStatusColor(report.status)}, rounded-full`}>
-        <Text style={tw`px-2 py-0.5 text-xs font-medium`}>
-          {report.status}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderReport = ({ item: report, index }) => {
+    return (
+      <TouchableOpacity
+        key={`${report._id}-${index}`}
+        onPress={() => navigation.navigate("ReportDetails", { reportId: report._id })}
+        style={tw`flex-row items-center p-4 border-b border-gray-200`}
+      >
+        <Image
+          source={{
+            uri: report?.personInvolved?.mostRecentPhoto?.url || "https://via.placeholder.com/40",
+          }}
+          style={tw`w-12 h-12 rounded-md`}
+        />
+        <View style={tw`flex-1 ml-3`}>
+          <Text style={tw`text-gray-900 font-medium`}>
+            {`${report?.personInvolved?.firstName || ""} ${report?.personInvolved?.lastName || ""}`.trim() || "N/A"}
+          </Text>
+          <Text style={tw`text-sm text-gray-500`}>{report?.type || "N/A"}</Text>
+          
+          {/* Police Station Information */}
+          {report?.assignedPoliceStation && (
+            <View style={tw`flex-row items-center mt-0.5`}>
+              <Building2 size={14} color="#4B5563" style={tw`mr-1`} />
+              <Text style={tw`text-xs text-gray-600`}>
+                {report.assignedPoliceStation.name || "Assigned Station N/A"}
+              </Text>
+            </View>
+          )}
+          
+          {/* Add badges */}
+          <ReportBadges badges={report.badges} size="sm" />
+          
+          <Text style={tw`text-xs text-gray-400 mt-0.5`}>
+            {format(parseISO(report?.createdAt), "MMM dd, yyyy 'at' h:mm a")}
+          </Text>
+        </View>
+        <View style={tw`${getStatusColor(report.status)} rounded-full`}>
+          <Text style={tw`px-2 py-0.5 text-xs font-medium`}>
+            {report.status}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={tw`flex-1 bg-white rounded-lg border border-gray-200 mt-3`}>

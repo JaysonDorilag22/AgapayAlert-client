@@ -20,7 +20,7 @@ import {
   Poppins_900Black,
   Poppins_900Black_Italic,
 } from "@expo-google-fonts/poppins";
-import { LogLevel, OneSignal } from 'react-native-onesignal';
+import { LogLevel, OneSignal } from "react-native-onesignal";
 import Constants from "expo-constants";
 import React, { useState, useCallback, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
@@ -39,7 +39,9 @@ import showToast from "@/utils/toastUtils";
 import { AlertDetails } from "@/screens/alerts";
 import Finder from "@/screens/alerts/Finder";
 import SearchScreen from "@/screens/reports/SearchScreen";
-
+import CaseAssignmentModal from "@/components/CaseAssignmentModal";
+import { useNotifications } from "@/utils/useNotifications";
+import { initializeSocket, setNewReportCallback, clearNewReportCallback } from "@/services/socketService";
 import { MoveLeft } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
 
@@ -51,6 +53,12 @@ OneSignal.Notifications.requestPermission(true);
 export default function App() {
   const [language, setLanguage] = useState("en");
   const [playerId, setPlayerId] = useState(null);
+  const { currentNotification, dismissNotification } = useNotifications();
+
+   // Add this debug effect
+  useEffect(() => {
+    console.log('currentNotification changed:', currentNotification);
+  }, [currentNotification]);
 
   useEffect(() => {
     // Get the Player ID when the app starts
@@ -59,21 +67,20 @@ export default function App() {
         const deviceState = OneSignal.User.pushSubscription.getPushSubscriptionId();
         setPlayerId(deviceState);
       } catch (error) {
-        showToast('Error getting player ID');
+        showToast("Error getting player ID");
       }
     };
 
     getPlayerId();
 
-       // Listen for subscription changes
-       const subscription = OneSignal.User.pushSubscription.addEventListener('change', () => {
-        getPlayerId();
-      });
+    // Listen for subscription changes
+    const subscription = OneSignal.User.pushSubscription.addEventListener("change", () => {
+      getPlayerId();
+    });
 
-      return () => {
-        subscription?.remove();
-      };
-
+    return () => {
+      subscription?.remove();
+    };
   }, []);
 
   const toggleLanguage = useCallback((newLanguage) => {
@@ -224,7 +231,19 @@ export default function App() {
               component={SearchScreen}
             />
           </Stack.Navigator>
+           
         </NavigationContainer>
+         {console.log('Rendering modal check - currentNotification:', !!currentNotification)}
+          {currentNotification && (
+            <>
+              {console.log('Rendering CaseAssignmentModal')}
+              <CaseAssignmentModal
+                visible={true}
+                notification={currentNotification}
+                onClose={dismissNotification}
+              />
+            </>
+          )}
       </I18nextProvider>
     </LanguageContext.Provider>
   );

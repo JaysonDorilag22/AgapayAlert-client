@@ -13,6 +13,7 @@ import {
 } from '@/services/socketService';
 import ReportsSection from '../sections/ReportsSection';
 import showToast from "@/utils/toastUtils";
+import ReportBadges from '@/components/report/ReportBadges';
 
 export default function Reports() {
   const dispatch = useDispatch();
@@ -168,14 +169,7 @@ export default function Reports() {
     loadReports(1, selectedType);
   }, []);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("Redux state:", {
-      reportsCount: reports?.length || 0,
-      pagination,
-      loading
-    });
-  }, [reports, pagination, loading]);
+
 
   return (
     <View style={{ flex: 1 }}>

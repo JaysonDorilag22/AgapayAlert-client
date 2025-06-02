@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { Clock, MapPin } from 'lucide-react-native';
 import tw from 'twrnc';
+import ReportBadges from '../report/ReportBadges';
 
 const ReportItem = ({ report }) => {
   if (!report) return null;
@@ -29,6 +30,7 @@ const ReportItem = ({ report }) => {
           <Text style={tw`text-gray-900 font-medium`}>
             {report?.personInvolved?.firstName || 'Unknown'} {report?.personInvolved?.lastName || ''}
           </Text>
+          <ReportBadges badges={report.badges} size="sm" />
         </View>
       </View>
 
