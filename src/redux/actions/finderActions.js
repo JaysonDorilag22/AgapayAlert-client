@@ -21,11 +21,11 @@ export const createFinderReport = (reportData) => async (dispatch) => {
 
     dispatch({
       type: types.CREATE_FINDER_REPORT_SUCCESS,
-      payload: data.data
+      payload: data.finderReport
     });
 
     showToast('Finder report created successfully');
-    return { success: true, data: data.data };
+    return { success: true, data: data.finderReport };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
     dispatch({
@@ -51,23 +51,23 @@ export const getFinderReports = (params = {}) => async (dispatch) => {
     }).toString();
 
     const { data } = await axios.get(
-      `${serverConfig.baseURL}/finder/reports?${queryParams}`,
+      `${serverConfig.baseURL}/finder?${queryParams}`,
       { withCredentials: true }
     );
 
     dispatch({
       type: types.GET_FINDER_REPORTS_SUCCESS,
       payload: {
-        reports: data.data.reports,
-        currentPage: parseInt(data.data.currentPage),
-        totalPages: parseInt(data.data.totalPages),
-        total: parseInt(data.data.total),
-        hasMore: data.data.hasMore,
+        reports: data.reports,
+        currentPage: parseInt(data.currentPage),
+        totalPages: parseInt(data.totalPages),
+        total: parseInt(data.total),
+        hasMore: data.currentPage < data.totalPages,
         isNewSearch: params.page === 1
       }
     });
 
-    return { success: true, data: data.data };
+    return { success: true, data: data };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
     dispatch({
@@ -81,7 +81,7 @@ export const getFinderReports = (params = {}) => async (dispatch) => {
 // Get finder reports for a specific report
 export const getFinderReportsByReportId = (reportId) => async (dispatch) => {
   try {
-    dispatch({ type: types.GET_FINDER_REPORTS_REQUEST });
+    dispatch({ type: types.GET_FINDER_REPORTS_BY_REPORT_ID_REQUEST });
 
     const { data } = await axios.get(
       `${serverConfig.baseURL}/finder/report/${reportId}`,
@@ -89,15 +89,18 @@ export const getFinderReportsByReportId = (reportId) => async (dispatch) => {
     );
 
     dispatch({
-      type: types.GET_FINDER_REPORTS_SUCCESS,
-      payload: data.data
+      type: types.GET_FINDER_REPORTS_BY_REPORT_ID_SUCCESS,
+      payload: {
+        finderReports: data.finderReports,
+        count: data.count
+      }
     });
 
-    return { success: true, data: data.data };
+    return { success: true, data: data };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
     dispatch({
-      type: types.GET_FINDER_REPORTS_FAIL,
+      type: types.GET_FINDER_REPORTS_BY_REPORT_ID_FAIL,
       payload: message
     });
     return { success: false, error: message };
@@ -116,10 +119,10 @@ export const getFinderReportById = (id) => async (dispatch) => {
 
     dispatch({
       type: types.GET_FINDER_REPORT_DETAILS_SUCCESS,
-      payload: data.data
+      payload: data
     });
 
-    return { success: true, data: data.data };
+    return { success: true, data: data };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
     dispatch({
@@ -148,11 +151,11 @@ export const updateFinderReport = (id, updateData) => async (dispatch) => {
 
     dispatch({
       type: types.UPDATE_FINDER_REPORT_SUCCESS,
-      payload: data.data
+      payload: data.report
     });
 
     showToast('Finder report updated successfully');
-    return { success: true, data: data.data };
+    return { success: true, data: data.report };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
     dispatch({
@@ -177,11 +180,11 @@ export const verifyFinderReport = (id, verificationData) => async (dispatch) => 
 
     dispatch({
       type: types.VERIFY_FINDER_REPORT_SUCCESS,
-      payload: data.data
+      payload: data.report
     });
 
     showToast('Finder report verified successfully');
-    return { success: true, data: data.data };
+    return { success: true, data: data.report };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
     dispatch({
@@ -198,7 +201,7 @@ export const deleteFinderReport = (id) => async (dispatch) => {
   try {
     dispatch({ type: types.DELETE_FINDER_REPORT_REQUEST });
 
-    await axios.delete(
+    const { data } = await axios.delete(
       `${serverConfig.baseURL}/finder/${id}`,
       { withCredentials: true }
     );
