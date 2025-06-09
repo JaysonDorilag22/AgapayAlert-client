@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import serverConfig from "../../config/serverConfig";
 import {
@@ -43,7 +43,26 @@ import {
   SEARCH_REPORTS_FAIL,
   SEARCH_PUBLIC_REPORTS_REQUEST,
   SEARCH_PUBLIC_REPORTS_SUCCESS,
-  SEARCH_PUBLIC_REPORTS_FAIL
+  SEARCH_PUBLIC_REPORTS_FAIL,
+  TRANSFER_REPORT_REQUEST,
+  TRANSFER_REPORT_SUCCESS,
+  TRANSFER_REPORT_FAIL,
+  ARCHIVE_REPORTS_REQUEST,
+  ARCHIVE_REPORTS_SUCCESS,
+  ARCHIVE_REPORTS_FAIL,
+  GET_TRANSFER_HISTORY_REQUEST,
+  GET_TRANSFER_HISTORY_SUCCESS,
+  GET_TRANSFER_HISTORY_FAIL,
+  GET_ARCHIVE_HISTORY_REQUEST,
+  GET_ARCHIVE_HISTORY_SUCCESS,
+  GET_ARCHIVE_HISTORY_FAIL,
+  GET_STORAGE_INFO_REQUEST,
+  GET_STORAGE_INFO_SUCCESS,
+  GET_STORAGE_INFO_FAIL,
+  GET_STORAGE_CAPACITY_REQUEST,
+  GET_STORAGE_CAPACITY_SUCCESS,
+  GET_STORAGE_CAPACITY_FAIL,
+  CLEAR_STORAGE_ERRORS
 } from "../actiontypes/reportTypes";
 
 // Create Report
@@ -56,11 +75,7 @@ export const createReport = (reportData) => async (dispatch) => {
       withCredentials: true,
     };
 
-    const { data } = await axios.post(
-      `${serverConfig.baseURL}/report/create`,
-      reportData,
-      config
-    );
+    const { data } = await axios.post(`${serverConfig.baseURL}/report/create`, reportData, config);
 
     dispatch({
       type: CREATE_REPORT_SUCCESS,
@@ -79,64 +94,65 @@ export const createReport = (reportData) => async (dispatch) => {
 };
 
 // In reportActions.js
-export const getReports = (params = {}) => async (dispatch) => {
-  try {
-    dispatch({ type: GET_REPORTS_REQUEST });
+export const getReports =
+  (params = {}) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: GET_REPORTS_REQUEST });
 
-    const queryParams = new URLSearchParams({
-      page: params.page || 1,
-      limit: params.limit || 10,
-      ...(params.type && { type: params.type }),
-      ...(params.query && { query: params.query }) // Add search query support
-    }).toString();
+      const queryParams = new URLSearchParams({
+        page: params.page || 1,
+        limit: params.limit || 10,
+        ...(params.type && { type: params.type }),
+        ...(params.query && { query: params.query }), // Add search query support
+      }).toString();
 
-    const url = `${serverConfig.baseURL}/report/getReports?${queryParams}`;
+      const url = `${serverConfig.baseURL}/report/getReports?${queryParams}`;
 
-    const { data } = await axios.get(url, {
-      withCredentials: true
-    });
+      const { data } = await axios.get(url, {
+        withCredentials: true,
+      });
 
-    // Get current user from AsyncStorage or context to determine badges
-    const currentUser = await AsyncStorage.getItem('user');
-    const user = currentUser ? JSON.parse(currentUser) : null;
+      // Get current user from AsyncStorage or context to determine badges
+      const currentUser = await AsyncStorage.getItem("user");
+      const user = currentUser ? JSON.parse(currentUser) : null;
 
-    // Add badge information to each report
-    const reportsWithBadges = data.data.reports.map(report => {
-      const badges = {
-        isMyStation: user?.policeStation && 
-          report.assignedPoliceStation?._id?.toString() === user.policeStation.toString(),
-        isAssignedToMe: user?._id && 
-          report.assignedOfficer?._id?.toString() === user._id.toString(),
-        priority: report.priority || 3 // Use priority from backend
-      };
-      return {
-        ...report,
-        badges
-      };
-    });
+      // Add badge information to each report
+      const reportsWithBadges = data.data.reports.map((report) => {
+        const badges = {
+          isMyStation:
+            user?.policeStation && report.assignedPoliceStation?._id?.toString() === user.policeStation.toString(),
+          isAssignedToMe: user?._id && report.assignedOfficer?._id?.toString() === user._id.toString(),
+          priority: report.priority || 3, // Use priority from backend
+        };
+        return {
+          ...report,
+          badges,
+        };
+      });
 
-    dispatch({
-      type: GET_REPORTS_SUCCESS,
-      payload: {
-        reports: reportsWithBadges,
-        currentPage: parseInt(data.data.currentPage),
-        totalPages: parseInt(data.data.totalPages),
-        totalReports: parseInt(data.data.totalReports),
-        hasMore: data.data.hasMore,
-        isNewSearch: params.page === 1
-      }
-    });
+      dispatch({
+        type: GET_REPORTS_SUCCESS,
+        payload: {
+          reports: reportsWithBadges,
+          currentPage: parseInt(data.data.currentPage),
+          totalPages: parseInt(data.data.totalPages),
+          totalReports: parseInt(data.data.totalReports),
+          hasMore: data.data.hasMore,
+          isNewSearch: params.page === 1,
+        },
+      });
 
-    return { success: true, data: { ...data.data, reports: reportsWithBadges } };
-  } catch (error) {
-    const message = error.response?.data?.msg || error.message;
-    dispatch({
-      type: GET_REPORTS_FAIL,
-      payload: message
-    });
-    return { success: false, error: message };
-  }
-};
+      return { success: true, data: { ...data.data, reports: reportsWithBadges } };
+    } catch (error) {
+      const message = error.response?.data?.msg || error.message;
+      dispatch({
+        type: GET_REPORTS_FAIL,
+        payload: message,
+      });
+      return { success: false, error: message };
+    }
+  };
 
 // Update Report of user
 export const updateReport = (reportId, updateData) => async (dispatch) => {
@@ -144,28 +160,24 @@ export const updateReport = (reportId, updateData) => async (dispatch) => {
     dispatch({ type: UPDATE_REPORT_REQUEST });
 
     const config = {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
     };
 
-    const { data } = await axios.put(
-      `${serverConfig.baseURL}/report/update/${reportId}`,
-      updateData,
-      config
-    );
+    const { data } = await axios.put(`${serverConfig.baseURL}/report/update/${reportId}`, updateData, config);
 
     dispatch({
       type: UPDATE_REPORT_SUCCESS,
-      payload: data
+      payload: data,
     });
 
     return { success: true, data };
   } catch (error) {
     const message = error.response?.data?.msg || error.message;
-    console.error('Error updating report:', message);
+    console.error("Error updating report:", message);
     dispatch({
       type: UPDATE_REPORT_FAIL,
-      payload: message
+      payload: message,
     });
     return { success: false, error: message };
   }
@@ -176,10 +188,7 @@ export const deleteReport = (reportId) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_REPORT_REQUEST });
 
-    const { data } = await axios.delete(
-      `${serverConfig.baseURL}/report/${reportId}`,
-      { withCredentials: true }
-    );
+    const { data } = await axios.delete(`${serverConfig.baseURL}/report/${reportId}`, { withCredentials: true });
 
     dispatch({
       type: DELETE_REPORT_SUCCESS,
@@ -202,11 +211,9 @@ export const assignPoliceStation = (assignmentData) => async (dispatch) => {
   try {
     dispatch({ type: ASSIGN_STATION_REQUEST });
 
-    const { data } = await axios.post(
-      `${serverConfig.baseURL}/report/assign-station`,
-      assignmentData,
-      { withCredentials: true }
-    );
+    const { data } = await axios.post(`${serverConfig.baseURL}/report/assign-station`, assignmentData, {
+      withCredentials: true,
+    });
 
     dispatch({
       type: ASSIGN_STATION_SUCCESS,
@@ -224,23 +231,22 @@ export const assignPoliceStation = (assignmentData) => async (dispatch) => {
   }
 };
 
-
 export const updateUserReport = (reportId, updateData) => async (dispatch) => {
   try {
     dispatch({ type: UPDATE_STATUS_REQUEST });
-    
+
     // Add updatedBy field from user ID
     const response = await axios.put(
       `${serverConfig.baseURL}/report/update-status/${reportId}`,
       {
         status: updateData.status,
-        followUp: updateData.followUp
+        followUp: updateData.followUp,
       },
-      { 
-        headers: { 
-          "Content-Type": "application/json"
+      {
+        headers: {
+          "Content-Type": "application/json",
         },
-        withCredentials: true 
+        withCredentials: true,
       }
     );
 
@@ -251,30 +257,29 @@ export const updateUserReport = (reportId, updateData) => async (dispatch) => {
       dispatch({
         type: UPDATE_STATUS_SUCCESS,
         payload: {
-          report: data.data // The updated report object
-        }
+          report: data.data, // The updated report object
+        },
       });
 
-      return { 
-        success: true, 
-        data: data.data
+      return {
+        success: true,
+        data: data.data,
       };
     } else {
-      throw new Error(data.msg || 'Update failed');
+      throw new Error(data.msg || "Update failed");
     }
-
   } catch (error) {
-    console.error('Update error:', error);
+    console.error("Update error:", error);
     const message = error.response?.data?.msg || error.message;
-    
+
     dispatch({
       type: UPDATE_STATUS_FAIL,
-      payload: message
+      payload: message,
     });
 
-    return { 
-      success: false, 
-      error: message 
+    return {
+      success: false,
+      error: message,
     };
   }
 };
@@ -284,11 +289,9 @@ export const assignOfficer = (assignmentData) => async (dispatch) => {
   try {
     dispatch({ type: ASSIGN_OFFICER_REQUEST });
 
-    const { data } = await axios.post(
-      `${serverConfig.baseURL}/report/assign-officer`,
-      assignmentData,
-      { withCredentials: true }
-    );
+    const { data } = await axios.post(`${serverConfig.baseURL}/report/assign-officer`, assignmentData, {
+      withCredentials: true,
+    });
 
     dispatch({
       type: ASSIGN_OFFICER_SUCCESS,
@@ -307,40 +310,41 @@ export const assignOfficer = (assignmentData) => async (dispatch) => {
 };
 
 // Get Report Feed
-export const getReportFeed = (params = {}) => async (dispatch) => {
-  try {
-    dispatch({ type: GET_REPORT_FEED_REQUEST });
+export const getReportFeed =
+  (params = {}) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: GET_REPORT_FEED_REQUEST });
 
-    const queryParams = new URLSearchParams({
-      page: params.page || 1,
-      limit: params.limit || 10,
-      ...(params.city && { city: params.city }),
-      ...(params.type && { type: params.type }) // Add type parameter
-    });
+      const queryParams = new URLSearchParams({
+        page: params.page || 1,
+        limit: params.limit || 10,
+        ...(params.city && { city: params.city }),
+        ...(params.type && { type: params.type }), // Add type parameter
+      });
 
-    const { data } = await axios.get(
-      `${serverConfig.baseURL}/report/public-feed?${queryParams}`,
-      { withCredentials: true }
-    );
+      const { data } = await axios.get(`${serverConfig.baseURL}/report/public-feed?${queryParams}`, {
+        withCredentials: true,
+      });
 
-    dispatch({
-      type: GET_REPORT_FEED_SUCCESS,
-      payload: {
-        ...data.data,
-        isNewSearch: params.page === 1
-      }
-    });
+      dispatch({
+        type: GET_REPORT_FEED_SUCCESS,
+        payload: {
+          ...data.data,
+          isNewSearch: params.page === 1,
+        },
+      });
 
-    return { success: true, data: data.data };
-  } catch (error) {
-    const message = error.response?.data?.msg || error.message;
-    dispatch({
-      type: GET_REPORT_FEED_FAIL,
-      payload: message
-    });
-    return { success: false, error: message };
-  }
-};
+      return { success: true, data: data.data };
+    } catch (error) {
+      const message = error.response?.data?.msg || error.message;
+      dispatch({
+        type: GET_REPORT_FEED_FAIL,
+        payload: message,
+      });
+      return { success: false, error: message };
+    }
+  };
 
 // Get Report Cities
 export const getCities = () => async (dispatch) => {
@@ -353,42 +357,42 @@ export const getCities = () => async (dispatch) => {
   }
 };
 
-
 // Get my Reports
-export const getUserReports = (params = {}) => async (dispatch) => {
-  try {
-    dispatch({ type: GET_USER_REPORTS_REQUEST });
+export const getUserReports =
+  (params = {}) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: GET_USER_REPORTS_REQUEST });
 
-    const queryParams = new URLSearchParams({
-      page: params.page || 1,
-      limit: params.limit || 10,
-      ...(params.status && { status: params.status }),
-      ...(params.type && { type: params.type })
-    });
+      const queryParams = new URLSearchParams({
+        page: params.page || 1,
+        limit: params.limit || 10,
+        ...(params.status && { status: params.status }),
+        ...(params.type && { type: params.type }),
+      });
 
-    const { data } = await axios.get(
-      `${serverConfig.baseURL}/report/user-reports?${queryParams}`,
-      { withCredentials: true }
-    );
+      const { data } = await axios.get(`${serverConfig.baseURL}/report/user-reports?${queryParams}`, {
+        withCredentials: true,
+      });
 
-    dispatch({
-      type: GET_USER_REPORTS_SUCCESS,
-      payload: {
-        ...data.data,
-        isNewSearch: params.page === 1
-      }
-    });
+      dispatch({
+        type: GET_USER_REPORTS_SUCCESS,
+        payload: {
+          ...data.data,
+          isNewSearch: params.page === 1,
+        },
+      });
 
-    return { success: true, data: data.data };
-  } catch (error) {
-    const message = error.response?.data?.msg || error.message;
-    dispatch({
-      type: GET_USER_REPORTS_FAIL,
-      payload: message
-    });
-    return { success: false, error: message };
-  }
-};
+      return { success: true, data: data.data };
+    } catch (error) {
+      const message = error.response?.data?.msg || error.message;
+      dispatch({
+        type: GET_USER_REPORTS_FAIL,
+        payload: message,
+      });
+      return { success: false, error: message };
+    }
+  };
 
 //drafts
 export const saveReportDraft = (draftData) => async (dispatch) => {
@@ -398,27 +402,27 @@ export const saveReportDraft = (draftData) => async (dispatch) => {
       ...draftData,
       personInvolved: {
         ...draftData.personInvolved,
-        dateOfBirth: draftData.personInvolved?.dateOfBirth 
-          ? typeof draftData.personInvolved.dateOfBirth === 'object'
+        dateOfBirth: draftData.personInvolved?.dateOfBirth
+          ? typeof draftData.personInvolved.dateOfBirth === "object"
             ? draftData.personInvolved.dateOfBirth.toISOString()
             : draftData.personInvolved.dateOfBirth
           : null,
         lastSeenDate: draftData.personInvolved?.lastSeenDate
-          ? typeof draftData.personInvolved.lastSeenDate === 'object'
+          ? typeof draftData.personInvolved.lastSeenDate === "object"
             ? draftData.personInvolved.lastSeenDate.toISOString()
             : draftData.personInvolved.lastSeenDate
-          : null
-      }
+          : null,
+      },
     };
 
     // Remove any non-serializable data
     const serializedData = JSON.parse(JSON.stringify(cleanData));
 
-    await AsyncStorage.setItem('reportDraft', JSON.stringify(serializedData));
+    await AsyncStorage.setItem("reportDraft", JSON.stringify(serializedData));
     dispatch({ type: SAVE_REPORT_DRAFT, payload: serializedData });
     return { success: true };
   } catch (error) {
-    console.error('Error saving draft:', error);
+    console.error("Error saving draft:", error);
     return { success: false, error: error.message };
   }
 };
@@ -426,7 +430,7 @@ export const saveReportDraft = (draftData) => async (dispatch) => {
 //load drafts
 export const loadReportDraft = () => async (dispatch) => {
   try {
-    const draftData = await AsyncStorage.getItem('reportDraft');
+    const draftData = await AsyncStorage.getItem("reportDraft");
     if (draftData) {
       const parsedData = JSON.parse(draftData);
       dispatch({ type: LOAD_REPORT_DRAFT, payload: parsedData });
@@ -434,7 +438,7 @@ export const loadReportDraft = () => async (dispatch) => {
     }
     return { success: false };
   } catch (error) {
-    console.error('Error loading draft:', error);
+    console.error("Error loading draft:", error);
     return { success: false, error: error.message };
   }
 };
@@ -444,14 +448,13 @@ export const getReportDetails = (reportId) => async (dispatch) => {
   try {
     dispatch({ type: GET_REPORT_DETAILS_REQUEST });
 
-    const { data } = await axios.get(
-      `${serverConfig.baseURL}/report/user-report/${reportId}`,
-      { withCredentials: true }
-    );
+    const { data } = await axios.get(`${serverConfig.baseURL}/report/user-report/${reportId}`, {
+      withCredentials: true,
+    });
 
     dispatch({
       type: GET_REPORT_DETAILS_SUCCESS,
-      payload: data.data
+      payload: data.data,
     });
 
     return { success: true, data: data.data };
@@ -459,120 +462,312 @@ export const getReportDetails = (reportId) => async (dispatch) => {
     const message = error.response?.data?.msg || error.message;
     dispatch({
       type: GET_REPORT_DETAILS_FAIL,
-      payload: message
+      payload: message,
     });
     return { success: false, error: message };
   }
 };
 
 // Search Reports
-export const searchReports = (params = {}) => async (dispatch) => {
-  try {
-    dispatch({ type: SEARCH_REPORTS_REQUEST });
+export const searchReports =
+  (params = {}) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: SEARCH_REPORTS_REQUEST });
 
-    const queryParams = new URLSearchParams({
-      page: params.page || 1,
-      limit: params.limit || 10,
-      ...(params.query && { query: params.query }),
-      ...(params.type && { type: params.type })
-    });
+      const queryParams = new URLSearchParams({
+        page: params.page || 1,
+        limit: params.limit || 10,
+        ...(params.query && { query: params.query }),
+        ...(params.type && { type: params.type }),
+      });
 
-    const { data } = await axios.get(
-      `${serverConfig.baseURL}/report/search?${queryParams}`,
-      { withCredentials: true }
-    );
+      const { data } = await axios.get(`${serverConfig.baseURL}/report/search?${queryParams}`, {
+        withCredentials: true,
+      });
 
-    // Get current user for badge information
-    const currentUser = await AsyncStorage.getItem('user');
-    const user = currentUser ? JSON.parse(currentUser) : null;
+      // Get current user for badge information
+      const currentUser = await AsyncStorage.getItem("user");
+      const user = currentUser ? JSON.parse(currentUser) : null;
 
-    // Add badge information to each report
-    const reportsWithBadges = data.data.reports.map(report => ({
-      ...report,
-      badges: {
-        isMyStation: user?.policeStation && 
-          report.assignedPoliceStation?._id?.toString() === user.policeStation.toString(),
-        isAssignedToMe: user?._id && 
-          report.assignedOfficer?._id?.toString() === user._id.toString(),
-        priority: report.priority || 3
-      }
-    }));
+      // Add badge information to each report
+      const reportsWithBadges = data.data.reports.map((report) => ({
+        ...report,
+        badges: {
+          isMyStation:
+            user?.policeStation && report.assignedPoliceStation?._id?.toString() === user.policeStation.toString(),
+          isAssignedToMe: user?._id && report.assignedOfficer?._id?.toString() === user._id.toString(),
+          priority: report.priority || 3,
+        },
+      }));
 
-    dispatch({
-      type: SEARCH_REPORTS_SUCCESS,
-      payload: {
-        reports: reportsWithBadges,
-        currentPage: data.data.currentPage,
-        totalPages: data.data.totalPages,
-        totalReports: data.data.totalReports,
-        hasMore: data.data.hasMore,
-        isNewSearch: params.page === 1
-      }
-    });
+      dispatch({
+        type: SEARCH_REPORTS_SUCCESS,
+        payload: {
+          reports: reportsWithBadges,
+          currentPage: data.data.currentPage,
+          totalPages: data.data.totalPages,
+          totalReports: data.data.totalReports,
+          hasMore: data.data.hasMore,
+          isNewSearch: params.page === 1,
+        },
+      });
 
-    return { success: true, data: { ...data.data, reports: reportsWithBadges } };
-  } catch (error) {
-    console.error('Search error:', error);
-    const message = error.response?.data?.msg || error.message;
-    dispatch({
-      type: SEARCH_REPORTS_FAIL,
-      payload: message
-    });
-    return { success: false, error: message };
-  }
-};
-
+      return { success: true, data: { ...data.data, reports: reportsWithBadges } };
+    } catch (error) {
+      console.error("Search error:", error);
+      const message = error.response?.data?.msg || error.message;
+      dispatch({
+        type: SEARCH_REPORTS_FAIL,
+        payload: message,
+      });
+      return { success: false, error: message };
+    }
+  };
 
 // Search Public Reports
-export const searchPublicReports = (params = {}) => async (dispatch) => {
+export const searchPublicReports =
+  (params = {}) =>
+  async (dispatch) => {
+    try {
+      dispatch({ type: SEARCH_PUBLIC_REPORTS_REQUEST });
+
+      // Construct query parameters
+      const queryParams = new URLSearchParams({
+        page: params.page || 1,
+        limit: params.limit || 10,
+        ...(params.searchQuery && { searchQuery: params.searchQuery }),
+        ...(params.city && { city: params.city }),
+      }).toString();
+
+      const { data } = await axios.get(`${serverConfig.baseURL}/report/public-search?${queryParams}`, {
+        withCredentials: true,
+      });
+
+      // Log response for debugging
+      // console.log("Public search response:", data);
+
+      // Validate data structure
+      if (!data || !data.data || !Array.isArray(data.data.reports)) {
+        throw new Error("Invalid response format");
+      }
+
+      dispatch({
+        type: SEARCH_PUBLIC_REPORTS_SUCCESS,
+        payload: {
+          reports: data.data.reports,
+          currentPage: data.data.currentPage,
+          totalPages: data.data.totalPages,
+          totalResults: data.data.totalResults,
+          hasMore: data.data.hasMore,
+          isNewSearch: params.page === 1,
+        },
+      });
+
+      return {
+        success: true,
+        data: data.data,
+      };
+    } catch (error) {
+      // console.error('Public search error:', error);
+      const message = error.response?.data?.msg || error.message;
+      dispatch({
+        type: SEARCH_PUBLIC_REPORTS_FAIL,
+        payload: message,
+      });
+      return { success: false, error: message };
+    }
+  };
+
+
+  // Transfer Report Action
+export const transferReport = (reportId, transferData) => async (dispatch) => {
   try {
-    dispatch({ type: SEARCH_PUBLIC_REPORTS_REQUEST });
-
-    // Construct query parameters
-    const queryParams = new URLSearchParams({
-      page: params.page || 1,
-      limit: params.limit || 10,
-      ...(params.searchQuery && { searchQuery: params.searchQuery }),
-      ...(params.city && { city: params.city })
-    }).toString();
-
-    const { data } = await axios.get(
-      `${serverConfig.baseURL}/report/public-search?${queryParams}`,
-      { withCredentials: true }
+    dispatch({ type: TRANSFER_REPORT_REQUEST });
+console.log("touch")
+    const { data } = await axios.post(
+      `${serverConfig.baseURL}/report/transfer/${reportId}`,
+      transferData,
+      { 
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        withCredentials: true 
+      }
     );
 
-    // Log response for debugging
-    // console.log("Public search response:", data);
-
-    // Validate data structure
-    if (!data || !data.data || !Array.isArray(data.data.reports)) {
-      throw new Error('Invalid response format');
-    }
-
     dispatch({
-      type: SEARCH_PUBLIC_REPORTS_SUCCESS,
+      type: TRANSFER_REPORT_SUCCESS,
       payload: {
-        reports: data.data.reports,
-        currentPage: data.data.currentPage,
-        totalPages: data.data.totalPages,
-        totalResults: data.data.totalResults,
-        hasMore: data.data.hasMore,
-        isNewSearch: params.page === 1
+        reportId,
+        transferData: data.data
       }
     });
 
-    return { 
-      success: true, 
-      data: data.data 
-    };
-
+    return { success: true, data: data.data };
   } catch (error) {
-    // console.error('Public search error:', error);
     const message = error.response?.data?.msg || error.message;
     dispatch({
-      type: SEARCH_PUBLIC_REPORTS_FAIL,
+      type: TRANSFER_REPORT_FAIL,
+      payload: message
+    });
+    console.log(message)
+    return { success: false, error: message };
+  }
+};
+
+// Archive Resolved Reports Action
+export const archiveResolvedReports = (archiveData) => async (dispatch) => {
+  try {
+    dispatch({ type: ARCHIVE_REPORTS_REQUEST });
+
+    const { data } = await axios.post(
+      `${serverConfig.baseURL}/report/archive`,
+      archiveData,
+      { 
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        withCredentials: true 
+      }
+    );
+
+    dispatch({
+      type: ARCHIVE_REPORTS_SUCCESS,
+      payload: data.data
+    });
+
+    return { success: true, data: data.data };
+  } catch (error) {
+    const message = error.response?.data?.msg || error.message;
+    dispatch({
+      type: ARCHIVE_REPORTS_FAIL,
       payload: message
     });
     return { success: false, error: message };
   }
 };
+
+
+// Get MongoDB Storage Information
+export const getStorageInfo = () => async (dispatch) => {
+  try {
+    dispatch({ type: GET_STORAGE_INFO_REQUEST });
+
+    const { data } = await axios.get(
+      `${serverConfig.baseURL}/storage/info`,
+      { 
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        withCredentials: true 
+      }
+    );
+
+    dispatch({
+      type: GET_STORAGE_INFO_SUCCESS,
+      payload: data.data
+    });
+
+    return { success: true, data: data.data };
+  } catch (error) {
+    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    dispatch({
+      type: GET_STORAGE_INFO_FAIL,
+      payload: message
+    });
+    return { success: false, error: message };
+  }
+};
+
+// Get MongoDB Storage Capacity Information
+export const getStorageCapacity = () => async (dispatch) => {
+  try {
+    dispatch({ type: GET_STORAGE_CAPACITY_REQUEST });
+
+    const { data } = await axios.get(
+      `${serverConfig.baseURL}/storage/capacity`,
+      { 
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        withCredentials: true 
+      }
+    );
+
+    dispatch({
+      type: GET_STORAGE_CAPACITY_SUCCESS,
+      payload: data.data
+    });
+
+    return { success: true, data: data.data };
+  } catch (error) {
+    const message = error.response?.data?.message || error.response?.data?.error || error.message;
+    dispatch({
+      type: GET_STORAGE_CAPACITY_FAIL,
+      payload: message
+    });
+    return { success: false, error: message };
+  }
+};
+
+// Get Combined Storage Information (both info and capacity in one call)
+export const getCompleteStorageInfo = () => async (dispatch) => {
+  try {
+    // Get both storage info and capacity
+    const [infoResult, capacityResult] = await Promise.allSettled([
+      dispatch(getStorageInfo()),
+      dispatch(getStorageCapacity())
+    ]);
+
+    const results = {
+      info: infoResult.status === 'fulfilled' ? infoResult.value : null,
+      capacity: capacityResult.status === 'fulfilled' ? capacityResult.value : null
+    };
+
+    const success = infoResult.status === 'fulfilled' && capacityResult.status === 'fulfilled';
+    
+    return { 
+      success, 
+      data: results,
+      errors: {
+        info: infoResult.status === 'rejected' ? infoResult.reason : null,
+        capacity: capacityResult.status === 'rejected' ? capacityResult.reason : null
+      }
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Clear Storage Errors
+export const clearStorageErrors = () => (dispatch) => {
+  dispatch({ type: CLEAR_STORAGE_ERRORS });
+};
+
+// Utility function to check storage health
+export const checkStorageHealth = () => async (dispatch) => {
+  try {
+    const result = await dispatch(getStorageCapacity());
+    
+    if (result.success) {
+      const { usagePercentage, isNearLimit, isOverLimit } = result.data;
+      
+      return {
+        success: true,
+        status: isOverLimit ? 'critical' : isNearLimit ? 'warning' : 'healthy',
+        usagePercentage,
+        message: isOverLimit 
+          ? 'Storage is over capacity limit!' 
+          : isNearLimit 
+            ? 'Storage is near capacity limit'
+            : 'Storage is healthy'
+      };
+    }
+    
+    return result;
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+

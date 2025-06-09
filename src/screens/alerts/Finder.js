@@ -122,7 +122,7 @@ const Finder = ({ route }) => {
         </View>
 
         {/* Contact Information */}
-        <View style={tw`bg-gray-50 rounded-lg p-4`}>
+        {/* <View style={tw`bg-gray-50 rounded-lg p-4`}>
           <Text style={tw`font-semibold text-gray-800 mb-3`}>
             Need to Add More Information?
           </Text>
@@ -140,7 +140,7 @@ const Finder = ({ route }) => {
               • Keep monitoring the app for case updates
             </Text>
           </View>
-        </View>
+        </View> */}
       </View>
     </ScrollView>
   );

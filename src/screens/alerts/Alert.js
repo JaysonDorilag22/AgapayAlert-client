@@ -14,8 +14,14 @@ import { AlertSkeleton } from "@/components/skeletons";
 import NoDataFound from "@/components/NoDataFound";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const NOTIFICATION_TYPES = ["REPORT_CREATED", "STATUS_UPDATED", "ASSIGNED_OFFICER", "FINDER_REPORT", "BROADCAST_ALERT"];
-
+const NOTIFICATION_TYPES = [
+  "REPORT_CREATED", 
+  "STATUS_UPDATED", 
+  "ASSIGNED_OFFICER", 
+  "FINDER_REPORT_VERIFIED", 
+  "FINDER_REPORT_CREATED",
+  "BROADCAST_ALERT"
+];
 const TypeBadges = ({ selectedType, onSelectType }) => (
   <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`flex-grow-0`} contentContainerStyle={tw`p-2`}>
     <TouchableOpacity
@@ -146,41 +152,49 @@ export default function Alert() {
   };
 
   const handleNotificationPress = async (notification) => {
-    try {
-      console.log('Processing notification:', notification);
-      await dispatch(markNotificationAsRead(notification._id));
-  
-      // Handle FINDER_REPORT_CREATED type
-      if (notification.type === 'FINDER_REPORT_CREATED') {
-        console.log('Navigating to finder report:', notification.data.finderReportId);
-        navigation.navigate('FinderDetails', {
+  try {
+    console.log('Processing notification:', notification);
+    await dispatch(markNotificationAsRead(notification._id));
+
+    // Handle FINDER_REPORT_CREATED type
+    if (notification.type === 'FINDER_REPORT_CREATED') {
+      console.log('Navigating to finder report:', notification.data.finderReportId);
+      navigation.navigate('FinderDetails', {
+        finderId: notification.data.finderReportId
+      });
+    }
+    // Handle FINDER_REPORT type (status updates)
+    else if (notification.type === 'FINDER_REPORT_VERIFIED') {
+      // If it has a finderReportId, go to finder details
+      if (notification.data?.finderReportId) {
+        navigation.navigate('FinderStatusDetails', {
           finderId: notification.data.finderReportId
         });
       }
-      // Handle FINDER_REPORT type
-      else if (notification.type === 'FINDER_REPORT') {
-        console.log('Navigating to report:', notification.data?.reportId?._id);
-        navigation.navigate('Finder', {
-          reportId: notification.data?.reportId?._id
-        });
-      }
-      // Handle other report types
-      else if (notification.data?.reportId) {
+      // Otherwise go to the original report
+      else if (notification.data?.reportId?._id) {
         navigation.navigate('ReportDetails', {
           reportId: notification.data.reportId._id
         });
       }
-      // Handle general alerts
-      else {
-        navigation.navigate('AlertDetails', {
-          notificationId: notification._id
-        });
-      }
-    } catch (error) {
-      console.error('Error handling notification:', error);
-      showToast('Failed to process notification');
     }
-  };
+    // Handle other report types
+    else if (notification.data?.reportId) {
+      navigation.navigate('ReportDetails', {
+        reportId: notification.data.reportId._id
+      });
+    }
+    // Handle general alerts
+    else {
+      navigation.navigate('AlertDetails', {
+        notificationId: notification._id
+      });
+    }
+  } catch (error) {
+    console.error('Error handling notification:', error);
+    showToast('Failed to process notification');
+  }
+};
 
   const renderNotification = ({ item }) => (
     <TouchableOpacity
@@ -263,9 +277,9 @@ export default function Alert() {
   return (
     <View style={tw`flex-1 bg-white`}>
       <View style={tw`flex-row items-center justify-between`}>
-        <View style={tw`flex-1`}>
+        {/* <View style={tw`flex-1`}>
           <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Alerts</Text>
-        </View>
+        </View> */}
       </View>
 
       <TypeBadges selectedType={activeFilter} onSelectType={setActiveFilter} />

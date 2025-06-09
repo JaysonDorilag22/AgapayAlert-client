@@ -19,11 +19,12 @@ import {
   MessageCircle,
   Facebook,
   Info,
+  Share,
 } from "lucide-react-native";
 import tw from "twrnc";
 import { getReportDetails } from "@/redux/actions/reportActions";
 import { publishBroadcast, unpublishBroadcast } from "@/redux/actions/broadcastActions";
-import { assignOfficer, updateUserReport } from "@/redux/actions/reportActions";
+import { assignOfficer, updateUserReport, transferReport } from "@/redux/actions/reportActions";
 import { getUserList } from "@/redux/actions/userActions";
 import { formatDate } from "@/utils/dateUtils";
 import styles from "@/styles/styles";
@@ -32,7 +33,7 @@ import BroadcastModal from "./BroadcastModal";
 import BroadcastHistory from "./BroadcastHistory";
 import UpdateStatusModal from "./UpdateStatusModal";
 import FullReportDetailsModal from "./FullReportDetailsModal";
-
+import TransferReportModal from "@/components/report/TransferReportModal";
 const AssignOfficerModal = ({ visible, onClose, onSubmit, policeStationId }) => {
   const [selectedOfficer, setSelectedOfficer] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -190,6 +191,8 @@ const ReportDetails = ({ route }) => {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showFullDetailsModal, setShowFullDetailsModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+
   const [refreshing, setRefreshing] = useState(false);
   const [localError, setLocalError] = useState(null);
   const { reportId } = route.params;
@@ -203,6 +206,22 @@ const ReportDetails = ({ route }) => {
   useEffect(() => {
     loadReportDetails();
   }, [dispatch, reportId]);
+
+  const handleTransferReport = async (transferData) => {
+  try {
+    const result = await dispatch(transferReport(reportId, transferData));
+    if (result.success) {
+      showToast('Report transferred successfully');
+      setShowTransferModal(false);
+      navigation.goBack(); // Go back since report is now transferred
+    } else {
+      showToast(result.error || 'Failed to transfer report');
+      console.log(result.error)
+    }
+  } catch (error) {
+    showToast('Error transferring report');
+  }
+};
 
   // Add a dedicated function to load report details
   const loadReportDetails = async (showLoadingState = true) => {
@@ -661,13 +680,25 @@ const ReportDetails = ({ route }) => {
             {OfficerAssignment}
             {ConsentStatus}
             {AdditionalImages}
+            
             {BroadcastActions}
             {FollowUpHistory}
+
           </View>
         </View>
 
         {/* Broadcast History */}
         <BroadcastHistory history={currentReport?.broadcastHistory} />
+
+                    {currentReport?.status !== 'Transferred' && (
+  <TouchableOpacity
+    style={[tw`flex-1 mr-2 p-3 m-5 bg-red-600 rounded-lg flex-row items-center justify-center`]}
+    onPress={() => setShowTransferModal(true)}
+  >
+    <Share size={18} color="#FFF" style={tw`mr-2`} />
+    <Text style={tw`text-white font-medium`}>Transfer this case</Text>
+  </TouchableOpacity>
+)}
       </View>
 
       {/* Modals */}
@@ -698,7 +729,18 @@ const ReportDetails = ({ route }) => {
         onClose={() => setShowFullDetailsModal(false)}
         report={currentReport}
       />
+
+
+
+<TransferReportModal
+  visible={showTransferModal}
+  onClose={() => setShowTransferModal(false)}
+  onSubmit={handleTransferReport}
+  reportId={reportId}
+/>
     </ScrollView>
+
+    
   );
 };
 

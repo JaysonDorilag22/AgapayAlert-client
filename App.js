@@ -38,6 +38,9 @@ import AdminNavigator from "./src/navigation/AdminNavigator";
 import showToast from "@/utils/toastUtils";
 import { AlertDetails } from "@/screens/alerts";
 import Finder from "@/screens/alerts/Finder";
+import FinderDetails from "@/screens/alerts/FinderDetails";
+import AdminFinderDetails from '@/screens/admin/finder/FinderDetails';
+
 import SearchScreen from "@/screens/reports/SearchScreen";
 import CaseAssignmentModal from "@/components/CaseAssignmentModal";
 import { useNotifications } from "@/utils/useNotifications";
@@ -55,9 +58,9 @@ export default function App() {
   const [playerId, setPlayerId] = useState(null);
   const { currentNotification, dismissNotification } = useNotifications();
 
-   // Add this debug effect
+  // Add this debug effect
   useEffect(() => {
-    console.log('currentNotification changed:', currentNotification);
+    console.log("currentNotification changed:", currentNotification);
   }, [currentNotification]);
 
   useEffect(() => {
@@ -220,6 +223,29 @@ export default function App() {
               })}
             />
             <Stack.Screen
+              name="FinderStatusDetails"
+              component={FinderDetails}
+              options={({ navigation }) => ({
+                headerShown: true,
+                headerTitle: "Finder Status Details",
+                headerTintColor: "#041562",
+                headerStyle: { backgroundColor: "#ffffff" },
+                ...getBackButton(navigation, "#041562"),
+              })}
+            />
+            <Stack.Screen
+              name="AdminFinderDetails"
+              component={AdminFinderDetails}
+              options={({ navigation }) => ({
+                headerShown: true,
+                headerTitle: "Finder Details",
+                headerTintColor: "#041562",
+                headerStyle: { backgroundColor: "#ffffff" },
+                ...getBackButton(navigation, "#041562"),
+              })}
+            />
+
+            <Stack.Screen
               name="Search"
               options={({ navigation }) => ({
                 headerShown: true,
@@ -231,19 +257,14 @@ export default function App() {
               component={SearchScreen}
             />
           </Stack.Navigator>
-           
         </NavigationContainer>
-         {console.log('Rendering modal check - currentNotification:', !!currentNotification)}
-          {currentNotification && (
-            <>
-              {console.log('Rendering CaseAssignmentModal')}
-              <CaseAssignmentModal
-                visible={true}
-                notification={currentNotification}
-                onClose={dismissNotification}
-              />
-            </>
-          )}
+        {console.log("Rendering modal check - currentNotification:", !!currentNotification)}
+        {currentNotification && (
+          <>
+            {console.log("Rendering CaseAssignmentModal")}
+            <CaseAssignmentModal visible={true} notification={currentNotification} onClose={dismissNotification} />
+          </>
+        )}
       </I18nextProvider>
     </LanguageContext.Provider>
   );

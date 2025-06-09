@@ -11,6 +11,7 @@ import {
   FileSearch,
   CircleUser,
   Phone,
+  Database
 } from "lucide-react-native";
 import AdminDashboard from "@/screens/admin/Dashboard";
 import CustomAdminDrawer from "@/components/admin/CustomAdminDrawer";
@@ -19,14 +20,14 @@ import Reports from "@/screens/admin/reports/Reports";
 import PoliceStation from "@/screens/admin/policeStation/PoliceStation";
 import City from "@/screens/admin/city/City";
 import Alert from "@/screens/admin/alerts/Alert";
-import Broadcast from "@/screens/admin/broadcast/Broadcast";
+// import Broadcast from "@/screens/admin/broadcast/Broadcast";
 import Finder from "@/screens/admin/finder/Finder";
 import ReportDetails from "@/screens/admin/reports/ReportDetails";
 import Alpr from "@/screens/admin/alpr/Alpr";
-import AlertDetails from "@/screens/alerts/AlertDetails";
+// import AlertDetails from "@/screens/alerts/AlertDetails";
 import Users from "@/screens/admin/users/Users";
 import EmergencyContact from "@/screens/admin/emergency/EmergencyContact";
-
+import DataManagement from "@/screens/admin/reports/DataManagement";
 
 const Drawer = createDrawerNavigator();
 
@@ -90,14 +91,14 @@ const AdminNavigator = () => {
           drawerIcon: ({ focused, size }) => <Bell size={24} color={focused ? "#11468F" : "#666"} />,
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="AdminBroadcasts"
         component={Broadcast}
         options={{
           title: "Broadcasts",
           drawerIcon: ({ focused, size }) => <Radio size={24} color={focused ? "#11468F" : "#666"} />,
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="ReportDetails"
         component={ReportDetails}
@@ -126,8 +127,16 @@ const AdminNavigator = () => {
         name="AdminUsers"
         component={Users}
         options={{
-          title: "Users",
+          title: "Officers",
           drawerIcon: ({ focused, size }) => <CircleUser size={24} color={focused ? "#11468F" : "#666"} />,
+        }}
+      />
+      <Drawer.Screen
+        name="AdminData"
+        component={DataManagement}
+        options={{
+          title: "Storage",
+          drawerIcon: ({ focused, size }) => <Database size={24} color={focused ? "#11468F" : "#666"} />,
         }}
       />
     </Drawer.Navigator>

@@ -332,7 +332,7 @@ export default function PoliceStation() {
       {/* Header */}
       <View style={tw`bg-white p-4 border-b border-gray-200`}>
         <View style={tw`flex-row items-center justify-between mb-4`}>
-          <Text style={tw`text-xl font-bold text-gray-900`}>Police Stations</Text>
+          {/* <Text style={tw`text-xl font-bold text-gray-900`}>Police Stations</Text> */}
           <TouchableOpacity
             onPress={() => setShowCreateModal(true)}
             style={tw`bg-blue-600 p-2 rounded-lg flex-row items-center`}

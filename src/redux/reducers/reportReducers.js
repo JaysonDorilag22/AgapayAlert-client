@@ -41,6 +41,19 @@ import {
   SEARCH_PUBLIC_REPORTS_REQUEST,
   SEARCH_PUBLIC_REPORTS_SUCCESS,
   SEARCH_PUBLIC_REPORTS_FAIL,
+  TRANSFER_REPORT_REQUEST,
+  TRANSFER_REPORT_SUCCESS,
+  TRANSFER_REPORT_FAIL,
+  ARCHIVE_REPORTS_REQUEST,
+  ARCHIVE_REPORTS_SUCCESS,
+  ARCHIVE_REPORTS_FAIL,
+  GET_STORAGE_INFO_REQUEST,
+  GET_STORAGE_INFO_SUCCESS,
+  GET_STORAGE_INFO_FAIL,
+  GET_STORAGE_CAPACITY_REQUEST,
+  GET_STORAGE_CAPACITY_SUCCESS,
+  GET_STORAGE_CAPACITY_FAIL,
+  CLEAR_STORAGE_ERRORS
 } from "../actiontypes/reportTypes";
 
 const initialState = {
@@ -79,6 +92,26 @@ const initialState = {
   },
   searchLoading: false,
   searchError: null,
+  transferLoading: false,
+  transferError: null,
+  archiveLoading: false,
+  archiveError: null,
+  storage: {
+    info: null,
+    capacity: null,
+    loading: {
+      info: false,
+      capacity: false
+    },
+    error: {
+      info: null,
+      capacity: null
+    },
+    lastUpdated: {
+      info: null,
+      capacity: null
+    }
+  }
 };
 
 export const reportReducer = (state = initialState, action) => {
@@ -330,6 +363,177 @@ export const reportReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+
+      case TRANSFER_REPORT_REQUEST:
+      return { 
+        ...state, 
+        transferLoading: true, 
+        transferError: null 
+      };
+
+    case TRANSFER_REPORT_SUCCESS:
+      return {
+        ...state,
+        transferLoading: false,
+        // Remove the transferred report from the reports list
+        reports: state.reports.filter(report => report._id !== action.payload.reportId),
+        // Update userReports if it exists
+        userReports: {
+          ...state.userReports,
+          reports: state.userReports.reports.filter(report => report._id !== action.payload.reportId)
+        }
+      };
+
+    case TRANSFER_REPORT_FAIL:
+      return { 
+        ...state, 
+        transferLoading: false, 
+        transferError: action.payload 
+      };
+
+    // Archive Reports Cases
+    case ARCHIVE_REPORTS_REQUEST:
+      return { 
+        ...state, 
+        archiveLoading: true, 
+        archiveError: null 
+      };
+
+    case ARCHIVE_REPORTS_SUCCESS:
+      return {
+        ...state,
+        archiveLoading: false,
+        // You might want to refresh the reports list after archiving
+        // or filter out archived reports depending on your UI needs
+      };
+
+    case ARCHIVE_REPORTS_FAIL:
+      return { 
+        ...state, 
+        archiveLoading: false, 
+        archiveError: action.payload 
+      };
+
+      case GET_STORAGE_INFO_REQUEST:
+      return {
+        ...state,
+        storage: {
+          ...state.storage,
+          loading: {
+            ...state.storage.loading,
+            info: true
+          },
+          error: {
+            ...state.storage.error,
+            info: null
+          }
+        }
+      };
+
+    case GET_STORAGE_INFO_SUCCESS:
+      return {
+        ...state,
+        storage: {
+          ...state.storage,
+          info: action.payload,
+          loading: {
+            ...state.storage.loading,
+            info: false
+          },
+          error: {
+            ...state.storage.error,
+            info: null
+          },
+          lastUpdated: {
+            ...state.storage.lastUpdated,
+            info: new Date().toISOString()
+          }
+        }
+      };
+
+    case GET_STORAGE_INFO_FAIL:
+      return {
+        ...state,
+        storage: {
+          ...state.storage,
+          loading: {
+            ...state.storage.loading,
+            info: false
+          },
+          error: {
+            ...state.storage.error,
+            info: action.payload
+          }
+        }
+      };
+
+    // Storage Capacity Cases
+    case GET_STORAGE_CAPACITY_REQUEST:
+      return {
+        ...state,
+        storage: {
+          ...state.storage,
+          loading: {
+            ...state.storage.loading,
+            capacity: true
+          },
+          error: {
+            ...state.storage.error,
+            capacity: null
+          }
+        }
+      };
+
+    case GET_STORAGE_CAPACITY_SUCCESS:
+      return {
+        ...state,
+        storage: {
+          ...state.storage,
+          capacity: action.payload,
+          loading: {
+            ...state.storage.loading,
+            capacity: false
+          },
+          error: {
+            ...state.storage.error,
+            capacity: null
+          },
+          lastUpdated: {
+            ...state.storage.lastUpdated,
+            capacity: new Date().toISOString()
+          }
+        }
+      };
+
+    case GET_STORAGE_CAPACITY_FAIL:
+      return {
+        ...state,
+        storage: {
+          ...state.storage,
+          loading: {
+            ...state.storage.loading,
+            capacity: false
+          },
+          error: {
+            ...state.storage.error,
+            capacity: action.payload
+          }
+        }
+      };
+
+    // Clear Storage Errors
+    case CLEAR_STORAGE_ERRORS:
+      return {
+        ...state,
+        storage: {
+          ...state.storage,
+          error: {
+            info: null,
+            capacity: null
+          }
+        }
+      };
+
 
     default:
       return state;

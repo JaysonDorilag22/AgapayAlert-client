@@ -381,10 +381,6 @@ export default function Finder() {
 
   const renderHeader = () => (
     <View style={tw`bg-white p-4 border-b border-gray-200`}>
-      <Text style={[tw`font-bold text-gray-900 mb-4`, styles.textLarge]}>
-        Finder Reports
-      </Text>
-      
       {/* Search Bar */}
       <View style={tw`flex-row items-center bg-gray-50 rounded-lg px-3 py-2 mb-3`}>
         <Search size={20} color="#6B7280" />
