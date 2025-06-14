@@ -104,31 +104,56 @@ export default function Alert() {
    useEffect(() => {
     let mounted = true;
 
-    const setupSocket = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        const socket = await initializeSocket(token);
-        
-        if (socket && mounted) {
-          socketRef.current = socket;
+    // ...existing code...
 
-          // Join user-specific room
-          if (user?._id) {
-            joinRoom(`user_${user._id}`);
-          }
-
-          // Listen for new notifications
-          socket.on(SOCKET_EVENTS.REPORT_UPDATED, (data) => {
-            if (mounted) {
-              // Refresh notifications when a new update is received
-              loadNotifications(1, true);
-            }
-          });
+const setupSocket = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const socket = await initializeSocket(token);
+    
+    if (socket && mounted && user?._id) {
+      socketRef.current = socket;
+      
+      // Join different rooms based on user role
+      if (user.roles?.includes('police_officer') || user.roles?.includes('police_admin')) {
+        joinRoom(`user_${user._id}`);
+        if (user.policeStation) {
+          joinRoom(`policeStation_${user.policeStation}`);
         }
-      } catch (error) {
-        console.error('Socket setup error:', error);
+      } else {
+        // Regular users join their own room only
+        joinRoom(`user_${user._id}`);
       }
-    };
+      
+      // Only listen for relevant events based on user role
+      if (user.roles?.includes('police_officer') || user.roles?.includes('police_admin')) {
+        socket.on(SOCKET_EVENTS.REPORT_UPDATED, (data) => {
+          console.log('Report updated:', data);
+          if (mounted) {
+            loadNotifications(1, true);
+          }
+        });
+        
+        socket.on('NEW_REPORT', (data) => {
+          console.log('New report for police:', data);
+          if (mounted) {
+            loadNotifications(1, true);
+          }
+        });
+      } else {
+        // Regular users only get general notifications
+        socket.on(SOCKET_EVENTS.GENERAL_NOTIFICATION, (data) => {
+          console.log('General notification:', data);
+          if (mounted) {
+            loadNotifications(1, true);
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Socket setup error:', error);
+  }
+};
 
     setupSocket();
 

@@ -208,20 +208,20 @@ const ReportDetails = ({ route }) => {
   }, [dispatch, reportId]);
 
   const handleTransferReport = async (transferData) => {
-  try {
-    const result = await dispatch(transferReport(reportId, transferData));
-    if (result.success) {
-      showToast('Report transferred successfully');
-      setShowTransferModal(false);
-      navigation.goBack(); // Go back since report is now transferred
-    } else {
-      showToast(result.error || 'Failed to transfer report');
-      console.log(result.error)
+    try {
+      const result = await dispatch(transferReport(reportId, transferData));
+      if (result.success) {
+        showToast("Report transferred successfully");
+        setShowTransferModal(false);
+        navigation.goBack(); // Go back since report is now transferred
+      } else {
+        showToast(result.error || "Failed to transfer report");
+        console.log(result.error);
+      }
+    } catch (error) {
+      showToast("Error transferring report");
     }
-  } catch (error) {
-    showToast('Error transferring report');
-  }
-};
+  };
 
   // Add a dedicated function to load report details
   const loadReportDetails = async (showLoadingState = true) => {
@@ -374,13 +374,10 @@ const ReportDetails = ({ route }) => {
                 </View>
               </View>
 
-              
               <View style={tw`flex-row`}>
                 <View style={tw`flex-1`}>
                   <Text style={tw`text-gray-500 text-xs`}>Reward</Text>
-                  <Text style={tw`font-medium`}>
-                  {currentReport?.personInvolved?.rewards}
-                  </Text>
+                  <Text style={tw`font-medium`}>{currentReport?.personInvolved?.rewards}</Text>
                 </View>
               </View>
             </View>
@@ -680,26 +677,32 @@ const ReportDetails = ({ route }) => {
             {OfficerAssignment}
             {ConsentStatus}
             {AdditionalImages}
-            
+
             {BroadcastActions}
             {FollowUpHistory}
-
           </View>
         </View>
 
         {/* Broadcast History */}
         <BroadcastHistory history={currentReport?.broadcastHistory} />
 
-                    {currentReport?.status !== 'Transferred' && (
-  <TouchableOpacity
-    style={[tw`flex-1 mr-2 p-3 m-5 bg-red-600 rounded-lg flex-row items-center justify-center`]}
-    onPress={() => setShowTransferModal(true)}
-  >
-    <Share size={18} color="#FFF" style={tw`mr-2`} />
-    <Text style={tw`text-white font-medium`}>Transfer this case</Text>
-  </TouchableOpacity>
-)}
+        {currentReport?.status !== "Transferred" && (
+          <TouchableOpacity
+            style={[tw`flex-1 mr-2 p-3 m-5 bg-red-600 rounded-lg flex-row items-center justify-center`]}
+            onPress={() => setShowTransferModal(true)}
+          >
+            <Share size={18} color="#FFF" style={tw`mr-2`} />
+            <Text style={tw`text-white font-medium`}>Transfer this case</Text>
+          </TouchableOpacity>
+        )}
       </View>
+
+      {/* Add the Full Details Modal */}
+      <FullReportDetailsModal
+        visible={showFullDetailsModal}
+        onClose={() => setShowFullDetailsModal(false)}
+        report={currentReport}
+      />
 
       {/* Modals */}
       <BroadcastModal
@@ -723,24 +726,15 @@ const ReportDetails = ({ route }) => {
         currentStatus={currentReport?.status}
       />
 
-      {/* Add the Full Details Modal */}
-      <FullReportDetailsModal
-        visible={showFullDetailsModal}
-        onClose={() => setShowFullDetailsModal(false)}
-        report={currentReport}
+      
+
+      <TransferReportModal
+        visible={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        onSubmit={handleTransferReport}
+        reportId={reportId}
       />
-
-
-
-<TransferReportModal
-  visible={showTransferModal}
-  onClose={() => setShowTransferModal(false)}
-  onSubmit={handleTransferReport}
-  reportId={reportId}
-/>
     </ScrollView>
-
-    
   );
 };
 

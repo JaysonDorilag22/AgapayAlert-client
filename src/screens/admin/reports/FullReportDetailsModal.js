@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity, Modal } from "react-native";
+import { View, Text, Modal, ScrollView, TouchableOpacity, Image, Linking } from "react-native";
 import {
   MapPin,
   Calendar,
@@ -21,6 +21,30 @@ import {
 import tw from "twrnc";
 import styles from "@/styles/styles";
 
+const getTimeAgo = (date) => {
+  if (!date) return '';
+  const now = new Date();
+  const pastDate = new Date(date);
+  const diffTime = Math.abs(now - pastDate);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 30) return `${diffDays} days ago`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+  return `${Math.floor(diffDays / 365)} years ago`;
+};
+
+const handleCall = (phoneNumber) => {
+  if (!phoneNumber) return;
+  Linking.openURL(`tel:${phoneNumber}`);
+};
+
+const handleEmail = (email) => {
+  if (!email) return;
+  Linking.openURL(`mailto:${email}`);
+};
+
 const DetailRow = ({ icon, label, value }) => (
   <View style={tw`flex-row items-center mb-3`}>
     {icon && <View style={tw`w-8 h-8 rounded-full bg-blue-50 items-center justify-center mr-2`}>{icon}</View>}
@@ -41,15 +65,51 @@ const SectionHeader = ({ title, icon }) => (
 const FullReportDetailsModal = ({ visible, onClose, report }) => {
   if (!report) return null;
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleString();
+ const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  
+  const date = new Date(dateString);
+  
+  // Check if date is valid
+  if (isNaN(date.getTime())) return "Invalid date";
+  
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Today
+  if (date.toDateString() === now.toDateString()) {
+    return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
+  
+  // Yesterday
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) {
+    return `Yesterday at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
+  
+  // Within last 7 days
+  if (diffDays < 7) {
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
+  
+  // Older dates
+  const options = { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
   };
+  
+  return date.toLocaleDateString(undefined, options);
+};
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
-      <View style={tw`flex-1 bg-black/50 justify-center items-center`}>
-        <View style={tw`w-11/12 max-h-[85%] bg-white rounded-xl shadow-xl overflow-hidden`}>
+    <Modal visible={visible} animationType="fade"  transparent={true} onRequestClose={onClose}>
+      <View style={tw`flex-1 bg-black/50 justify-center items-center pb-10 pt-5`}>
+        <View style={tw`flex-1 w-11/12 h-50  bg-white rounded-xl shadow-xl overflow-hidden`}>
           {/* Header */}
           <View style={tw`px-5 py-4 border-b border-gray-200 flex-row items-center justify-between bg-[#041562]`}>
             <View style={tw`flex-row items-center`}>
@@ -308,29 +368,43 @@ const FullReportDetailsModal = ({ visible, onClose, report }) => {
             <View style={tw`mb-6`}>
               <SectionHeader title="Reporter Information" icon={<User size={20} color="#2563EB" />} />
               <View style={tw`bg-white rounded-xl p-4 border border-gray-100`}>
-                <Text style={tw`font-bold text-gray-800 text-base mb-3`}>
-                  {report.reporter?.firstName} {report.reporter?.lastName}
-                </Text>
+                <View style={tw`flex-row items-center mb-4`}>
+                  <Image
+                    source={{ uri: report.reporter?.avatar?.url || "https://via.placeholder.com/100" }}
+                    style={tw`w-16 h-16 rounded-full mr-4 border-2 border-gray-200`}
+                  />
+                  <View style={tw`flex-1`}>
+                    <Text style={tw`font-bold text-gray-800 text-lg`}>
+                      {report.reporter?.firstName} {report.reporter?.lastName}
+                    </Text>
 
-                <DetailRow
-                  icon={<Phone size={16} color="#2563EB" />}
-                  label="Contact Number"
-                  value={report.reporter?.number}
-                />
+                    <TouchableOpacity
+                      onPress={() => handleCall(report.reporter?.number)}
+                      style={tw`flex-row items-center mt-1`}
+                    >
+                      <Phone size={16} color="#16A34A" style={tw`mr-2`} />
+                      <Text style={tw`text-green-600 font-medium`}>{report.reporter?.number || "N/A"}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => handleEmail(report.reporter?.email)}
+                      style={tw`flex-row items-center mt-1`}
+                    >
+                      <Mail size={16} color="#2563EB" style={tw`mr-2`} />
+                      <Text style={tw`text-blue-600`}>{report.reporter?.email || "N/A"}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
 
-                <DetailRow
-                  icon={<Mail size={16} color="#2563EB" />}
-                  label="Email Address"
-                  value={report.reporter?.email}
-                />
-
-                <DetailRow
-                  icon={<MapPin size={16} color="#2563EB" />}
-                  label="Address"
-                  value={`${report.reporter?.address?.streetAddress || ""}, ${
-                    report.reporter?.address?.barangay || ""
-                  }, ${report.reporter?.address?.city || ""}`}
-                />
+                {report.reporter?.address && (
+                  <View style={tw`bg-gray-50 p-3 rounded-lg flex-row items-start`}>
+                    <MapPin size={16} color="#6B7280" style={tw`mr-2 mt-0.5`} />
+                    <Text style={tw`text-gray-700 flex-1`}>
+                      {`${report.reporter?.address?.streetAddress || ""}, ${
+                        report.reporter?.address?.barangay || ""
+                      }, ${report.reporter?.address?.city || ""} ${report.reporter?.address?.zipCode || ""}`}
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
 
@@ -338,39 +412,25 @@ const FullReportDetailsModal = ({ visible, onClose, report }) => {
             <View style={tw`mb-6`}>
               <SectionHeader title="Location Details" icon={<MapPinned size={20} color="#2563EB" />} />
               <View style={tw`bg-white rounded-xl p-4 border border-gray-100`}>
-                <DetailRow
-                  icon={<MapPin size={16} color="#2563EB" />}
-                  label="Street Address"
-                  value={report.location?.address?.streetAddress}
-                />
+                <View style={tw`mb-4`}>
+                  <Text style={tw`text-xs text-gray-500 mb-1`}>Complete Address</Text>
+                  <Text style={tw`font-medium text-gray-800`}>
+                    {report.location?.address?.streetAddress}, {report.location?.address?.barangay},{"\n"}
+                    {report.location?.address?.city}, {report.location?.address?.zipCode}
+                  </Text>
+                </View>
 
-                <DetailRow
-                  icon={<MapPin size={16} color="#2563EB" />}
-                  label="Barangay"
-                  value={report.location?.address?.barangay}
-                />
-
-                <DetailRow
-                  icon={<MapPin size={16} color="#2563EB" />}
-                  label="City"
-                  value={report.location?.address?.city}
-                />
-
-                <DetailRow
-                  icon={<MapPin size={16} color="#2563EB" />}
-                  label="ZIP Code"
-                  value={report.location?.address?.zipCode}
-                />
-
-                <DetailRow
-                  icon={<MapPin size={16} color="#2563EB" />}
-                  label="Coordinates"
-                  value={
-                    report.location?.coordinates
-                      ? `${report.location.coordinates[1]}, ${report.location.coordinates[0]}`
-                      : "N/A"
-                  }
-                />
+                {report.location?.coordinates && (
+                  <View>
+                    <Text style={tw`text-xs text-gray-500 mb-1`}>Coordinates</Text>
+                    <View style={tw`flex-row items-center`}>
+                      <Text style={tw`font-medium text-gray-800`}>
+                        {report.location.coordinates[1]}, {report.location.coordinates[0]}
+                      </Text>
+                      {/* You could add a map button here if needed */}
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
 

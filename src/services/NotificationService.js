@@ -11,10 +11,10 @@ class NotificationService {
   }
 
   initialize(user, token) {
-    if (user && token && user.roles === 'police_officer') {
-      this.initializeSocket(user, token);
-    }
+  if (user && token && user.roles === 'police_officer') { // Only initializes for police
+    this.initializeSocket(user, token);
   }
+}
 
   initializeSocket(user, token) {
     this.socket = io(serverConfig.socketURL, {

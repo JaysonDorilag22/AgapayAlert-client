@@ -378,10 +378,10 @@ const Profile = () => {
         <View style={tw`flex-row justify-between mb-4`}>
           <Seperator />
 
-          <TouchableOpacity style={[styles.buttonOutline, tw`flex-1 mr-2`]} onPress={handleCancel}>
+          <TouchableOpacity style={[styles.buttonOutline, tw` flex-1 mr-2 px-6 py-2 min-w-20`]} onPress={handleCancel}>
             <Text style={styles.buttonTextOutline}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.buttonPrimary, tw`flex-1`]} onPress={handleSave}>
+          <TouchableOpacity style={[styles.buttonPrimary, tw`flex-1 px-6 py-2 min-w-20`]} onPress={handleSave}>
             <Text style={styles.buttonTextPrimary}>Save</Text>
           </TouchableOpacity>
         </View>

@@ -70,30 +70,25 @@ export default function Alert() {
     let mounted = true;
 
     const setupSocket = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const socket = await initializeSocket(token);
-
-        if (socket && mounted) {
-          socketRef.current = socket;
-
-          // Join user-specific room
-          if (user?._id) {
-            joinRoom(`user_${user._id}`);
-          }
-
-          // Listen for new notifications
-          socket.on(SOCKET_EVENTS.REPORT_UPDATED, (data) => {
-            if (mounted) {
-              // Refresh notifications when a new update is received
-              loadNotifications(1, true);
-            }
-          });
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const socket = await initializeSocket(token);
+    
+    if (socket && mounted && user?._id) {
+      socketRef.current = socket;
+      joinRoom(`user_${user._id}`); // This joins ALL users to socket
+      
+      socket.on(SOCKET_EVENTS.REPORT_UPDATED, (data) => {
+        console.log('Report updated:', data);
+        if (mounted) {
+          loadNotifications(1, true);
         }
-      } catch (error) {
-        console.error("Socket setup error:", error);
-      }
-    };
+      });
+    }
+  } catch (error) {
+    console.error('Socket setup error:', error);
+  }
+};
 
     setupSocket();
 
