@@ -105,7 +105,7 @@ export default function Login() {
 
           <View style={tw`items-start`}>
             <Text style={[styles.headingOne]}>{t("welcome")}</Text>
-            <Text style={tw`mb-2 text-red-500 text-xl`,[styles.head]}>AgapayAlert</Text>
+            <Text style={[tw`mb-2 text-red-500 text-xl`, styles.head]}>AgapayAlert</Text>
             <Text style={[tw`mt-1 mb-2`, { color: styles.textPrimary.color }, styles.textSmall]}>{t("signIn")}</Text>
           </View>
 

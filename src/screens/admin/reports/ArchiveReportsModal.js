@@ -92,7 +92,7 @@ const ArchiveReportsModal = ({ visible, onClose, onSubmit }) => {
       await onSubmit(submitData);
       resetForm();
     } catch (error) {
-      console.error('Error submitting archive request:', error);
+      console.error('Error submitting transfer request:', error);
     }
   };
 

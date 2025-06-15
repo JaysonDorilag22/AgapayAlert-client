@@ -29,7 +29,7 @@ import serverConfig from "../../config/serverConfig";
 export const searchPoliceStations = (searchData) => async (dispatch) => {
   try {
     dispatch({ type: POLICE_STATION_SEARCH_REQUEST });
-
+console.log(searchData)
     // Validate search data has either coordinates or address
     if (!searchData?.coordinates && !searchData?.address) {
       throw new Error("Missing location data");

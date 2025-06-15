@@ -370,11 +370,11 @@ const setupSocket = async () => {
 
   return (
     <View style={tw`flex-1 bg-white`}>
-      <View style={tw`flex-row items-center justify-between`}>
+      {/* <View style={tw`flex-row items-center justify-between`}>
         <View style={tw`flex-1`}>
-          <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Alerts test</Text>
+          <Text style={[tw`font-bold ml-2`, styles.textLarge]}>My Alerts </Text>
         </View>
-      </View>
+      </View> */}
 
       <TypeBadges selectedType={activeFilter} onSelectType={setActiveFilter} />
 

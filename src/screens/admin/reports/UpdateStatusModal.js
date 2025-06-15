@@ -6,7 +6,7 @@ import { Picker } from '@react-native-picker/picker';
 import tw from 'twrnc';
 import styles from '@/styles/styles';
 
-const STATUSES = ["Pending", "Assigned", "Under Investigation", "Resolved", "Archived"];
+const STATUSES = ["Pending", "Assigned", "Under Investigation", "Resolved"];
 
 const UpdateStatusModal = ({ visible, onClose, onSubmit, currentStatus }) => {
   const [status, setStatus] = useState(currentStatus);

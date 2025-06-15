@@ -158,6 +158,35 @@ export default function Alert() {
         finderId: notification.data.finderReportId
       });
     }
+
+    // Handle REPORT_CREATED type
+  else  if (notification.type === 'REPORT_CREATED') {
+    // Extract case ID from the notification message if needed for debugging
+    const caseIdMatch = notification.message.match(/Case ID: ([A-Z]+-[a-f0-9]+)/);
+    const caseId = caseIdMatch ? caseIdMatch[1] : null;
+    console.log('Case ID from message:', caseId);
+    
+    // Navigate directly to ReportDetails
+    // Use the appropriate report ID from your notification structure
+    const reportId = "67d4427fb564f519cd6387ab"; // Replace with actual ID from your notification
+    
+    console.log('Navigating to report details:', reportId);
+    navigation.navigate('ReportDetails', { reportId: reportId });
+  }
+
+  else  if (notification.type === 'STATUS_UPDATED') {
+    // Extract case ID from the notification message if needed for debugging
+    const caseIdMatch = notification.message.match(/Case ID: ([A-Z]+-[a-f0-9]+)/);
+    const caseId = caseIdMatch ? caseIdMatch[1] : null;
+    console.log('Case ID from message:', caseId);
+    
+    // Navigate directly to ReportDetails
+    // Use the appropriate report ID from your notification structure
+    const reportId = "67d4427fb564f519cd6387ab"; // Replace with actual ID from your notification
+    
+    console.log('Navigating to report details:', reportId);
+    navigation.navigate('ReportDetails', { reportId: reportId });
+  }
     // Handle FINDER_REPORT type (status updates)
     else if (notification.type === 'FINDER_REPORT_VERIFIED') {
       // If it has a finderReportId, go to finder details

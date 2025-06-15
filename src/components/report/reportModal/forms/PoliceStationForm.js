@@ -39,7 +39,7 @@ const PoliceStationForm = ({
 
   // Get current location
   // Update getCurrentLocation
-  const getCurrentLocation = async () => {
+const getCurrentLocation = async () => {
     try {
       setLocationLoading(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -53,7 +53,7 @@ const PoliceStationForm = ({
       });
 
       const coords = [location.coords.longitude, location.coords.latitude];
-      setSearchCoordinates(coords); // Store coordinates
+      setSearchCoordinates(coords);
       setCurrentLocation({ coordinates: coords });
 
       await dispatch(
@@ -72,23 +72,22 @@ const PoliceStationForm = ({
     }
   };
 
+
   // Search by incident location
-  const searchByIncidentLocation = async () => {
+ const searchByIncidentLocation = async () => {
     if (!initialData?.location?.address?.city) {
       showToast("Location information is required");
       return;
     }
 
-    // Use default Taguig coordinates if needed
-    const coords =
-      initialData?.location?.coordinates?.length === 2 ? initialData.location.coordinates : [121.0509, 14.5176];
-
-    setSearchCoordinates(coords); // Store coordinates
+    // Remove default Taguig coordinates and use only provided coordinates if available
+    const coords = initialData?.location?.coordinates?.length === 2 ? initialData.location.coordinates : null;
+    setSearchCoordinates(coords);
 
     try {
+      // Only send address for incident-based search
       const result = await dispatch(
         searchPoliceStations({
-          coordinates: coords.map((coord) => parseFloat(coord.toFixed(7))),
           address: initialData.location.address,
         })
       );

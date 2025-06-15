@@ -26,6 +26,9 @@ import {
   RESEND_OTP_FAILURE,
   CLEAR_AUTH_MESSAGE,
   CLEAR_AUTH_ERROR,
+  CHECK_AUTH_STATUS_REQUEST,
+  CHECK_AUTH_STATUS_SUCCESS,
+  CHECK_AUTH_STATUS_FAILURE
 } from "../actiontypes/authTypes";
 import serverConfig from "../../config/serverConfig";
 import { socket, initializeSocket, disconnectSocket } from '@/services/socketService';
@@ -33,6 +36,39 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 axios.defaults.withCredentials = true;
 
+
+// Add this function to check for stored authentication
+export const checkAuthStatus = () => async (dispatch) => {
+  dispatch({ type: CHECK_AUTH_STATUS_REQUEST });
+  
+  try {
+    // Check for token and user data in AsyncStorage
+    const token = await AsyncStorage.getItem('token');
+    const userData = await AsyncStorage.getItem('userData');
+    
+    if (!token || !userData) {
+      dispatch({ type: CHECK_AUTH_STATUS_FAILURE });
+      return { success: false };
+    }
+    
+    // Parse the stored user data
+    const user = JSON.parse(userData);
+    
+    // Reconnect socket if needed
+    await initializeSocket();
+    
+    dispatch({
+      type: CHECK_AUTH_STATUS_SUCCESS,
+      payload: { user, token }
+    });
+    
+    return { success: true, data: { user } };
+  } catch (error) {
+    console.error('Auth check error:', error);
+    dispatch({ type: CHECK_AUTH_STATUS_FAILURE });
+    return { success: false };
+  }
+};
 // Register user
 export const register = (formData) => async (dispatch) => {
   dispatch({ type: REGISTER_REQUEST });
@@ -80,6 +116,12 @@ export const login = (credentials) => async (dispatch) => {
     const cookieHeader = response.headers['set-cookie']?.[0];
     await initializeSocket(cookieHeader);
 
+        
+    // Store auth data in AsyncStorage
+    await AsyncStorage.setItem('token', response.data.token);
+    await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
+
+
     dispatch({
       type: LOGIN_SUCCESS,
       payload: response.data
@@ -121,6 +163,11 @@ export const logout = () => async (dispatch) => {
     
     // // Clear token
     // await AsyncStorage.removeItem('token');
+        // Clear storage
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('userData');
+    
+    disconnectSocket();
 
     dispatch({ type: LOGOUT_SUCCESS });
     return { success: true };
@@ -234,6 +281,16 @@ export const googleAuth = ({ userInfo, deviceToken }) => async (dispatch) => {
       avatar: photo,
       deviceToken
     });
+
+     const cookieHeader = response.headers['set-cookie']?.[0];
+    await initializeSocket(cookieHeader);
+
+        
+    // Store auth data in AsyncStorage
+    await AsyncStorage.setItem('token', response.data.token);
+    await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
+
+
 
     const actionType = data.exists ? LOGIN_SUCCESS : REGISTER_SUCCESS;
     dispatch({

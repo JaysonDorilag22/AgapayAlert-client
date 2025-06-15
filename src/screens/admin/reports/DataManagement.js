@@ -91,13 +91,13 @@ export default function DataManagement() {
       const result = await dispatch(archiveResolvedReports(archiveData));
       
       if (result.success) {
-        showToast(`Successfully archived ${result.data.reportsArchived} reports`);
+        showToast(`Successfully transferred ${result.data.reportsArchived} reports`);
         setShowArchiveModal(false);
         // Refresh storage info after archiving
         await dispatch(getCompleteStorageInfo());
         await checkHealth();
       } else {
-        showToast(result.error || 'Failed to archive reports');
+        showToast(result.error || 'Failed to transferred reports');
       }
     } catch (error) {
       showToast('Error archiving reports');
@@ -290,7 +290,7 @@ export default function DataManagement() {
               <View style={tw`bg-red-50 p-3 rounded-lg border border-red-200 mb-3`}>
                 <Text style={tw`text-red-800 font-medium`}>⚠️ Storage Over Limit</Text>
                 <Text style={tw`text-red-700 text-sm mt-1`}>
-                  Your storage usage exceeds the free tier limit. Consider archiving old reports.
+                  Your storage usage exceeds the free tier limit. Consider transfering old reports.
                 </Text>
               </View>
             )}
@@ -352,14 +352,14 @@ export default function DataManagement() {
           <View style={tw`space-y-3`}>
             {/* Archive Reports */}
             <TouchableOpacity
-              style={tw`flex-row items-center p-4 bg-blue-50 rounded-lg border border-blue-200`}
+              style={tw`flex-row items-center p-4 bg-blue-50 rounded-lg border border-blue-200 mb-5`}
               onPress={() => setShowArchiveModal(true)}
             >
               <Archive size={20} color="#2563EB" style={tw`mr-3`} />
               <View style={tw`flex-1`}>
-                <Text style={tw`font-medium text-blue-800`}>Archive Resolved Reports</Text>
+                <Text style={tw`font-medium text-blue-800`}>Transfer Resolved Reports</Text>
                 <Text style={tw`text-blue-600 text-sm`}>
-                  Export and archive resolved reports to free up storage space
+                  Export and transfer resolved reports to free up storage space
                 </Text>
               </View>
             </TouchableOpacity>
@@ -442,7 +442,7 @@ export default function DataManagement() {
               </Text>
             </View>
             <Text style={tw`text-gray-600 text-sm`}>
-              These stations can be used for filtering during archive operations
+              These stations can be used for filtering during transfering operations
             </Text>
           </View>
         )}

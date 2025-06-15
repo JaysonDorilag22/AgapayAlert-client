@@ -8,6 +8,7 @@ import {
   RESEND_VERIFICATION_REQUEST, RESEND_VERIFICATION_SUCCESS, RESEND_VERIFICATION_FAILURE,
   RESEND_OTP_REQUEST, RESEND_OTP_SUCCESS, RESEND_OTP_FAILURE,
   CLEAR_AUTH_MESSAGE, CLEAR_AUTH_ERROR,
+  CHECK_AUTH_STATUS_REQUEST, CHECK_AUTH_STATUS_SUCCESS, CHECK_AUTH_STATUS_FAILURE
 } from '../actiontypes/authTypes';
 
 const initialState = {
@@ -109,6 +110,30 @@ export const authReducer = (state = initialState, action) => {
         error: action.payload.msg,
         success: false
       };
+
+      case CHECK_AUTH_STATUS_REQUEST:
+  return {
+    ...state,
+    loading: true,
+  };
+
+case CHECK_AUTH_STATUS_SUCCESS:
+  return {
+    ...state,
+    loading: false,
+    isAuthenticated: true,
+    user: action.payload.user,
+    token: action.payload.token,
+  };
+
+case CHECK_AUTH_STATUS_FAILURE:
+  return {
+    ...state,
+    loading: false,
+    isAuthenticated: false,
+    user: null,
+    token: null,
+  };
 
     // Clear states
     case CLEAR_AUTH_MESSAGE:

@@ -47,7 +47,6 @@ import { useNotifications } from "@/utils/useNotifications";
 import { initializeSocket, setNewReportCallback, clearNewReportCallback } from "@/services/socketService";
 import { MoveLeft } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
-
 OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
 
